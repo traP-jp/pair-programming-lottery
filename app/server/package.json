@@ -1,0 +1,19 @@
+{
+    "name": "server",
+    "private": true,
+    "scripts": {
+        "dev": "bun run --watch ./src/index.ts",
+        "db:generate": "prisma generate",
+        "db:migrate": "prisma migrate deploy"
+    },
+    "dependencies": {
+        "@prisma/adapter-mariadb": "^7.7.0",
+        "@prisma/client": "^7.7.0",
+        "@prisma/client-runtime-utils": "^7.7.0",
+        "dotenv": "^17.4.1",
+        "traq-bot-ts": "^1.5"
+    },
+    "devDependencies": {
+        "prisma": "^7.7.0"
+    }
+}

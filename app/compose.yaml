@@ -1,0 +1,51 @@
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: lottery
+      MARIADB_USER: lottery
+      MARIADB_PASSWORD: lottery
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    env_file:
+      - .env
+    environment:
+      PORT: 3000
+      NS_MARIADB_HOSTNAME: db
+      NS_MARIADB_DATABASE: lottery
+      NS_MARIADB_USER: lottery
+      NS_MARIADB_PORT: 3306
+      NS_MARIADB_PASSWORD: lottery
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      target: build
+    ports:
+      - "4173:4173"
+    entrypoint: ["bunx", "--bun", "vite", "preview", "--host"]
+    environment:
+      - VITE_API_TARGET=http://server:3000
+    depends_on:
+      - server
+
+volumes:
+  db-data:

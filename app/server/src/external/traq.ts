@@ -1,0 +1,196 @@
+import { Api } from "traq-bot-ts";
+import type { UserPrefs, Region, Role } from "../types";
+
+const TARGET_STAMP_NAMES = [
+    "one",
+    "two",
+    "regional_indicator_a",
+    "regional_indicator_b",
+] as const;
+
+type TargetStampName = (typeof TARGET_STAMP_NAMES)[number];
+
+export function createApiClient(token: string) {
+    return new Api({
+        baseUrl: "https://q.trap.jp/api/v3",
+        baseApiParams: {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        },
+    });
+}
+
+export type StampMaps = {
+    stampIdToName: Map<string, TargetStampName>;
+    stampNameToId: Map<string, string>;
+};
+
+export async function buildStampMap(
+    api: ReturnType<typeof createApiClient>,
+): Promise<StampMaps> {
+    const stampsRes = await api.stamps.getStamps();
+    const stampsData = ("data" in stampsRes ? stampsRes.data : stampsRes) as {
+        id: string;
+        name: string;
+    }[];
+
+    const stampIdToName = new Map<string, TargetStampName>();
+    const stampNameToId = new Map<string, string>();
+
+    for (const stamp of stampsData) {
+        if (TARGET_STAMP_NAMES.includes(stamp.name as TargetStampName)) {
+            stampIdToName.set(stamp.id, stamp.name as TargetStampName);
+            stampNameToId.set(stamp.name, stamp.id);
+        }
+    }
+
+    if (stampNameToId.size !== TARGET_STAMP_NAMES.length) {
+        console.warn("警告: 対象のスタンプのいくつかが見つかりませんでした", [
+            ...stampNameToId.keys(),
+        ]);
+    }
+
+    return { stampIdToName, stampNameToId };
+}
+
+export async function collectUserPrefs(
+    api: ReturnType<typeof createApiClient>,
+    messageId: string,
+    stampIdToName: Map<string, TargetStampName>,
+    botUserIds: Set<string>,
+): Promise<UserPrefs[]> {
+    const messageRes = await api.messages.getMessage(messageId);
+    const messageInfo = (
+        "data" in messageRes ? messageRes.data : messageRes
+    ) as { stamps: { stampId: string; userId: string }[] } | null;
+
+    if (!messageInfo?.stamps) {
+        throw new Error(
+            "指定されたメッセージが見つからないか、スタンプが存在しません。",
+        );
+    }
+
+    const usersMap = new Map<string, UserPrefs>();
+
+    for (const messageStamp of messageInfo.stamps) {
+        const stampName = stampIdToName.get(messageStamp.stampId);
+        if (!stampName) continue;
+
+        const userId = messageStamp.userId;
+
+        // BOT を除外
+        if (botUserIds.has(userId)) continue;
+
+        if (!usersMap.has(userId)) {
+            usersMap.set(userId, {
+                id: userId,
+                regions: new Set<Region>(),
+                roles: new Set<Role>(),
+                originalRegionSize: 0,
+                originalRoleSize: 0,
+            });
+        }
+        const prefs = usersMap.get(userId)!;
+
+        if (stampName === "one") prefs.regions.add("frontend");
+        if (stampName === "two") prefs.regions.add("backend");
+        if (stampName === "regional_indicator_a") prefs.roles.add("navigator");
+        if (stampName === "regional_indicator_b") prefs.roles.add("driver");
+    }
+
+    // 正規化前のスタンプ数を記録してから正規化する
+    for (const prefs of usersMap.values()) {
+        prefs.originalRegionSize = prefs.regions.size;
+        prefs.originalRoleSize = prefs.roles.size;
+    }
+
+    // 「両方押した」または「どちらも押さなかった」= どちらでもよい（全希望として扱う）
+    for (const prefs of usersMap.values()) {
+        if (prefs.regions.size !== 1) {
+            prefs.regions = new Set<Region>(["frontend", "backend"]);
+        }
+        if (prefs.roles.size !== 1) {
+            prefs.roles = new Set<Role>(["navigator", "driver"]);
+        }
+    }
+
+    return Array.from(usersMap.values());
+}
+
+/**
+ * ユーザーID → 表示名 のマップを構築します（BOT を除く）
+ */
+export async function buildUserNameMap(
+    api: ReturnType<typeof createApiClient>,
+): Promise<Map<string, string>> {
+    const usersRes = await api.users.getUsers();
+    const systemUsers = ("data" in usersRes ? usersRes.data : usersRes) as {
+        id: string;
+        name: string;
+        displayName: string;
+        bot: boolean;
+    }[];
+
+    const userIdToName = new Map<string, string>();
+    for (const u of systemUsers) {
+        if (!u.bot) userIdToName.set(u.id, u.name);
+    }
+    return userIdToName;
+}
+
+/**
+ * BOT ユーザーの ID セットを構築します
+ */
+export async function buildBotUserIds(
+    api: ReturnType<typeof createApiClient>,
+): Promise<Set<string>> {
+    const usersRes = await api.users.getUsers();
+    const systemUsers = ("data" in usersRes ? usersRes.data : usersRes) as {
+        id: string;
+        bot: boolean;
+    }[];
+
+    return new Set(systemUsers.filter((u) => u.bot).map((u) => u.id));
+}
+
+const LOTTERY_MESSAGE = `## ペアプロ抽選
+
+### 領域
+- :one: フロントエンド
+- :two: バックエンド
+
+### 役割
+- :regional_indicator_a: ナビゲーター (指示を出す側)
+- :regional_indicator_b: ドライバー (コードを書く側)
+`;
+
+/**
+ * 指定チャンネルに抽選用質問メッセージを投稿し、全スタンプを付けます
+ * @returns 投稿されたメッセージの ID
+ */
+export async function postLotteryMessage(
+    api: ReturnType<typeof createApiClient>,
+    channelId: string,
+    stampNameToId: Map<string, string>,
+): Promise<string> {
+    const res = await api.channels.postMessage(channelId, {
+        content: LOTTERY_MESSAGE,
+        embed: false,
+    });
+    const data = ("data" in res ? res.data : res) as { id: string };
+    const messageId = data.id;
+
+    // 全スタンプをあらかじめ付けておく（押しやすくするため）
+    await Promise.all(
+        TARGET_STAMP_NAMES.map((stampName) => {
+            const stampId = stampNameToId.get(stampName);
+            if (!stampId) return Promise.resolve();
+            return api.messages.addMessageStamp(messageId, stampId, {
+                count: 1,
+            });
+        }),
+    );
+
+    return messageId;
+}

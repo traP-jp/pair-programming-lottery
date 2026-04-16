@@ -1,0 +1,42 @@
+# Dependencies (bun uses symlinks which Docker can't handle)
+node_modules/
+**/node_modules/
+
+# Generated
+**/generated/
+
+# Git
+.git/
+.gitignore
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Lock files are needed for install, but not local ones
+# bun.lock is kept intentionally
+
+# Build artifacts
+dist/
+out/
+
+# Docker
+compose.yaml
+**/Dockerfile
+**/.dockerignore
+
+# Misc
+README.md
+LICENSE
+*.md

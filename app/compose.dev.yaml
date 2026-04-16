@@ -1,0 +1,19 @@
+services:
+  server:
+    build:
+      args:
+        BUILD_ENV: development
+    volumes:
+      - ./server/src:/app/server/src:ro
+      - ./server/prisma:/app/server/prisma:ro
+    entrypoint: ["bun", "run", "--watch", "./src/index.ts"]
+
+  client:
+    build:
+      args:
+        BUILD_ENV: development
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client/src:/app/client/src:ro
+    entrypoint: ["bunx", "--bun", "vite", "--host"]

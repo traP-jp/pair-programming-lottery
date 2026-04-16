@@ -1,0 +1,195 @@
+import { useState } from "react";
+import { runLottery, postMessage, type LotteryResponse } from "./api";
+import { PairCard } from "./components/PairCard";
+
+/** 手動操作ページ（メッセージ投稿 → 抽選） */
+export function App() {
+    const [channelId, setChannelId] = useState("");
+    const [posting, setPosting] = useState(false);
+    const [postError, setPostError] = useState<string | null>(null);
+    const [postedMessageId, setPostedMessageId] = useState<string | null>(null);
+
+    const [messageId, setMessageId] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [result, setResult] = useState<LotteryResponse | null>(null);
+
+    const handlePost = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const id = channelId.trim();
+        if (!id) return;
+        setPosting(true);
+        setPostError(null);
+        setPostedMessageId(null);
+        try {
+            const msgId = await postMessage(id);
+            setPostedMessageId(msgId);
+            setMessageId(msgId);
+        } catch (err) {
+            setPostError(err instanceof Error ? err.message : "不明なエラー");
+        } finally {
+            setPosting(false);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const id = messageId.trim();
+        if (!id) return;
+        setLoading(true);
+        setError(null);
+        setResult(null);
+        try {
+            const data = await runLottery(id);
+            setResult(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "不明なエラー");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="container">
+            <header className="header">
+                <h1>手動操作</h1>
+                <p className="subtitle">
+                    チャンネルに質問を投稿し、スタンプで抽選
+                </p>
+            </header>
+
+            {/* Step 1 */}
+            <section className="input-section">
+                <h2 className="step-title">
+                    <span className="step-badge">1</span>質問メッセージを投稿
+                </h2>
+                <form onSubmit={handlePost}>
+                    <label htmlFor="channel-id">チャンネル ID (UUID)</label>
+                    <div className="input-row">
+                        <input
+                            type="text"
+                            id="channel-id"
+                            placeholder="例: 9afe32b4-f79d-4f4a-8f95-1c7c9c2a7f33"
+                            value={channelId}
+                            onChange={(e) => setChannelId(e.target.value)}
+                            required
+                            pattern="[0-9a-f\-]{36}"
+                        />
+                        <button type="submit" disabled={posting}>
+                            {posting ? (
+                                <>
+                                    <span className="spinner" />
+                                    投稿中...
+                                </>
+                            ) : (
+                                "投稿する"
+                            )}
+                        </button>
+                    </div>
+                </form>
+                {postError && <div className="inline-error">{postError}</div>}
+                {postedMessageId && (
+                    <div className="inline-success">
+                        ✅
+                        メッセージを投稿しました。スタンプが集まったら抽選してください。
+                        <br />
+                        <span className="message-id-display">
+                            メッセージ ID: {postedMessageId}
+                        </span>
+                    </div>
+                )}
+            </section>
+
+            {/* Step 2 */}
+            <section className="input-section">
+                <h2 className="step-title">
+                    <span className="step-badge">2</span>抽選を実行
+                </h2>
+                <form onSubmit={handleSubmit}>
+                    <label htmlFor="message-id">メッセージ ID (UUID)</label>
+                    <div className="input-row">
+                        <input
+                            type="text"
+                            id="message-id"
+                            placeholder="例: 019d2f72-199d-75d9-9e01-ef0edd3d5dc0"
+                            value={messageId}
+                            onChange={(e) => setMessageId(e.target.value)}
+                            required
+                            pattern="[0-9a-f\-]{36}"
+                        />
+                        <button type="submit" disabled={loading}>
+                            {loading ? (
+                                <>
+                                    <span className="spinner" />
+                                    抽選中...
+                                </>
+                            ) : (
+                                "抽選する"
+                            )}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            {error && (
+                <section className="error-section">
+                    <p>{error}</p>
+                </section>
+            )}
+
+            {result && (
+                <section className="result-section">
+                    <div className="result-header">
+                        <h2>抽選結果</h2>
+                        <div className="stats">
+                            <span className="stat-badge">
+                                {result.participantCount}人
+                            </span>
+                            <span className="stat-badge">
+                                スコア {result.score.normalized.toFixed(3)}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="pairs-container">
+                        {result.pairs.map((pair, i) => (
+                            <PairCard
+                                key={i}
+                                pair={pair}
+                                index={i}
+                                insertedUser={result.insertedUser}
+                            />
+                        ))}
+                    </div>
+                    {result.insertedUser && (
+                        <div className="inserted-note">
+                            ※ @{result.insertedUser.name}{" "}
+                            は人数調整のため上記2ペアに参加します
+                        </div>
+                    )}
+                    <details className="config-details">
+                        <summary>スコア詳細</summary>
+                        <div className="score-details">
+                            <p>
+                                スコア: {result.score.total} /{" "}
+                                {result.score.max} (
+                                {result.score.normalized.toFixed(3)})
+                            </p>
+                            <p>
+                                領域一致: 1ペアあたり +
+                                {result.config.regionMatchScore}点
+                            </p>
+                            <p>
+                                役割補完: 1ペアあたり +
+                                {result.config.roleComplementScore}点
+                            </p>
+                            <p>
+                                シミュレーション回数:{" "}
+                                {result.config.simulationRounds}回
+                            </p>
+                        </div>
+                    </details>
+                </section>
+            )}
+        </div>
+    );
+}
