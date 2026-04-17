@@ -7,7 +7,6 @@ const client = hc<Routes>("/", {
     },
 });
 
-// ---- 型定義 ----
 export type LotteryResponse = InferResponseType<
     typeof client.api.lottery.$post,
     200
@@ -24,8 +23,11 @@ export type ResultDetail = InferResponseType<
     (typeof client.api.results)[":id"]["$get"],
     200
 >;
+export type SavedResult = InferResponseType<
+    typeof client.api.results.$post,
+    200
+>;
 
-// ---- 手動操作 ----
 export async function postMessage(channelId: string): Promise<string> {
     const res = await client.api["post-message"].$post({ json: { channelId } });
     if (!res.ok) {
@@ -44,7 +46,6 @@ export async function runLottery(messageId: string): Promise<LotteryResponse> {
     return (await res.json()) as LotteryResponse;
 }
 
-// ---- 結果 (公開) ----
 export async function getResults(): Promise<ResultSummary[]> {
     const res = await client.api.results.$get();
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -60,7 +61,6 @@ export async function getResult(id: string): Promise<ResultDetail> {
     return res.json() as Promise<ResultDetail>;
 }
 
-// ---- スケジュール管理 (管理者) ----
 export async function getSchedule(): Promise<ScheduleRecord | null> {
     const res = await client.api.schedule.$get();
     if (res.status === 401) throw new Error("unauthorized");
@@ -93,12 +93,24 @@ export async function triggerPost(): Promise<{ messageId: string }> {
     return res.json() as Promise<{ messageId: string }>;
 }
 
-export async function triggerLottery(): Promise<{ id: string }> {
+export async function triggerLottery(): Promise<{ responseId: string }> {
     const res = await client.api.schedule["trigger-lottery"].$post();
     if (res.status === 401) throw new Error("unauthorized");
     if (!res.ok) {
         const d = (await res.json()) as { error?: string };
         throw new Error(d.error ?? `HTTP ${res.status}`);
     }
-    return res.json() as Promise<{ id: string }>;
+    return res.json() as Promise<{ responseId: string }>;
+}
+
+export async function saveResult(data: {
+    messageId: string;
+    result: LotteryResponse;
+}): Promise<SavedResult> {
+    const res = await client.api.results.$post({ json: data });
+    if (!res.ok) {
+        const d = (await res.json()) as { error?: string };
+        throw new Error(d.error ?? `HTTP ${res.status}`);
+    }
+    return res.json() as Promise<SavedResult>;
 }

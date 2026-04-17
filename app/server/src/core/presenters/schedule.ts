@@ -1,6 +1,10 @@
 import { createFactory } from "hono/factory";
-import { getScheduleHandler, postScheduleHandler } from "../handlers/schedule";
-import { validatePostMessageBody } from "../validators/post-message";
+import {
+    getScheduleHandler,
+    postScheduleHandler,
+    triggerLotteryHandler,
+    triggerPostHandler,
+} from "../handlers/schedule";
 import { validator } from "hono/validator";
 import { validatePostScheduleBody } from "../validators/schedule";
 
@@ -19,3 +23,13 @@ export const putSchedule = factory.createHandlers(
         return c.json(schedule);
     },
 );
+
+export const triggerPost = factory.createHandlers(async (c) => {
+    const messageId = await triggerPostHandler();
+    return c.json({ messageId });
+});
+
+export const triggerLottery = factory.createHandlers(async (c) => {
+    const responseId = await triggerLotteryHandler();
+    return c.json({ responseId });
+});

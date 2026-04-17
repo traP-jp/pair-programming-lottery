@@ -6,6 +6,7 @@ import {
     buildBotUserIds,
     postLotteryMessage,
 } from "../../external/traq";
+import { getCurrentYearMonthJst } from "./time";
 import { runLottery } from "./lottery/matching";
 import { formatResult } from "./lottery/format";
 import type { createApiClient } from "../../external/traq";
@@ -13,9 +14,9 @@ import type { createApiClient } from "../../external/traq";
 type TraqClient = ReturnType<typeof createApiClient>;
 
 function todayJst(): { day: number; yearMonth: string } {
-    const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
-    const day = now.getUTCDate();
-    const yearMonth = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+    const now = new Date();
+    const day = new Date(now.getTime() + 9 * 60 * 60 * 1000).getUTCDate();
+    const yearMonth = getCurrentYearMonthJst(now);
     return { day, yearMonth };
 }
 

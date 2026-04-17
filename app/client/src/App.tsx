@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { runLottery, postMessage, type LotteryResponse } from "./api";
+import { Link } from "react-router-dom";
+import {
+    postMessage,
+    runLottery,
+    saveResult,
+    type LotteryResponse,
+} from "./api";
 import { PairCard } from "./components/PairCard";
 
-/** 手動操作ページ（メッセージ投稿 → 抽選） */
 export function App() {
     const [channelId, setChannelId] = useState("");
     const [posting, setPosting] = useState(false);
@@ -11,13 +16,17 @@ export function App() {
 
     const [messageId, setMessageId] = useState("");
     const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [savedResultId, setSavedResultId] = useState<string | null>(null);
     const [result, setResult] = useState<LotteryResponse | null>(null);
 
     const handlePost = async (e: React.FormEvent) => {
         e.preventDefault();
         const id = channelId.trim();
         if (!id) return;
+
         setPosting(true);
         setPostError(null);
         setPostedMessageId(null);
@@ -36,8 +45,11 @@ export function App() {
         e.preventDefault();
         const id = messageId.trim();
         if (!id) return;
+
         setLoading(true);
         setError(null);
+        setSaveError(null);
+        setSavedResultId(null);
         setResult(null);
         try {
             const data = await runLottery(id);
@@ -46,6 +58,22 @@ export function App() {
             setError(err instanceof Error ? err.message : "不明なエラー");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSave = async () => {
+        const id = messageId.trim();
+        if (!id || !result) return;
+
+        setSaving(true);
+        setSaveError(null);
+        try {
+            const saved = await saveResult({ messageId: id, result });
+            setSavedResultId(saved.id);
+        } catch (err) {
+            setSaveError(err instanceof Error ? err.message : "不明なエラー");
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -58,7 +86,6 @@ export function App() {
                 </p>
             </header>
 
-            {/* Step 1 */}
             <section className="input-section">
                 <h2 className="step-title">
                     <span className="step-badge">1</span>質問メッセージを投稿
@@ -100,7 +127,6 @@ export function App() {
                 )}
             </section>
 
-            {/* Step 2 */}
             <section className="input-section">
                 <h2 className="step-title">
                     <span className="step-badge">2</span>抽選を実行
@@ -137,6 +163,12 @@ export function App() {
                 </section>
             )}
 
+            {saveError && (
+                <section className="error-section">
+                    <p>{saveError}</p>
+                </section>
+            )}
+
             {result && (
                 <section className="result-section">
                     <div className="result-header">
@@ -150,6 +182,7 @@ export function App() {
                             </span>
                         </div>
                     </div>
+
                     <div className="pairs-container">
                         {result.pairs.map((pair, i) => (
                             <PairCard
@@ -160,12 +193,14 @@ export function App() {
                             />
                         ))}
                     </div>
+
                     {result.insertedUser && (
                         <div className="inserted-note">
                             ※ @{result.insertedUser.name}{" "}
                             は人数調整のため上記2ペアに参加します
                         </div>
                     )}
+
                     <details className="config-details">
                         <summary>スコア詳細</summary>
                         <div className="score-details">
@@ -188,6 +223,32 @@ export function App() {
                             </p>
                         </div>
                     </details>
+
+                    <div className="trigger-row" style={{ marginTop: "1rem" }}>
+                        <button
+                            className="btn-secondary"
+                            type="button"
+                            onClick={handleSave}
+                            disabled={saving || !messageId.trim()}
+                        >
+                            {saving ? (
+                                <>
+                                    <span className="spinner" />
+                                    保存中...
+                                </>
+                            ) : (
+                                "結果一覧に保存"
+                            )}
+                        </button>
+                        {savedResultId && (
+                            <Link
+                                to={`/results/${savedResultId}`}
+                                className="btn-secondary"
+                            >
+                                保存した結果を見る
+                            </Link>
+                        )}
+                    </div>
                 </section>
             )}
         </div>

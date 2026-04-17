@@ -25,7 +25,8 @@ export const postScheduleHandler = (
 
 export const triggerPostHandler = async () => {
     const schedule = await getScheduleHandler();
-    if (!schedule) return null;
+    if (!schedule)
+        throw ApiErrorMessages.SCHEDULE_NOT_FOUND.asHttpException(400);
 
     const { stampNameToId } = await getStampMap();
     const messageId = await postLotteryMessage(
@@ -44,8 +45,10 @@ export const triggerPostHandler = async () => {
 
 export const triggerLotteryHandler = async () => {
     const schedule = await prisma.schedule.findUnique({ where: { id: 1 } });
-    if (!schedule) throw ApiErrorMessages.SCHEDULE_NOT_FOUND;
-    if (!schedule.lastMessageId) throw ApiErrorMessages.NO_MESSAGE_POSTED;
+    if (!schedule)
+        throw ApiErrorMessages.SCHEDULE_NOT_FOUND.asHttpException(400);
+    if (!schedule.lastMessageId)
+        throw ApiErrorMessages.NO_MESSAGE_POSTED.asHttpException(400);
 
     const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
     const yearMonth = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -57,6 +60,9 @@ export const triggerLotteryHandler = async () => {
         yearMonth,
     );
 
-    if (!saved) throw ApiErrorMessages.NO_ENOUGH_PARTICIPANTS;
+    if (!saved) {
+        throw ApiErrorMessages.NO_ENOUGH_PARTICIPANTS.asHttpException(400);
+    }
+
     return saved.id;
 };

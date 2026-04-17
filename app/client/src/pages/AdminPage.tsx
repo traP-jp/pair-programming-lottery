@@ -16,7 +16,6 @@ export function AdminPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // フォーム値
     const [channelId, setChannelId] = useState("");
     const [postDay, setPostDay] = useState(1);
     const [lotteryDay, setLotteryDay] = useState(15);
@@ -84,8 +83,8 @@ export function AdminPage() {
         setError(null);
         setSuccess(null);
         try {
-            const { id } = await triggerLottery();
-            setSuccess(`✅ 抽選が完了しました。結果 ID: ${id}`);
+            const { responseId } = await triggerLottery();
+            setSuccess(`✅ 抽選が完了しました。結果 ID: ${responseId}`);
         } catch (e) {
             setError(e instanceof Error ? e.message : "抽選失敗");
         }
@@ -95,12 +94,10 @@ export function AdminPage() {
         fetchSchedule();
     }, []);
 
-    // ---- 未認証時: ログインフォーム ----
     if (!authed) {
         return <div className="container">ログインしていません</div>;
     }
 
-    // ---- 認証済み: 設定画面 ----
     return (
         <div className="container">
             <header className="header">
@@ -111,7 +108,6 @@ export function AdminPage() {
             {error && <div className="inline-error">{error}</div>}
             {success && <div className="inline-success">{success}</div>}
 
-            {/* 設定フォーム */}
             <section className="input-section">
                 <h2 className="step-title">
                     <span className="step-badge">設定</span>スケジュール
@@ -194,7 +190,6 @@ export function AdminPage() {
                 </form>
             </section>
 
-            {/* 手動トリガー */}
             {schedule && (
                 <section className="input-section">
                     <h2 className="step-title">

@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getResult, getResults } from "../core/presenters/results";
+import { getResult, getResults, saveResult } from "../core/presenters/results";
 
 const app = new Hono();
 

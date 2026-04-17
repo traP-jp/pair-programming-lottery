@@ -1,12 +1,14 @@
 import { Hono, type HonoRequest } from "hono";
-import { validator } from "hono/validator";
-import { postLotteryMessage } from "../external/traq";
 import { getEnv } from "../utilities/env";
-import { prisma } from "../external/db";
-import { runScheduledLottery } from "../core/services/scheduler";
-import { getSchedule, putSchedule } from "../core/presenters/schedule";
+import {
+    getSchedule,
+    putSchedule,
+    triggerLottery,
+    triggerPost,
+} from "../core/presenters/schedule";
 import { postMessage } from "../core/presenters/post-message";
 import { runLottery } from "../core/presenters/lottery";
+import { saveResult } from "../core/presenters/results";
 
 const ADMINS = getEnv("ADMINS").split(",");
 
@@ -25,9 +27,10 @@ app.use("*", async (context, next) => {
 });
 
 export const routes = app
+    .post("/results", ...saveResult)
     .post("/lottery", ...runLottery)
     .post("/post-message", ...postMessage)
     .get("/schedule", ...getSchedule)
     .put("/schedule", ...putSchedule)
-    .post("/schedule/trigger-post")
-    .post("/schedule/trigger-lottery");
+    .post("/schedule/trigger-post", ...triggerPost)
+    .post("/schedule/trigger-lottery", ...triggerLottery);
