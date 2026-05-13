@@ -9,22 +9,11 @@ import {
 import { postMessage } from "../core/presenters/post-message";
 import { runLottery } from "../core/presenters/lottery";
 import { saveResult } from "../core/presenters/results";
-
-const ADMINS = getEnv("ADMINS").split(",");
-
-function isAdmin(request: HonoRequest): boolean {
-    const userId = request.header("X-Forwarded-User") ?? "";
-    return ADMINS.includes(userId);
-}
+import { adminOnlyMiddleware } from "../core/middlewares/admin";
 
 const app = new Hono();
 
-app.use("*", async (context, next) => {
-    if (!isAdmin(context.req))
-        return context.json({ error: "Unauthorized" }, 401);
-
-    await next();
-});
+app.use("*", adminOnlyMiddleware);
 
 export const routes = app
     .post("/results", ...saveResult)

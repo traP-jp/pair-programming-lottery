@@ -4,21 +4,25 @@ WORKDIR /app
 ARG BUILD_ENV=production
 
 COPY package.json bun.lock ./
-COPY server/package.json server/
-COPY client/package.json client/
+COPY server/package.json ./server/
+COPY client/package.json ./client/
 
 RUN bun install --frozen-lockfile
 
-COPY server/src/ server/src/
-COPY server/prisma/ server/prisma/
+COPY server/src/ ./server/src
+COPY server/prisma/ ./server/prisma
 
-RUN bunx --bun prisma generate --schema=server/prisma/schema.prisma
+ENV DATABASE_URL="dummy"
+RUN bun run --filter server --bun db:generate
 
-COPY server/ server/
+COPY server/scripts ./server/scripts
+RUN chmod +x ./server/scripts/start.sh
 
 EXPOSE 3000
 ENV PORT=3000
 
-WORKDIR /app/server
+WORKDIR /app/server/
+COPY server/prisma.config.ts ./
 
-ENTRYPOINT [ "./scripts/start.sh" ]
+ENTRYPOINT [ "bash" ]
+CMD [ "-c", "./scripts/start.sh" ]

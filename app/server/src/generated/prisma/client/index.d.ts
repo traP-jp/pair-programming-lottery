@@ -19,10 +19,10 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Schedule = $Result.DefaultSelection<Prisma.$SchedulePayload>
 /**
- * Model LotteryResult
+ * Model LotteryResponse
  * 
  */
-export type LotteryResult = $Result.DefaultSelection<Prisma.$LotteryResultPayload>
+export type LotteryResponse = $Result.DefaultSelection<Prisma.$LotteryResponsePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -137,7 +137,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
 
@@ -156,14 +156,14 @@ export class PrismaClient<
   get schedule(): Prisma.ScheduleDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.lotteryResult`: Exposes CRUD operations for the **LotteryResult** model.
+   * `prisma.lotteryResponse`: Exposes CRUD operations for the **LotteryResponse** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more LotteryResults
-    * const lotteryResults = await prisma.lotteryResult.findMany()
+    * // Fetch zero or more LotteryResponses
+    * const lotteryResponses = await prisma.lotteryResponse.findMany()
     * ```
     */
-  get lotteryResult(): Prisma.LotteryResultDelegate<ExtArgs, ClientOptions>;
+  get lotteryResponse(): Prisma.LotteryResponseDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -214,8 +214,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.7.0
-   * Query Engine version: 75cbdc1eb7150937890ad5465d861175c6624711
+   * Prisma Client JS version: 7.8.0
+   * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
    */
   export type PrismaVersion = {
     client: string
@@ -599,7 +599,7 @@ export namespace Prisma {
 
   export const ModelName: {
     Schedule: 'Schedule',
-    LotteryResult: 'LotteryResult'
+    LotteryResponse: 'LotteryResponse'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -615,7 +615,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "schedule" | "lotteryResult"
+      modelProps: "schedule" | "lotteryResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -685,69 +685,69 @@ export namespace Prisma {
           }
         }
       }
-      LotteryResult: {
-        payload: Prisma.$LotteryResultPayload<ExtArgs>
-        fields: Prisma.LotteryResultFieldRefs
+      LotteryResponse: {
+        payload: Prisma.$LotteryResponsePayload<ExtArgs>
+        fields: Prisma.LotteryResponseFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.LotteryResultFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LotteryResultPayload> | null
+            args: Prisma.LotteryResponseFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LotteryResponsePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.LotteryResultFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LotteryResultPayload>
+            args: Prisma.LotteryResponseFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LotteryResponsePayload>
           }
           findFirst: {
-            args: Prisma.LotteryResultFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LotteryResultPayload> | null
+            args: Prisma.LotteryResponseFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LotteryResponsePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.LotteryResultFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LotteryResultPayload>
+            args: Prisma.LotteryResponseFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LotteryResponsePayload>
           }
           findMany: {
-            args: Prisma.LotteryResultFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LotteryResultPayload>[]
+            args: Prisma.LotteryResponseFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LotteryResponsePayload>[]
           }
           create: {
-            args: Prisma.LotteryResultCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LotteryResultPayload>
+            args: Prisma.LotteryResponseCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LotteryResponsePayload>
           }
           createMany: {
-            args: Prisma.LotteryResultCreateManyArgs<ExtArgs>
+            args: Prisma.LotteryResponseCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           delete: {
-            args: Prisma.LotteryResultDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LotteryResultPayload>
+            args: Prisma.LotteryResponseDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LotteryResponsePayload>
           }
           update: {
-            args: Prisma.LotteryResultUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LotteryResultPayload>
+            args: Prisma.LotteryResponseUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LotteryResponsePayload>
           }
           deleteMany: {
-            args: Prisma.LotteryResultDeleteManyArgs<ExtArgs>
+            args: Prisma.LotteryResponseDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.LotteryResultUpdateManyArgs<ExtArgs>
+            args: Prisma.LotteryResponseUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.LotteryResultUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LotteryResultPayload>
+            args: Prisma.LotteryResponseUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LotteryResponsePayload>
           }
           aggregate: {
-            args: Prisma.LotteryResultAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateLotteryResult>
+            args: Prisma.LotteryResponseAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLotteryResponse>
           }
           groupBy: {
-            args: Prisma.LotteryResultGroupByArgs<ExtArgs>
-            result: $Utils.Optional<LotteryResultGroupByOutputType>[]
+            args: Prisma.LotteryResponseGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LotteryResponseGroupByOutputType>[]
           }
           count: {
-            args: Prisma.LotteryResultCountArgs<ExtArgs>
-            result: $Utils.Optional<LotteryResultCountAggregateOutputType> | number
+            args: Prisma.LotteryResponseCountArgs<ExtArgs>
+            result: $Utils.Optional<LotteryResponseCountAggregateOutputType> | number
           }
         }
       }
@@ -860,7 +860,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     schedule?: ScheduleOmit
-    lotteryResult?: LotteryResultOmit
+    lotteryResponse?: LotteryResponseOmit
   }
 
   /* Types for Logging */
@@ -1915,30 +1915,30 @@ export namespace Prisma {
 
 
   /**
-   * Model LotteryResult
+   * Model LotteryResponse
    */
 
-  export type AggregateLotteryResult = {
-    _count: LotteryResultCountAggregateOutputType | null
-    _min: LotteryResultMinAggregateOutputType | null
-    _max: LotteryResultMaxAggregateOutputType | null
+  export type AggregateLotteryResponse = {
+    _count: LotteryResponseCountAggregateOutputType | null
+    _min: LotteryResponseMinAggregateOutputType | null
+    _max: LotteryResponseMaxAggregateOutputType | null
   }
 
-  export type LotteryResultMinAggregateOutputType = {
+  export type LotteryResponseMinAggregateOutputType = {
     id: string | null
     createdAt: Date | null
     channelId: string | null
     month: string | null
   }
 
-  export type LotteryResultMaxAggregateOutputType = {
+  export type LotteryResponseMaxAggregateOutputType = {
     id: string | null
     createdAt: Date | null
     channelId: string | null
     month: string | null
   }
 
-  export type LotteryResultCountAggregateOutputType = {
+  export type LotteryResponseCountAggregateOutputType = {
     id: number
     createdAt: number
     channelId: number
@@ -1948,21 +1948,21 @@ export namespace Prisma {
   }
 
 
-  export type LotteryResultMinAggregateInputType = {
+  export type LotteryResponseMinAggregateInputType = {
     id?: true
     createdAt?: true
     channelId?: true
     month?: true
   }
 
-  export type LotteryResultMaxAggregateInputType = {
+  export type LotteryResponseMaxAggregateInputType = {
     id?: true
     createdAt?: true
     channelId?: true
     month?: true
   }
 
-  export type LotteryResultCountAggregateInputType = {
+  export type LotteryResponseCountAggregateInputType = {
     id?: true
     createdAt?: true
     channelId?: true
@@ -1971,114 +1971,114 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type LotteryResultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which LotteryResult to aggregate.
+     * Filter which LotteryResponse to aggregate.
      */
-    where?: LotteryResultWhereInput
+    where?: LotteryResponseWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LotteryResults to fetch.
+     * Determine the order of LotteryResponses to fetch.
      */
-    orderBy?: LotteryResultOrderByWithRelationInput | LotteryResultOrderByWithRelationInput[]
+    orderBy?: LotteryResponseOrderByWithRelationInput | LotteryResponseOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: LotteryResultWhereUniqueInput
+    cursor?: LotteryResponseWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LotteryResults from the position of the cursor.
+     * Take `±n` LotteryResponses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LotteryResults.
+     * Skip the first `n` LotteryResponses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned LotteryResults
+     * Count returned LotteryResponses
     **/
-    _count?: true | LotteryResultCountAggregateInputType
+    _count?: true | LotteryResponseCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: LotteryResultMinAggregateInputType
+    _min?: LotteryResponseMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: LotteryResultMaxAggregateInputType
+    _max?: LotteryResponseMaxAggregateInputType
   }
 
-  export type GetLotteryResultAggregateType<T extends LotteryResultAggregateArgs> = {
-        [P in keyof T & keyof AggregateLotteryResult]: P extends '_count' | 'count'
+  export type GetLotteryResponseAggregateType<T extends LotteryResponseAggregateArgs> = {
+        [P in keyof T & keyof AggregateLotteryResponse]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateLotteryResult[P]>
-      : GetScalarType<T[P], AggregateLotteryResult[P]>
+        : GetScalarType<T[P], AggregateLotteryResponse[P]>
+      : GetScalarType<T[P], AggregateLotteryResponse[P]>
   }
 
 
 
 
-  export type LotteryResultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: LotteryResultWhereInput
-    orderBy?: LotteryResultOrderByWithAggregationInput | LotteryResultOrderByWithAggregationInput[]
-    by: LotteryResultScalarFieldEnum[] | LotteryResultScalarFieldEnum
-    having?: LotteryResultScalarWhereWithAggregatesInput
+  export type LotteryResponseGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LotteryResponseWhereInput
+    orderBy?: LotteryResponseOrderByWithAggregationInput | LotteryResponseOrderByWithAggregationInput[]
+    by: LotteryResponseScalarFieldEnum[] | LotteryResponseScalarFieldEnum
+    having?: LotteryResponseScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: LotteryResultCountAggregateInputType | true
-    _min?: LotteryResultMinAggregateInputType
-    _max?: LotteryResultMaxAggregateInputType
+    _count?: LotteryResponseCountAggregateInputType | true
+    _min?: LotteryResponseMinAggregateInputType
+    _max?: LotteryResponseMaxAggregateInputType
   }
 
-  export type LotteryResultGroupByOutputType = {
+  export type LotteryResponseGroupByOutputType = {
     id: string
     createdAt: Date
     channelId: string
     month: string
     result: JsonValue
-    _count: LotteryResultCountAggregateOutputType | null
-    _min: LotteryResultMinAggregateOutputType | null
-    _max: LotteryResultMaxAggregateOutputType | null
+    _count: LotteryResponseCountAggregateOutputType | null
+    _min: LotteryResponseMinAggregateOutputType | null
+    _max: LotteryResponseMaxAggregateOutputType | null
   }
 
-  type GetLotteryResultGroupByPayload<T extends LotteryResultGroupByArgs> = Prisma.PrismaPromise<
+  type GetLotteryResponseGroupByPayload<T extends LotteryResponseGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<LotteryResultGroupByOutputType, T['by']> &
+      PickEnumerable<LotteryResponseGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof LotteryResultGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof LotteryResponseGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], LotteryResultGroupByOutputType[P]>
-            : GetScalarType<T[P], LotteryResultGroupByOutputType[P]>
+              : GetScalarType<T[P], LotteryResponseGroupByOutputType[P]>
+            : GetScalarType<T[P], LotteryResponseGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type LotteryResultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type LotteryResponseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     createdAt?: boolean
     channelId?: boolean
     month?: boolean
     result?: boolean
-  }, ExtArgs["result"]["lotteryResult"]>
+  }, ExtArgs["result"]["lotteryResponse"]>
 
 
 
-  export type LotteryResultSelectScalar = {
+  export type LotteryResponseSelectScalar = {
     id?: boolean
     createdAt?: boolean
     channelId?: boolean
@@ -2086,10 +2086,10 @@ export namespace Prisma {
     result?: boolean
   }
 
-  export type LotteryResultOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "channelId" | "month" | "result", ExtArgs["result"]["lotteryResult"]>
+  export type LotteryResponseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "channelId" | "month" | "result", ExtArgs["result"]["lotteryResponse"]>
 
-  export type $LotteryResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "LotteryResult"
+  export type $LotteryResponsePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LotteryResponse"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2097,143 +2097,143 @@ export namespace Prisma {
       channelId: string
       month: string
       result: Prisma.JsonValue
-    }, ExtArgs["result"]["lotteryResult"]>
+    }, ExtArgs["result"]["lotteryResponse"]>
     composites: {}
   }
 
-  type LotteryResultGetPayload<S extends boolean | null | undefined | LotteryResultDefaultArgs> = $Result.GetResult<Prisma.$LotteryResultPayload, S>
+  type LotteryResponseGetPayload<S extends boolean | null | undefined | LotteryResponseDefaultArgs> = $Result.GetResult<Prisma.$LotteryResponsePayload, S>
 
-  type LotteryResultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<LotteryResultFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: LotteryResultCountAggregateInputType | true
+  type LotteryResponseCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LotteryResponseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LotteryResponseCountAggregateInputType | true
     }
 
-  export interface LotteryResultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LotteryResult'], meta: { name: 'LotteryResult' } }
+  export interface LotteryResponseDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LotteryResponse'], meta: { name: 'LotteryResponse' } }
     /**
-     * Find zero or one LotteryResult that matches the filter.
-     * @param {LotteryResultFindUniqueArgs} args - Arguments to find a LotteryResult
+     * Find zero or one LotteryResponse that matches the filter.
+     * @param {LotteryResponseFindUniqueArgs} args - Arguments to find a LotteryResponse
      * @example
-     * // Get one LotteryResult
-     * const lotteryResult = await prisma.lotteryResult.findUnique({
+     * // Get one LotteryResponse
+     * const lotteryResponse = await prisma.lotteryResponse.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends LotteryResultFindUniqueArgs>(args: SelectSubset<T, LotteryResultFindUniqueArgs<ExtArgs>>): Prisma__LotteryResultClient<$Result.GetResult<Prisma.$LotteryResultPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends LotteryResponseFindUniqueArgs>(args: SelectSubset<T, LotteryResponseFindUniqueArgs<ExtArgs>>): Prisma__LotteryResponseClient<$Result.GetResult<Prisma.$LotteryResponsePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one LotteryResult that matches the filter or throw an error with `error.code='P2025'`
+     * Find one LotteryResponse that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {LotteryResultFindUniqueOrThrowArgs} args - Arguments to find a LotteryResult
+     * @param {LotteryResponseFindUniqueOrThrowArgs} args - Arguments to find a LotteryResponse
      * @example
-     * // Get one LotteryResult
-     * const lotteryResult = await prisma.lotteryResult.findUniqueOrThrow({
+     * // Get one LotteryResponse
+     * const lotteryResponse = await prisma.lotteryResponse.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends LotteryResultFindUniqueOrThrowArgs>(args: SelectSubset<T, LotteryResultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LotteryResultClient<$Result.GetResult<Prisma.$LotteryResultPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends LotteryResponseFindUniqueOrThrowArgs>(args: SelectSubset<T, LotteryResponseFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LotteryResponseClient<$Result.GetResult<Prisma.$LotteryResponsePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first LotteryResult that matches the filter.
+     * Find the first LotteryResponse that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LotteryResultFindFirstArgs} args - Arguments to find a LotteryResult
+     * @param {LotteryResponseFindFirstArgs} args - Arguments to find a LotteryResponse
      * @example
-     * // Get one LotteryResult
-     * const lotteryResult = await prisma.lotteryResult.findFirst({
+     * // Get one LotteryResponse
+     * const lotteryResponse = await prisma.lotteryResponse.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends LotteryResultFindFirstArgs>(args?: SelectSubset<T, LotteryResultFindFirstArgs<ExtArgs>>): Prisma__LotteryResultClient<$Result.GetResult<Prisma.$LotteryResultPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends LotteryResponseFindFirstArgs>(args?: SelectSubset<T, LotteryResponseFindFirstArgs<ExtArgs>>): Prisma__LotteryResponseClient<$Result.GetResult<Prisma.$LotteryResponsePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first LotteryResult that matches the filter or
+     * Find the first LotteryResponse that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LotteryResultFindFirstOrThrowArgs} args - Arguments to find a LotteryResult
+     * @param {LotteryResponseFindFirstOrThrowArgs} args - Arguments to find a LotteryResponse
      * @example
-     * // Get one LotteryResult
-     * const lotteryResult = await prisma.lotteryResult.findFirstOrThrow({
+     * // Get one LotteryResponse
+     * const lotteryResponse = await prisma.lotteryResponse.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends LotteryResultFindFirstOrThrowArgs>(args?: SelectSubset<T, LotteryResultFindFirstOrThrowArgs<ExtArgs>>): Prisma__LotteryResultClient<$Result.GetResult<Prisma.$LotteryResultPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends LotteryResponseFindFirstOrThrowArgs>(args?: SelectSubset<T, LotteryResponseFindFirstOrThrowArgs<ExtArgs>>): Prisma__LotteryResponseClient<$Result.GetResult<Prisma.$LotteryResponsePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more LotteryResults that matches the filter.
+     * Find zero or more LotteryResponses that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LotteryResultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {LotteryResponseFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all LotteryResults
-     * const lotteryResults = await prisma.lotteryResult.findMany()
+     * // Get all LotteryResponses
+     * const lotteryResponses = await prisma.lotteryResponse.findMany()
      * 
-     * // Get first 10 LotteryResults
-     * const lotteryResults = await prisma.lotteryResult.findMany({ take: 10 })
+     * // Get first 10 LotteryResponses
+     * const lotteryResponses = await prisma.lotteryResponse.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const lotteryResultWithIdOnly = await prisma.lotteryResult.findMany({ select: { id: true } })
+     * const lotteryResponseWithIdOnly = await prisma.lotteryResponse.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends LotteryResultFindManyArgs>(args?: SelectSubset<T, LotteryResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LotteryResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends LotteryResponseFindManyArgs>(args?: SelectSubset<T, LotteryResponseFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LotteryResponsePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a LotteryResult.
-     * @param {LotteryResultCreateArgs} args - Arguments to create a LotteryResult.
+     * Create a LotteryResponse.
+     * @param {LotteryResponseCreateArgs} args - Arguments to create a LotteryResponse.
      * @example
-     * // Create one LotteryResult
-     * const LotteryResult = await prisma.lotteryResult.create({
+     * // Create one LotteryResponse
+     * const LotteryResponse = await prisma.lotteryResponse.create({
      *   data: {
-     *     // ... data to create a LotteryResult
+     *     // ... data to create a LotteryResponse
      *   }
      * })
      * 
      */
-    create<T extends LotteryResultCreateArgs>(args: SelectSubset<T, LotteryResultCreateArgs<ExtArgs>>): Prisma__LotteryResultClient<$Result.GetResult<Prisma.$LotteryResultPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends LotteryResponseCreateArgs>(args: SelectSubset<T, LotteryResponseCreateArgs<ExtArgs>>): Prisma__LotteryResponseClient<$Result.GetResult<Prisma.$LotteryResponsePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many LotteryResults.
-     * @param {LotteryResultCreateManyArgs} args - Arguments to create many LotteryResults.
+     * Create many LotteryResponses.
+     * @param {LotteryResponseCreateManyArgs} args - Arguments to create many LotteryResponses.
      * @example
-     * // Create many LotteryResults
-     * const lotteryResult = await prisma.lotteryResult.createMany({
+     * // Create many LotteryResponses
+     * const lotteryResponse = await prisma.lotteryResponse.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends LotteryResultCreateManyArgs>(args?: SelectSubset<T, LotteryResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends LotteryResponseCreateManyArgs>(args?: SelectSubset<T, LotteryResponseCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Delete a LotteryResult.
-     * @param {LotteryResultDeleteArgs} args - Arguments to delete one LotteryResult.
+     * Delete a LotteryResponse.
+     * @param {LotteryResponseDeleteArgs} args - Arguments to delete one LotteryResponse.
      * @example
-     * // Delete one LotteryResult
-     * const LotteryResult = await prisma.lotteryResult.delete({
+     * // Delete one LotteryResponse
+     * const LotteryResponse = await prisma.lotteryResponse.delete({
      *   where: {
-     *     // ... filter to delete one LotteryResult
+     *     // ... filter to delete one LotteryResponse
      *   }
      * })
      * 
      */
-    delete<T extends LotteryResultDeleteArgs>(args: SelectSubset<T, LotteryResultDeleteArgs<ExtArgs>>): Prisma__LotteryResultClient<$Result.GetResult<Prisma.$LotteryResultPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends LotteryResponseDeleteArgs>(args: SelectSubset<T, LotteryResponseDeleteArgs<ExtArgs>>): Prisma__LotteryResponseClient<$Result.GetResult<Prisma.$LotteryResponsePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one LotteryResult.
-     * @param {LotteryResultUpdateArgs} args - Arguments to update one LotteryResult.
+     * Update one LotteryResponse.
+     * @param {LotteryResponseUpdateArgs} args - Arguments to update one LotteryResponse.
      * @example
-     * // Update one LotteryResult
-     * const lotteryResult = await prisma.lotteryResult.update({
+     * // Update one LotteryResponse
+     * const lotteryResponse = await prisma.lotteryResponse.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -2243,30 +2243,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends LotteryResultUpdateArgs>(args: SelectSubset<T, LotteryResultUpdateArgs<ExtArgs>>): Prisma__LotteryResultClient<$Result.GetResult<Prisma.$LotteryResultPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends LotteryResponseUpdateArgs>(args: SelectSubset<T, LotteryResponseUpdateArgs<ExtArgs>>): Prisma__LotteryResponseClient<$Result.GetResult<Prisma.$LotteryResponsePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more LotteryResults.
-     * @param {LotteryResultDeleteManyArgs} args - Arguments to filter LotteryResults to delete.
+     * Delete zero or more LotteryResponses.
+     * @param {LotteryResponseDeleteManyArgs} args - Arguments to filter LotteryResponses to delete.
      * @example
-     * // Delete a few LotteryResults
-     * const { count } = await prisma.lotteryResult.deleteMany({
+     * // Delete a few LotteryResponses
+     * const { count } = await prisma.lotteryResponse.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends LotteryResultDeleteManyArgs>(args?: SelectSubset<T, LotteryResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends LotteryResponseDeleteManyArgs>(args?: SelectSubset<T, LotteryResponseDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more LotteryResults.
+     * Update zero or more LotteryResponses.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LotteryResultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {LotteryResponseUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many LotteryResults
-     * const lotteryResult = await prisma.lotteryResult.updateMany({
+     * // Update many LotteryResponses
+     * const lotteryResponse = await prisma.lotteryResponse.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -2276,56 +2276,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends LotteryResultUpdateManyArgs>(args: SelectSubset<T, LotteryResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends LotteryResponseUpdateManyArgs>(args: SelectSubset<T, LotteryResponseUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one LotteryResult.
-     * @param {LotteryResultUpsertArgs} args - Arguments to update or create a LotteryResult.
+     * Create or update one LotteryResponse.
+     * @param {LotteryResponseUpsertArgs} args - Arguments to update or create a LotteryResponse.
      * @example
-     * // Update or create a LotteryResult
-     * const lotteryResult = await prisma.lotteryResult.upsert({
+     * // Update or create a LotteryResponse
+     * const lotteryResponse = await prisma.lotteryResponse.upsert({
      *   create: {
-     *     // ... data to create a LotteryResult
+     *     // ... data to create a LotteryResponse
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the LotteryResult we want to update
+     *     // ... the filter for the LotteryResponse we want to update
      *   }
      * })
      */
-    upsert<T extends LotteryResultUpsertArgs>(args: SelectSubset<T, LotteryResultUpsertArgs<ExtArgs>>): Prisma__LotteryResultClient<$Result.GetResult<Prisma.$LotteryResultPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends LotteryResponseUpsertArgs>(args: SelectSubset<T, LotteryResponseUpsertArgs<ExtArgs>>): Prisma__LotteryResponseClient<$Result.GetResult<Prisma.$LotteryResponsePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of LotteryResults.
+     * Count the number of LotteryResponses.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LotteryResultCountArgs} args - Arguments to filter LotteryResults to count.
+     * @param {LotteryResponseCountArgs} args - Arguments to filter LotteryResponses to count.
      * @example
-     * // Count the number of LotteryResults
-     * const count = await prisma.lotteryResult.count({
+     * // Count the number of LotteryResponses
+     * const count = await prisma.lotteryResponse.count({
      *   where: {
-     *     // ... the filter for the LotteryResults we want to count
+     *     // ... the filter for the LotteryResponses we want to count
      *   }
      * })
     **/
-    count<T extends LotteryResultCountArgs>(
-      args?: Subset<T, LotteryResultCountArgs>,
+    count<T extends LotteryResponseCountArgs>(
+      args?: Subset<T, LotteryResponseCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], LotteryResultCountAggregateOutputType>
+          : GetScalarType<T['select'], LotteryResponseCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a LotteryResult.
+     * Allows you to perform aggregations operations on a LotteryResponse.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LotteryResultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {LotteryResponseAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -2345,13 +2345,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends LotteryResultAggregateArgs>(args: Subset<T, LotteryResultAggregateArgs>): Prisma.PrismaPromise<GetLotteryResultAggregateType<T>>
+    aggregate<T extends LotteryResponseAggregateArgs>(args: Subset<T, LotteryResponseAggregateArgs>): Prisma.PrismaPromise<GetLotteryResponseAggregateType<T>>
 
     /**
-     * Group by LotteryResult.
+     * Group by LotteryResponse.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LotteryResultGroupByArgs} args - Group by arguments.
+     * @param {LotteryResponseGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -2366,14 +2366,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends LotteryResultGroupByArgs,
+      T extends LotteryResponseGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: LotteryResultGroupByArgs['orderBy'] }
-        : { orderBy?: LotteryResultGroupByArgs['orderBy'] },
+        ? { orderBy: LotteryResponseGroupByArgs['orderBy'] }
+        : { orderBy?: LotteryResponseGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -2422,20 +2422,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, LotteryResultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLotteryResultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, LotteryResponseGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLotteryResponseGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the LotteryResult model
+   * Fields of the LotteryResponse model
    */
-  readonly fields: LotteryResultFieldRefs;
+  readonly fields: LotteryResponseFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for LotteryResult.
+   * The delegate class that acts as a "Promise-like" for LotteryResponse.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__LotteryResultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__LotteryResponseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2463,337 +2463,337 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the LotteryResult model
+   * Fields of the LotteryResponse model
    */
-  interface LotteryResultFieldRefs {
-    readonly id: FieldRef<"LotteryResult", 'String'>
-    readonly createdAt: FieldRef<"LotteryResult", 'DateTime'>
-    readonly channelId: FieldRef<"LotteryResult", 'String'>
-    readonly month: FieldRef<"LotteryResult", 'String'>
-    readonly result: FieldRef<"LotteryResult", 'Json'>
+  interface LotteryResponseFieldRefs {
+    readonly id: FieldRef<"LotteryResponse", 'String'>
+    readonly createdAt: FieldRef<"LotteryResponse", 'DateTime'>
+    readonly channelId: FieldRef<"LotteryResponse", 'String'>
+    readonly month: FieldRef<"LotteryResponse", 'String'>
+    readonly result: FieldRef<"LotteryResponse", 'Json'>
   }
     
 
   // Custom InputTypes
   /**
-   * LotteryResult findUnique
+   * LotteryResponse findUnique
    */
-  export type LotteryResultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
     /**
-     * Filter, which LotteryResult to fetch.
+     * Filter, which LotteryResponse to fetch.
      */
-    where: LotteryResultWhereUniqueInput
+    where: LotteryResponseWhereUniqueInput
   }
 
   /**
-   * LotteryResult findUniqueOrThrow
+   * LotteryResponse findUniqueOrThrow
    */
-  export type LotteryResultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
     /**
-     * Filter, which LotteryResult to fetch.
+     * Filter, which LotteryResponse to fetch.
      */
-    where: LotteryResultWhereUniqueInput
+    where: LotteryResponseWhereUniqueInput
   }
 
   /**
-   * LotteryResult findFirst
+   * LotteryResponse findFirst
    */
-  export type LotteryResultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
     /**
-     * Filter, which LotteryResult to fetch.
+     * Filter, which LotteryResponse to fetch.
      */
-    where?: LotteryResultWhereInput
+    where?: LotteryResponseWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LotteryResults to fetch.
+     * Determine the order of LotteryResponses to fetch.
      */
-    orderBy?: LotteryResultOrderByWithRelationInput | LotteryResultOrderByWithRelationInput[]
+    orderBy?: LotteryResponseOrderByWithRelationInput | LotteryResponseOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for LotteryResults.
+     * Sets the position for searching for LotteryResponses.
      */
-    cursor?: LotteryResultWhereUniqueInput
+    cursor?: LotteryResponseWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LotteryResults from the position of the cursor.
+     * Take `±n` LotteryResponses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LotteryResults.
+     * Skip the first `n` LotteryResponses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of LotteryResults.
+     * Filter by unique combinations of LotteryResponses.
      */
-    distinct?: LotteryResultScalarFieldEnum | LotteryResultScalarFieldEnum[]
+    distinct?: LotteryResponseScalarFieldEnum | LotteryResponseScalarFieldEnum[]
   }
 
   /**
-   * LotteryResult findFirstOrThrow
+   * LotteryResponse findFirstOrThrow
    */
-  export type LotteryResultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
     /**
-     * Filter, which LotteryResult to fetch.
+     * Filter, which LotteryResponse to fetch.
      */
-    where?: LotteryResultWhereInput
+    where?: LotteryResponseWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LotteryResults to fetch.
+     * Determine the order of LotteryResponses to fetch.
      */
-    orderBy?: LotteryResultOrderByWithRelationInput | LotteryResultOrderByWithRelationInput[]
+    orderBy?: LotteryResponseOrderByWithRelationInput | LotteryResponseOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for LotteryResults.
+     * Sets the position for searching for LotteryResponses.
      */
-    cursor?: LotteryResultWhereUniqueInput
+    cursor?: LotteryResponseWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LotteryResults from the position of the cursor.
+     * Take `±n` LotteryResponses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LotteryResults.
+     * Skip the first `n` LotteryResponses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of LotteryResults.
+     * Filter by unique combinations of LotteryResponses.
      */
-    distinct?: LotteryResultScalarFieldEnum | LotteryResultScalarFieldEnum[]
+    distinct?: LotteryResponseScalarFieldEnum | LotteryResponseScalarFieldEnum[]
   }
 
   /**
-   * LotteryResult findMany
+   * LotteryResponse findMany
    */
-  export type LotteryResultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
     /**
-     * Filter, which LotteryResults to fetch.
+     * Filter, which LotteryResponses to fetch.
      */
-    where?: LotteryResultWhereInput
+    where?: LotteryResponseWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LotteryResults to fetch.
+     * Determine the order of LotteryResponses to fetch.
      */
-    orderBy?: LotteryResultOrderByWithRelationInput | LotteryResultOrderByWithRelationInput[]
+    orderBy?: LotteryResponseOrderByWithRelationInput | LotteryResponseOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing LotteryResults.
+     * Sets the position for listing LotteryResponses.
      */
-    cursor?: LotteryResultWhereUniqueInput
+    cursor?: LotteryResponseWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LotteryResults from the position of the cursor.
+     * Take `±n` LotteryResponses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LotteryResults.
+     * Skip the first `n` LotteryResponses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of LotteryResults.
+     * Filter by unique combinations of LotteryResponses.
      */
-    distinct?: LotteryResultScalarFieldEnum | LotteryResultScalarFieldEnum[]
+    distinct?: LotteryResponseScalarFieldEnum | LotteryResponseScalarFieldEnum[]
   }
 
   /**
-   * LotteryResult create
+   * LotteryResponse create
    */
-  export type LotteryResultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
     /**
-     * The data needed to create a LotteryResult.
+     * The data needed to create a LotteryResponse.
      */
-    data: XOR<LotteryResultCreateInput, LotteryResultUncheckedCreateInput>
+    data: XOR<LotteryResponseCreateInput, LotteryResponseUncheckedCreateInput>
   }
 
   /**
-   * LotteryResult createMany
+   * LotteryResponse createMany
    */
-  export type LotteryResultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many LotteryResults.
+     * The data used to create many LotteryResponses.
      */
-    data: LotteryResultCreateManyInput | LotteryResultCreateManyInput[]
+    data: LotteryResponseCreateManyInput | LotteryResponseCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * LotteryResult update
+   * LotteryResponse update
    */
-  export type LotteryResultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
     /**
-     * The data needed to update a LotteryResult.
+     * The data needed to update a LotteryResponse.
      */
-    data: XOR<LotteryResultUpdateInput, LotteryResultUncheckedUpdateInput>
+    data: XOR<LotteryResponseUpdateInput, LotteryResponseUncheckedUpdateInput>
     /**
-     * Choose, which LotteryResult to update.
+     * Choose, which LotteryResponse to update.
      */
-    where: LotteryResultWhereUniqueInput
+    where: LotteryResponseWhereUniqueInput
   }
 
   /**
-   * LotteryResult updateMany
+   * LotteryResponse updateMany
    */
-  export type LotteryResultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update LotteryResults.
+     * The data used to update LotteryResponses.
      */
-    data: XOR<LotteryResultUpdateManyMutationInput, LotteryResultUncheckedUpdateManyInput>
+    data: XOR<LotteryResponseUpdateManyMutationInput, LotteryResponseUncheckedUpdateManyInput>
     /**
-     * Filter which LotteryResults to update
+     * Filter which LotteryResponses to update
      */
-    where?: LotteryResultWhereInput
+    where?: LotteryResponseWhereInput
     /**
-     * Limit how many LotteryResults to update.
+     * Limit how many LotteryResponses to update.
      */
     limit?: number
   }
 
   /**
-   * LotteryResult upsert
+   * LotteryResponse upsert
    */
-  export type LotteryResultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
     /**
-     * The filter to search for the LotteryResult to update in case it exists.
+     * The filter to search for the LotteryResponse to update in case it exists.
      */
-    where: LotteryResultWhereUniqueInput
+    where: LotteryResponseWhereUniqueInput
     /**
-     * In case the LotteryResult found by the `where` argument doesn't exist, create a new LotteryResult with this data.
+     * In case the LotteryResponse found by the `where` argument doesn't exist, create a new LotteryResponse with this data.
      */
-    create: XOR<LotteryResultCreateInput, LotteryResultUncheckedCreateInput>
+    create: XOR<LotteryResponseCreateInput, LotteryResponseUncheckedCreateInput>
     /**
-     * In case the LotteryResult was found with the provided `where` argument, update it with this data.
+     * In case the LotteryResponse was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<LotteryResultUpdateInput, LotteryResultUncheckedUpdateInput>
+    update: XOR<LotteryResponseUpdateInput, LotteryResponseUncheckedUpdateInput>
   }
 
   /**
-   * LotteryResult delete
+   * LotteryResponse delete
    */
-  export type LotteryResultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
     /**
-     * Filter which LotteryResult to delete.
+     * Filter which LotteryResponse to delete.
      */
-    where: LotteryResultWhereUniqueInput
+    where: LotteryResponseWhereUniqueInput
   }
 
   /**
-   * LotteryResult deleteMany
+   * LotteryResponse deleteMany
    */
-  export type LotteryResultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which LotteryResults to delete
+     * Filter which LotteryResponses to delete
      */
-    where?: LotteryResultWhereInput
+    where?: LotteryResponseWhereInput
     /**
-     * Limit how many LotteryResults to delete.
+     * Limit how many LotteryResponses to delete.
      */
     limit?: number
   }
 
   /**
-   * LotteryResult without action
+   * LotteryResponse without action
    */
-  export type LotteryResultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LotteryResponseDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LotteryResult
+     * Select specific fields to fetch from the LotteryResponse
      */
-    select?: LotteryResultSelect<ExtArgs> | null
+    select?: LotteryResponseSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the LotteryResult
+     * Omit specific fields from the LotteryResponse
      */
-    omit?: LotteryResultOmit<ExtArgs> | null
+    omit?: LotteryResponseOmit<ExtArgs> | null
   }
 
 
@@ -2826,7 +2826,7 @@ export namespace Prisma {
   export type ScheduleScalarFieldEnum = (typeof ScheduleScalarFieldEnum)[keyof typeof ScheduleScalarFieldEnum]
 
 
-  export const LotteryResultScalarFieldEnum: {
+  export const LotteryResponseScalarFieldEnum: {
     id: 'id',
     createdAt: 'createdAt',
     channelId: 'channelId',
@@ -2834,7 +2834,7 @@ export namespace Prisma {
     result: 'result'
   };
 
-  export type LotteryResultScalarFieldEnum = (typeof LotteryResultScalarFieldEnum)[keyof typeof LotteryResultScalarFieldEnum]
+  export type LotteryResponseScalarFieldEnum = (typeof LotteryResponseScalarFieldEnum)[keyof typeof LotteryResponseScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -2885,13 +2885,13 @@ export namespace Prisma {
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-  export const LotteryResultOrderByRelevanceFieldEnum: {
+  export const LotteryResponseOrderByRelevanceFieldEnum: {
     id: 'id',
     channelId: 'channelId',
     month: 'month'
   };
 
-  export type LotteryResultOrderByRelevanceFieldEnum = (typeof LotteryResultOrderByRelevanceFieldEnum)[keyof typeof LotteryResultOrderByRelevanceFieldEnum]
+  export type LotteryResponseOrderByRelevanceFieldEnum = (typeof LotteryResponseOrderByRelevanceFieldEnum)[keyof typeof LotteryResponseOrderByRelevanceFieldEnum]
 
 
   /**
@@ -3026,57 +3026,57 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Schedule"> | Date | string
   }
 
-  export type LotteryResultWhereInput = {
-    AND?: LotteryResultWhereInput | LotteryResultWhereInput[]
-    OR?: LotteryResultWhereInput[]
-    NOT?: LotteryResultWhereInput | LotteryResultWhereInput[]
-    id?: StringFilter<"LotteryResult"> | string
-    createdAt?: DateTimeFilter<"LotteryResult"> | Date | string
-    channelId?: StringFilter<"LotteryResult"> | string
-    month?: StringFilter<"LotteryResult"> | string
-    result?: JsonFilter<"LotteryResult">
+  export type LotteryResponseWhereInput = {
+    AND?: LotteryResponseWhereInput | LotteryResponseWhereInput[]
+    OR?: LotteryResponseWhereInput[]
+    NOT?: LotteryResponseWhereInput | LotteryResponseWhereInput[]
+    id?: StringFilter<"LotteryResponse"> | string
+    createdAt?: DateTimeFilter<"LotteryResponse"> | Date | string
+    channelId?: StringFilter<"LotteryResponse"> | string
+    month?: StringFilter<"LotteryResponse"> | string
+    result?: JsonFilter<"LotteryResponse">
   }
 
-  export type LotteryResultOrderByWithRelationInput = {
+  export type LotteryResponseOrderByWithRelationInput = {
     id?: SortOrder
     createdAt?: SortOrder
     channelId?: SortOrder
     month?: SortOrder
     result?: SortOrder
-    _relevance?: LotteryResultOrderByRelevanceInput
+    _relevance?: LotteryResponseOrderByRelevanceInput
   }
 
-  export type LotteryResultWhereUniqueInput = Prisma.AtLeast<{
+  export type LotteryResponseWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: LotteryResultWhereInput | LotteryResultWhereInput[]
-    OR?: LotteryResultWhereInput[]
-    NOT?: LotteryResultWhereInput | LotteryResultWhereInput[]
-    createdAt?: DateTimeFilter<"LotteryResult"> | Date | string
-    channelId?: StringFilter<"LotteryResult"> | string
-    month?: StringFilter<"LotteryResult"> | string
-    result?: JsonFilter<"LotteryResult">
+    AND?: LotteryResponseWhereInput | LotteryResponseWhereInput[]
+    OR?: LotteryResponseWhereInput[]
+    NOT?: LotteryResponseWhereInput | LotteryResponseWhereInput[]
+    createdAt?: DateTimeFilter<"LotteryResponse"> | Date | string
+    channelId?: StringFilter<"LotteryResponse"> | string
+    month?: StringFilter<"LotteryResponse"> | string
+    result?: JsonFilter<"LotteryResponse">
   }, "id">
 
-  export type LotteryResultOrderByWithAggregationInput = {
+  export type LotteryResponseOrderByWithAggregationInput = {
     id?: SortOrder
     createdAt?: SortOrder
     channelId?: SortOrder
     month?: SortOrder
     result?: SortOrder
-    _count?: LotteryResultCountOrderByAggregateInput
-    _max?: LotteryResultMaxOrderByAggregateInput
-    _min?: LotteryResultMinOrderByAggregateInput
+    _count?: LotteryResponseCountOrderByAggregateInput
+    _max?: LotteryResponseMaxOrderByAggregateInput
+    _min?: LotteryResponseMinOrderByAggregateInput
   }
 
-  export type LotteryResultScalarWhereWithAggregatesInput = {
-    AND?: LotteryResultScalarWhereWithAggregatesInput | LotteryResultScalarWhereWithAggregatesInput[]
-    OR?: LotteryResultScalarWhereWithAggregatesInput[]
-    NOT?: LotteryResultScalarWhereWithAggregatesInput | LotteryResultScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"LotteryResult"> | string
-    createdAt?: DateTimeWithAggregatesFilter<"LotteryResult"> | Date | string
-    channelId?: StringWithAggregatesFilter<"LotteryResult"> | string
-    month?: StringWithAggregatesFilter<"LotteryResult"> | string
-    result?: JsonWithAggregatesFilter<"LotteryResult">
+  export type LotteryResponseScalarWhereWithAggregatesInput = {
+    AND?: LotteryResponseScalarWhereWithAggregatesInput | LotteryResponseScalarWhereWithAggregatesInput[]
+    OR?: LotteryResponseScalarWhereWithAggregatesInput[]
+    NOT?: LotteryResponseScalarWhereWithAggregatesInput | LotteryResponseScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"LotteryResponse"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"LotteryResponse"> | Date | string
+    channelId?: StringWithAggregatesFilter<"LotteryResponse"> | string
+    month?: StringWithAggregatesFilter<"LotteryResponse"> | string
+    result?: JsonWithAggregatesFilter<"LotteryResponse">
   }
 
   export type ScheduleCreateInput = {
@@ -3163,7 +3163,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LotteryResultCreateInput = {
+  export type LotteryResponseCreateInput = {
     id?: string
     createdAt?: Date | string
     channelId: string
@@ -3171,7 +3171,7 @@ export namespace Prisma {
     result: JsonNullValueInput | InputJsonValue
   }
 
-  export type LotteryResultUncheckedCreateInput = {
+  export type LotteryResponseUncheckedCreateInput = {
     id?: string
     createdAt?: Date | string
     channelId: string
@@ -3179,7 +3179,7 @@ export namespace Prisma {
     result: JsonNullValueInput | InputJsonValue
   }
 
-  export type LotteryResultUpdateInput = {
+  export type LotteryResponseUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     channelId?: StringFieldUpdateOperationsInput | string
@@ -3187,7 +3187,7 @@ export namespace Prisma {
     result?: JsonNullValueInput | InputJsonValue
   }
 
-  export type LotteryResultUncheckedUpdateInput = {
+  export type LotteryResponseUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     channelId?: StringFieldUpdateOperationsInput | string
@@ -3195,7 +3195,7 @@ export namespace Prisma {
     result?: JsonNullValueInput | InputJsonValue
   }
 
-  export type LotteryResultCreateManyInput = {
+  export type LotteryResponseCreateManyInput = {
     id?: string
     createdAt?: Date | string
     channelId: string
@@ -3203,7 +3203,7 @@ export namespace Prisma {
     result: JsonNullValueInput | InputJsonValue
   }
 
-  export type LotteryResultUpdateManyMutationInput = {
+  export type LotteryResponseUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     channelId?: StringFieldUpdateOperationsInput | string
@@ -3211,7 +3211,7 @@ export namespace Prisma {
     result?: JsonNullValueInput | InputJsonValue
   }
 
-  export type LotteryResultUncheckedUpdateManyInput = {
+  export type LotteryResponseUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     channelId?: StringFieldUpdateOperationsInput | string
@@ -3457,13 +3457,13 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type LotteryResultOrderByRelevanceInput = {
-    fields: LotteryResultOrderByRelevanceFieldEnum | LotteryResultOrderByRelevanceFieldEnum[]
+  export type LotteryResponseOrderByRelevanceInput = {
+    fields: LotteryResponseOrderByRelevanceFieldEnum | LotteryResponseOrderByRelevanceFieldEnum[]
     sort: SortOrder
     search: string
   }
 
-  export type LotteryResultCountOrderByAggregateInput = {
+  export type LotteryResponseCountOrderByAggregateInput = {
     id?: SortOrder
     createdAt?: SortOrder
     channelId?: SortOrder
@@ -3471,14 +3471,14 @@ export namespace Prisma {
     result?: SortOrder
   }
 
-  export type LotteryResultMaxOrderByAggregateInput = {
+  export type LotteryResponseMaxOrderByAggregateInput = {
     id?: SortOrder
     createdAt?: SortOrder
     channelId?: SortOrder
     month?: SortOrder
   }
 
-  export type LotteryResultMinOrderByAggregateInput = {
+  export type LotteryResponseMinOrderByAggregateInput = {
     id?: SortOrder
     createdAt?: SortOrder
     channelId?: SortOrder

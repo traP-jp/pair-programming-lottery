@@ -3,9 +3,9 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "bunx --bun vite",
-        "build": "tsc -b  && bunx --bun vite build",
-        "preview": "bunx --bun vite preview"
+        "dev": "vite",
+        "build": "tsc -b && vite build",
+        "preview": "vite preview"
     },
     "dependencies": {
         "@typescript/lib-dom": "npm:@types/web",

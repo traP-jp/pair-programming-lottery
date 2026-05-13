@@ -4,7 +4,7 @@ import type { LotteryResponse } from "../services/lottery/format";
 import { traq } from "../services/traq";
 
 export const getResultsHandler = () => {
-    const records = prisma.lotteryResult.findMany({
+    const records = prisma.lotteryResponse.findMany({
         orderBy: { createdAt: "desc" },
         take: 20,
         select: { id: true, createdAt: true, channelId: true, month: true },
@@ -13,7 +13,7 @@ export const getResultsHandler = () => {
 };
 
 export const getResultHandler = async (id: string) => {
-    const record = await prisma.lotteryResult.findUnique({
+    const record = await prisma.lotteryResponse.findUnique({
         where: { id },
     });
     if (!record) return null;
@@ -33,7 +33,7 @@ export const saveResultHandler = async (
         throw new Error(`message not found: ${messageId}`);
     }
 
-    return prisma.lotteryResult.create({
+    return prisma.lotteryResponse.create({
         data: {
             channelId: message.channelId,
             month: getCurrentYearMonthJst(),

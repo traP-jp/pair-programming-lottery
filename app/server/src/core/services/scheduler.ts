@@ -107,7 +107,7 @@ export async function runScheduledLottery(
     const LotteryResponse = runLottery(users);
     const response = formatResult(LotteryResponse, userNameMap);
 
-    const saved = await prisma.lotteryResult.create({
+    const saved = await prisma.lotteryResponse.create({
         data: {
             channelId,
             month: yearMonth,

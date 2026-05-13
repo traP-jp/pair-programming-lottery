@@ -25,7 +25,7 @@ model Schedule {
 }
 
 // 抽選結果
-model LotteryResult {
+model LotteryResponse {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   channelId String   @db.VarChar(36)

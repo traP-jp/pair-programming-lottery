@@ -1,25 +1,26 @@
-FROM oven/bun:1 as build
+FROM oven/bun:1 AS build
 WORKDIR /app
 
 ARG BUILD_ENV=production
 
 COPY package.json bun.lock ./
-COPY server/package.json server/
-COPY client/package.json client/
+COPY client/package.json ./client/
+COPY server/package.json ./server/
 
 RUN bun install --frozen-lockfile
 
+COPY tsconfig.json ./
 COPY client/ ./client
 COPY server/ ./server
-COPY tsconfig.json ./
 
-RUN bunx --bun prisma generate --schema=server/prisma/schema.prisma
+ENV DATABASE_URL="dummy"
+RUN bun run --filter server --bun db:generate
 
 WORKDIR /app/client
 RUN \
-    if [ BUILD_ENV = "production" ]; then \
-        bun run build; \
+    if [ "${BUILD_ENV}" = "production" ]; then \
+        bun run --bun build; \
     fi
 
 FROM scratch
-COPY --from=build /app/dist /dist
+COPY --from=build /app/client/dist /dist
