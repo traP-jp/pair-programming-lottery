@@ -1,4 +1,4 @@
-# sora-kusuri
+# Pair Programming Lottery
 
 To install dependencies:
 
