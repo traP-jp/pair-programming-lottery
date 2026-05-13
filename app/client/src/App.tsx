@@ -81,9 +81,6 @@ export function App() {
         <div className="container">
             <header className="header">
                 <h1>手動操作</h1>
-                <p className="subtitle">
-                    チャンネルに質問を投稿し、スタンプで抽選
-                </p>
             </header>
 
             <section className="input-section">

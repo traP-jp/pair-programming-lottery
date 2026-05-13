@@ -79,7 +79,6 @@ export async function collectUserPrefs(
 
         const userId = messageStamp.userId;
 
-        // BOT を除外
         if (botUserIds.has(userId)) continue;
 
         if (!usersMap.has(userId)) {
@@ -99,13 +98,11 @@ export async function collectUserPrefs(
         if (stampName === "regional_indicator_b") prefs.roles.add("driver");
     }
 
-    // 正規化前のスタンプ数を記録してから正規化する
     for (const prefs of usersMap.values()) {
         prefs.originalRegionSize = prefs.regions.size;
         prefs.originalRoleSize = prefs.roles.size;
     }
 
-    // 「両方押した」または「どちらも押さなかった」= どちらでもよい（全希望として扱う）
     for (const prefs of usersMap.values()) {
         if (prefs.regions.size !== 1) {
             prefs.regions = new Set<Region>(["frontend", "backend"]);
@@ -118,9 +115,6 @@ export async function collectUserPrefs(
     return Array.from(usersMap.values());
 }
 
-/**
- * ユーザーID → 表示名 のマップを構築します（BOT を除く）
- */
 export async function buildUserNameMap(
     api: ReturnType<typeof createApiClient>,
 ): Promise<Map<string, string>> {
@@ -139,9 +133,6 @@ export async function buildUserNameMap(
     return userIdToName;
 }
 
-/**
- * BOT ユーザーの ID セットを構築します
- */
 export async function buildBotUserIds(
     api: ReturnType<typeof createApiClient>,
 ): Promise<Set<string>> {
@@ -165,10 +156,6 @@ const LOTTERY_MESSAGE = `## ペアプロ抽選
 - :regional_indicator_b: ドライバー (コードを書く側)
 `;
 
-/**
- * 指定チャンネルに抽選用質問メッセージを投稿し、全スタンプを付けます
- * @returns 投稿されたメッセージの ID
- */
 export async function postLotteryMessage(
     api: ReturnType<typeof createApiClient>,
     channelId: string,
@@ -181,7 +168,6 @@ export async function postLotteryMessage(
     const data = ("data" in res ? res.data : res) as { id: string };
     const messageId = data.id;
 
-    // 全スタンプをあらかじめ付けておく（押しやすくするため）
     await Promise.all(
         TARGET_STAMP_NAMES.map((stampName) => {
             const stampId = stampNameToId.get(stampName);

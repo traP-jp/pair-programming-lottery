@@ -138,7 +138,6 @@ export function startScheduler(traq: TraqClient) {
         tick(traq).catch((e) => console.error("[Scheduler] tick error:", e));
     }, 60_000);
 
-    // 起動直後にも一度チェック
     tick(traq).catch((e) =>
         console.error("[Scheduler] initial tick error:", e),
     );

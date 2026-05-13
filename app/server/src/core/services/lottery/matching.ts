@@ -4,9 +4,6 @@ const SCORE_REGION_MATCH = 100;
 const SCORE_ROLE_COMPLEMENT = 10;
 const SIMULATION_ROUNDS = 5000;
 
-/**
- * 2人のユーザー間のマッチングスコアを計算します（ランダム要素なし）
- */
 function getPairScore(u: UserPrefs, v: UserPrefs): number {
     let score = 0;
 
@@ -21,9 +18,6 @@ function getPairScore(u: UserPrefs, v: UserPrefs): number {
     return score;
 }
 
-/**
- * Fisher-Yates シャッフル
- */
 function shuffle<T>(arr: T[]): T[] {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -31,11 +25,6 @@ function shuffle<T>(arr: T[]): T[] {
     }
     return arr;
 }
-
-/**
- * ユーザーをシャッフルして先頭から順にペアを組みます。
- * 奇数人のとき: 両方スタンプを押した人を優先して「挿入者」とし、2つのペアに追加します。
- */
 function tryMatching(users: UserPrefs[]): MatchingResult {
     const shuffled = shuffle([...users]);
 
@@ -99,9 +88,6 @@ function tryMatching(users: UserPrefs[]): MatchingResult {
     };
 }
 
-/**
- * 複数回ランダムシミュレーションを行い、最も良い結果を返します。
- */
 export function runLottery(users: UserPrefs[]): MatchingResult {
     let bestResult: MatchingResult | null = null;
 

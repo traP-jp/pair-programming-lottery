@@ -106,7 +106,9 @@ body {
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+    transition:
+        background 0.2s,
+        transform 0.1s;
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
@@ -404,7 +406,9 @@ body {
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 500;
-    transition: background 0.15s, color 0.15s;
+    transition:
+        background 0.15s,
+        color 0.15s;
 }
 
 .nav-link:hover {
@@ -428,7 +432,9 @@ body {
     border-radius: var(--radius);
     text-decoration: none;
     color: var(--text);
-    transition: border-color 0.2s, background 0.2s;
+    transition:
+        border-color 0.2s,
+        background 0.2s;
 }
 
 .result-card:hover {
@@ -481,6 +487,8 @@ body {
 .form-group label {
     font-size: 0.85rem;
     font-weight: 500;
+    display: flex;
+    align-items: center;
     color: var(--text-muted);
 }
 
@@ -568,7 +576,9 @@ body {
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
+    transition:
+        border-color 0.2s,
+        background 0.2s;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;

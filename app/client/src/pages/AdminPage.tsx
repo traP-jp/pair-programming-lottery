@@ -8,8 +8,6 @@ import {
 } from "../api";
 
 export function AdminPage() {
-    const [authed, setAuthed] = useState(false);
-
     const [schedule, setSchedule] = useState<ScheduleRecord | null>(null);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -33,14 +31,8 @@ export function AdminPage() {
                 setLotteryDay(s.lotteryDay);
                 setEnabled(s.enabled);
             }
-
-            setAuthed(true);
         } catch (e) {
-            if (e instanceof Error && e.message === "unauthorized") {
-                setError("トークンが正しくありません。");
-            } else {
-                setError(e instanceof Error ? e.message : "取得失敗");
-            }
+            setError(e instanceof Error ? e.message : "取得失敗");
         } finally {
             setLoading(false);
         }
@@ -92,10 +84,18 @@ export function AdminPage() {
 
     useEffect(() => {
         fetchSchedule();
-    }, []);
+    }, [fetchSchedule]);
 
-    if (!authed) {
-        return <div className="container">ログインしていません</div>;
+    if (loading && !schedule) {
+        return (
+            <div
+                className="container"
+                style={{ textAlign: "center", padding: "2rem" }}
+            >
+                <span className="spinner" />
+                <p className="text-muted">設定を読み込み中...</p>
+            </div>
+        );
     }
 
     return (
@@ -109,9 +109,7 @@ export function AdminPage() {
             {success && <div className="inline-success">{success}</div>}
 
             <section className="input-section">
-                <h2 className="step-title">
-                    <span className="step-badge">設定</span>スケジュール
-                </h2>
+                <h2 className="step-title">スケジュール</h2>
                 <form onSubmit={handleSave} className="admin-form">
                     <div className="form-group">
                         <label htmlFor="admin-channel-id">
@@ -192,9 +190,7 @@ export function AdminPage() {
 
             {schedule && (
                 <section className="input-section">
-                    <h2 className="step-title">
-                        <span className="step-badge">手動</span>即時実行
-                    </h2>
+                    <h2 className="step-title">即時実行</h2>
                     <p
                         className="text-muted"
                         style={{ marginBottom: "0.75rem", fontSize: "0.85rem" }}

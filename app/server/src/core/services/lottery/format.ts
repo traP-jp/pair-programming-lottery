@@ -40,7 +40,6 @@ function resolveRolesPair(
         return [u1Role, u2Role];
     }
 
-    // Both have multiple (or zero) roles, default to driver/navigator randomly or deterministically
     return ["navigator", "driver"];
 }
 
@@ -67,9 +66,6 @@ export type LotteryResponse = {
     };
 };
 
-/**
- * MatchingResult を JSON レスポンス用の構造に整形します
- */
 export function formatResult(
     result: MatchingResult,
     userIdToName: Map<string, string>,
@@ -122,7 +118,6 @@ export function formatResult(
             role: role2,
         };
 
-        // ナビゲーターを左に
         if (member1.role === "driver") {
             [member1, member2] = [member2, member1];
         }
@@ -134,7 +129,6 @@ export function formatResult(
         };
     });
 
-    // insertedUser の挿入先インデックスを sortedPairs 内で特定する
     let insertedUser: LotteryResponse["insertedUser"] = null;
     if (result.insertedUser) {
         const name =
