@@ -85,28 +85,6 @@ export function ResultDetailPage() {
                         は人数調整のため上記2ペアに参加します
                     </div>
                 )}
-
-                <details className="config-details">
-                    <summary>スコア詳細</summary>
-                    <div className="score-details">
-                        <p>
-                            スコア: {result.score.total} / {result.score.max} (
-                            {result.score.normalized.toFixed(3)})
-                        </p>
-                        <p>
-                            領域一致: 1ペアあたり +
-                            {result.config.regionMatchScore}点
-                        </p>
-                        <p>
-                            役割補完: 1ペアあたり +
-                            {result.config.roleComplementScore}点
-                        </p>
-                        <p>
-                            シミュレーション回数:{" "}
-                            {result.config.simulationRounds}回
-                        </p>
-                    </div>
-                </details>
             </section>
         </div>
     );

@@ -1,11 +1,7 @@
 import { hc, type InferResponseType } from "hono/client";
 import type { Routes } from "../../server/src/routes";
 
-const client = hc<Routes>("/", {
-    headers: {
-        "X-Forwarded-user": "uni_kakurenbo",
-    },
-});
+const client = hc<Routes>("/");
 
 export type LotteryResponse = InferResponseType<
     typeof client.api.lottery.$post,

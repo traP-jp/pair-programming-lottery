@@ -16,14 +16,14 @@ function Layout() {
             <div>
                 <nav className="nav-bar">
                     <Link to="/" className="nav-brand">
-                        🎲 ペアプロ抽選
+                        ペアプロ抽選
                     </Link>
                     <div className="nav-links">
-                        <Link to="/" className="nav-link">
-                            手動操作
-                        </Link>
                         <Link to="/results" className="nav-link">
-                            結果一覧
+                            結果
+                        </Link>
+                        <Link to="/" className="nav-link">
+                            操作
                         </Link>
                         <Link to="/admin" className="nav-link">
                             管理
@@ -40,10 +40,24 @@ const router = createHashRouter([
     {
         element: <Layout />,
         children: [
-            { path: "/", element: <AdminRoute><App /></AdminRoute> },
+            {
+                path: "/",
+                element: (
+                    <AdminRoute>
+                        <App />
+                    </AdminRoute>
+                ),
+            },
             { path: "/results", element: <ResultsPage /> },
             { path: "/results/:id", element: <ResultDetailPage /> },
-            { path: "/admin", element: <AdminRoute><AdminPage /></AdminRoute> },
+            {
+                path: "/admin",
+                element: (
+                    <AdminRoute>
+                        <AdminPage />
+                    </AdminRoute>
+                ),
+            },
         ],
     },
 ]);
@@ -51,4 +65,3 @@ const router = createHashRouter([
 export function Root() {
     return <RouterProvider router={router} />;
 }
-
