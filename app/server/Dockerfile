@@ -14,6 +14,7 @@ COPY server/prisma/ ./server/prisma
 
 ENV DATABASE_URL="dummy"
 RUN bun run --filter server --bun db:generate
+ENV DATABASE_URL=""
 
 COPY server/scripts ./server/scripts
 RUN chmod +x ./server/scripts/start.sh
