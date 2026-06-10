@@ -216,7 +216,7 @@ export function ManagePage() {
                         </button>
                         {savedResultId && (
                             <Link
-                                to={`/results/${savedResultId}`}
+                                to={`/${savedResultId}`}
                                 className="btn-secondary"
                             >
                                 保存した結果を見る
