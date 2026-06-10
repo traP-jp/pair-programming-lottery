@@ -4,11 +4,11 @@ import {
     Link,
     Outlet,
 } from "react-router-dom";
-import { App } from "./App";
-import { ResultsPage } from "./pages/ResultsPage";
-import { ResultDetailPage } from "./pages/ResultDetailPage";
-import { AdminPage } from "./pages/AdminPage";
-import { AuthProvider, AdminRoute } from "./hooks/useAuth";
+import { ManagePage } from "@/pages/ManagePage";
+import { ResultsPage } from "@/pages/ResultsPage";
+import { ResultDetailPage } from "@/pages/ResultDetailPage";
+import { AdminPage } from "@/pages/AdminPage";
+import { AuthProvider, AdminRoute } from "@/hooks/useAuth";
 
 function Layout() {
     return (
@@ -40,16 +40,17 @@ const router = createHashRouter([
     {
         element: <Layout />,
         children: [
+            { path: "/", element: <ResultsPage /> },
+            { path: "/:id", element: <ResultDetailPage /> },
+
             {
-                path: "/",
+                path: "/manage",
                 element: (
                     <AdminRoute>
-                        <App />
+                        <ManagePage />
                     </AdminRoute>
                 ),
             },
-            { path: "/results", element: <ResultsPage /> },
-            { path: "/results/:id", element: <ResultDetailPage /> },
             {
                 path: "/admin",
                 element: (

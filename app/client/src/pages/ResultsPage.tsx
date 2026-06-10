@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getResults, type ResultSummary } from "../api";
+import { getResults, type ResultSummary } from "@/api";
 
 export function ResultsPage() {
     const [results, setResults] = useState<ResultSummary[]>([]);

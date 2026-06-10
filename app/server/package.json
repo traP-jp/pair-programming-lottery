@@ -4,7 +4,8 @@
     "scripts": {
         "dev": "bun run --watch ./src/index.ts",
         "db:generate": "prisma generate",
-        "db:migrate": "prisma migrate deploy"
+        "db:migrate": "prisma migrate deploy",
+        "db:migrate:dev": "prisma migrate dev"
     },
     "dependencies": {
         "@prisma/adapter-mariadb": "^7.7.0",

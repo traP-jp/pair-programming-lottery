@@ -1,4 +1,4 @@
-import type { LotteryResponse } from "../api";
+import type { LotteryResponse } from "@/api";
 
 type FormattedMember = LotteryResponse["pairs"][number]["members"][number];
 type FormattedPair = LotteryResponse["pairs"][number];

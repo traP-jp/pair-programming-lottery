@@ -5,7 +5,7 @@ import {
     triggerPost,
     triggerLottery,
     type ScheduleRecord,
-} from "../api";
+} from "@/api";
 
 export function AdminPage() {
     const [schedule, setSchedule] = useState<ScheduleRecord | null>(null);

@@ -5,10 +5,10 @@ import {
     runLottery,
     saveResult,
     type LotteryResponse,
-} from "./api";
-import { PairCard } from "./components/PairCard";
+} from "@/api";
+import { PairCard } from "@/components/PairCard";
 
-export function App() {
+export function ManagePage() {
     const [channelId, setChannelId] = useState("");
     const [posting, setPosting] = useState(false);
     const [postError, setPostError] = useState<string | null>(null);

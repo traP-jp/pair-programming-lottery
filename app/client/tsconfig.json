@@ -1,7 +1,19 @@
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
-        "lib": ["dom", "es2024"]
+        "lib": [
+            "dom",
+            "es2024"
+        ],
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        }
     },
-    "include": ["../**/*.ts", "../**/*.tsx", "../types.ts"]
+    "include": [
+        "../**/*.ts",
+        "../**/*.tsx",
+        "../types.ts"
+    ]
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getResult, type LotteryResponse } from "../api";
-import { PairCard } from "../components/PairCard";
+import { getResult, type LotteryResponse } from "@/api";
+import { PairCard } from "@/components/PairCard";
 
 type RawResult = {
     id: string;

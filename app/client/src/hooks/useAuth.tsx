@@ -5,7 +5,7 @@ import {
     useState,
     type ReactNode,
 } from "react";
-import { getSchedule } from "../api";
+import { getSchedule } from "@/api";
 
 interface AuthContextType {
     isAdmin: boolean;
