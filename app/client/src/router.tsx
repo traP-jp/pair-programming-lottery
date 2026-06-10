@@ -19,10 +19,10 @@ function Layout() {
                         ペアプロ抽選
                     </Link>
                     <div className="nav-links">
-                        <Link to="/results" className="nav-link">
+                        <Link to="/" className="nav-link">
                             結果
                         </Link>
-                        <Link to="/" className="nav-link">
+                        <Link to="/manage" className="nav-link">
                             操作
                         </Link>
                         <Link to="/admin" className="nav-link">
