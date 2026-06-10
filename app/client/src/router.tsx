@@ -1,8 +1,9 @@
 import {
-    createHashRouter,
+    createBrowserRouter,
     RouterProvider,
     Link,
     Outlet,
+    Navigate,
 } from "react-router-dom";
 import { ManagePage } from "@/pages/ManagePage";
 import { ResultsPage } from "@/pages/ResultsPage";
@@ -19,7 +20,7 @@ function Layout() {
                         ペアプロ抽選
                     </Link>
                     <div className="nav-links">
-                        <Link to="/" className="nav-link">
+                        <Link to="/results" className="nav-link">
                             結果
                         </Link>
                         <Link to="/manage" className="nav-link">
@@ -36,12 +37,13 @@ function Layout() {
     );
 }
 
-const router = createHashRouter([
+const router = createBrowserRouter([
     {
         element: <Layout />,
         children: [
-            { path: "/", element: <ResultsPage /> },
-            { path: "/:id", element: <ResultDetailPage /> },
+            { path: "*", element: <Navigate to="/results" replace /> },
+            { path: "/results", element: <ResultsPage /> },
+            { path: "/results/:id", element: <ResultDetailPage /> },
 
             {
                 path: "/manage",

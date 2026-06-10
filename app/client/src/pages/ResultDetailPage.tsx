@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getResult, type LotteryResponse } from "@/api";
-import { PairCard } from "@/components/PairCard";
+import { LotteryResultView } from "@/components/LotteryResultView";
 
 type RawResult = {
     id: string;
@@ -55,37 +55,7 @@ export function ResultDetailPage() {
                 </p>
             </header>
 
-            <section className="result-section">
-                <div className="result-header">
-                    <h2>ペア一覧</h2>
-                    <div className="stats">
-                        <span className="stat-badge">
-                            {result.participantCount}人
-                        </span>
-                        <span className="stat-badge">
-                            スコア {result.score.normalized.toFixed(3)}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="pairs-container">
-                    {result.pairs.map((pair, i) => (
-                        <PairCard
-                            key={i}
-                            pair={pair}
-                            index={i}
-                            insertedUser={result.insertedUser}
-                        />
-                    ))}
-                </div>
-
-                {result.insertedUser && (
-                    <div className="inserted-note">
-                        ※ @{result.insertedUser.name}{" "}
-                        は人数調整のため上記2ペアに参加します
-                    </div>
-                )}
-            </section>
+            <LotteryResultView result={result} title="ペア一覧" />
         </div>
     );
 }

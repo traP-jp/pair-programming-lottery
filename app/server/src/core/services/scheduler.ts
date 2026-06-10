@@ -120,13 +120,15 @@ export async function runScheduledLottery(
         data: { lastLotteryAt: new Date() },
     });
 
+    const publicUrl = process.env["PUBLIC_URL"] ?? "http://localhost:5173";
+    const resultUrl = `${publicUrl}/${saved.id}`;
     const pairs = response.pairs.length;
     const participants = response.participantCount;
     await traq.channels.postMessage(channelId, {
         content: `抽選結果\n${participants}人が参加し、${pairs}ペアを組みました。\n結果はこちら: ${resultUrl}`,
         embed: false,
     });
-    console.log(`[Scheduler] Lottery done`);
+    console.log(`[Scheduler] Lottery done, result URL: ${resultUrl}`);
     return saved;
 }
 
