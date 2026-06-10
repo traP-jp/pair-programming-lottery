@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getResults, type ResultSummary } from "@/api";
+import { paths } from "@/router";
 
 export function ResultsPage() {
     const [results, setResults] = useState<ResultSummary[]>([]);
@@ -32,7 +33,7 @@ export function ResultsPage() {
                 {results.map((r) => (
                     <Link
                         key={r.id}
-                        to={`/${r.id}`}
+                        to={paths.resultDetail(r.id)}
                         className="result-card"
                     >
                         <div className="result-card-month">{r.month}</div>

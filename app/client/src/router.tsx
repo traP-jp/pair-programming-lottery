@@ -11,22 +11,31 @@ import { ResultDetailPage } from "@/pages/ResultDetailPage";
 import { AdminPage } from "@/pages/AdminPage";
 import { AuthProvider, AdminRoute } from "@/hooks/useAuth";
 
+export const paths = {
+    home: "/",
+    results: "/results",
+    resultDetail: (id: string) => `/results/${id}`,
+    resultDetailPattern: "/results/:id",
+    manage: "/manage",
+    admin: "/admin",
+} as const;
+
 function Layout() {
     return (
         <AuthProvider>
             <div>
                 <nav className="nav-bar">
-                    <Link to="/" className="nav-brand">
+                    <Link to={paths.home} className="nav-brand">
                         ペアプロ抽選
                     </Link>
                     <div className="nav-links">
-                        <Link to="/results" className="nav-link">
+                        <Link to={paths.results} className="nav-link">
                             結果
                         </Link>
-                        <Link to="/manage" className="nav-link">
+                        <Link to={paths.manage} className="nav-link">
                             操作
                         </Link>
-                        <Link to="/admin" className="nav-link">
+                        <Link to={paths.admin} className="nav-link">
                             管理
                         </Link>
                     </div>
@@ -41,12 +50,12 @@ const router = createBrowserRouter([
     {
         element: <Layout />,
         children: [
-            { path: "*", element: <Navigate to="/results" replace /> },
-            { path: "/results", element: <ResultsPage /> },
-            { path: "/results/:id", element: <ResultDetailPage /> },
+            { path: "*", element: <Navigate to={paths.results} replace /> },
+            { path: paths.results, element: <ResultsPage /> },
+            { path: paths.resultDetailPattern, element: <ResultDetailPage /> },
 
             {
-                path: "/manage",
+                path: paths.manage,
                 element: (
                     <AdminRoute>
                         <ManagePage />
@@ -54,7 +63,7 @@ const router = createBrowserRouter([
                 ),
             },
             {
-                path: "/admin",
+                path: paths.admin,
                 element: (
                     <AdminRoute>
                         <AdminPage />

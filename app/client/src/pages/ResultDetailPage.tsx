@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getResult, type LotteryResponse } from "@/api";
 import { LotteryResultView } from "@/components/LotteryResultView";
+import { paths } from "@/router";
 
 type RawResult = {
     id: string;
@@ -43,7 +44,7 @@ export function ResultDetailPage() {
 
     return (
         <div className="container">
-            <Link to="/results" className="back-link">
+            <Link to={paths.results} className="back-link">
                 ← 一覧に戻る
             </Link>
 

@@ -7,6 +7,7 @@ import {
     type LotteryResponse,
 } from "@/api";
 import { LotteryResultView } from "@/components/LotteryResultView";
+import { paths } from "@/router";
 
 export function ManagePage() {
     const [channelId, setChannelId] = useState("");
@@ -186,7 +187,7 @@ export function ManagePage() {
                         </button>
                         {savedResultId && (
                             <Link
-                                to={`/results/${savedResultId}`}
+                                to={paths.resultDetail(savedResultId)}
                                 className="btn-secondary"
                             >
                                 保存した結果を見る
