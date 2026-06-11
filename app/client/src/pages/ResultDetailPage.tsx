@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { getResult, type LotteryResponse } from "@/api";
 import { LotteryResultView } from "@/components/LotteryResultView";
 import { paths } from "@/router";
+import { ChevronDownIcon, CopyIcon, CheckIcon } from "@/components/icons";
 
 type RawResult = {
     id: string;
@@ -57,6 +58,65 @@ export function ResultDetailPage() {
             </header>
 
             <LotteryResultView result={result} title="ペア一覧" />
+
+            <CopyParticipantsSection result={result} />
         </div>
+    );
+}
+
+function CopyParticipantsSection({ result }: { result: LotteryResponse }) {
+    const [copied, setCopied] = useState(false);
+
+    const participantNames = new Set<string>();
+    for (const pair of result.pairs) {
+        for (const m of pair.members) {
+            if (m.name) participantNames.add(m.name);
+        }
+    }
+    if (result.insertedUser?.name) {
+        participantNames.add(result.insertedUser.name);
+    }
+
+    const csvText = Array.from(participantNames)
+        .map((name) => `@${name}`)
+        .join(", ");
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(csvText);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error("Failed to copy: ", err);
+        }
+    };
+
+    return (
+        <details className="participants-accordion">
+            <summary className="participants-summary">
+                <span className="summary-title">参加者一覧</span>
+                <span className="summary-icon">
+                    <ChevronDownIcon />
+                </span>
+            </summary>
+            <div className="participants-content">
+                <div className="code-block-container">
+                    <code className="participants-code">{csvText}</code>
+                    <button className="copy-btn" onClick={handleCopy}>
+                        {copied ? (
+                            <>
+                                <CheckIcon className="copy-btn-icon success" />
+                                <span>コピー</span>
+                            </>
+                        ) : (
+                            <>
+                                <CopyIcon className="copy-btn-icon" />
+                                <span>コピー</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+            </div>
+        </details>
     );
 }
