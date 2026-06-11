@@ -15,6 +15,10 @@
         "@types/node": "^25.5.2",
         "typescript": "^6.0"
     },
+    "trustedDependencies": [
+        "@prisma",
+        "@prisma/client"
+    ],
     "workspaces": [
         "server",
         "client"
