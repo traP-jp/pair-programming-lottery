@@ -9,27 +9,31 @@ import {
     traq,
 } from "../services/traq";
 
-export const runLotteryHandler = async (messageId: string) => {
-    const { stampIdToName } = await getStampMap();
-    const botUserIds = await getBotUserIds();
-    const users = await collectUserPrefs(
-        traq,
-        messageId,
-        stampIdToName,
-        botUserIds,
-    );
-
-    const userCount = users.length;
-
-    if (userCount < 2) {
-        throw ApiErrorMessages.TARGET_USERS_MUST_BE_MULTIPLE(
+export const createLotteryHandlers = () => {
+    const runLotteryHandler = async (messageId: string) => {
+        const { stampIdToName } = await getStampMap();
+        const botUserIds = await getBotUserIds();
+        const users = await collectUserPrefs(
+            traq,
             messageId,
-            userCount,
+            stampIdToName,
+            botUserIds,
         );
-    }
 
-    const userNameMap = await getUserNameMap();
-    const result = runLotteryService(users);
+        const userCount = users.length;
 
-    return formatResult(result, userNameMap);
+        if (userCount < 2) {
+            throw ApiErrorMessages.TARGET_USERS_MUST_BE_MULTIPLE(
+                messageId,
+                userCount,
+            );
+        }
+
+        const userNameMap = await getUserNameMap();
+        const result = runLotteryService(users);
+
+        return formatResult(result, userNameMap);
+    };
+
+    return { runLotteryHandler };
 };

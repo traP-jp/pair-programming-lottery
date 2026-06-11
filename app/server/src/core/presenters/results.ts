@@ -1,32 +1,33 @@
-import {
-    getResultHandler,
-    getResultsHandler,
-    saveResultHandler,
-} from "../handlers/results";
 import { createFactory } from "hono/factory";
-import { validateGetResultParams } from "../validators/results";
+import { validateGetResultParams, validateSaveResultBody } from "../validators/results";
 import { validator } from "hono/validator";
-import { validateSaveResultBody } from "../validators/results";
+import type { createResultsHandlers } from "../handlers/results";
 
-const factory = createFactory();
+export const createResultsPresenter = (
+    handlers: ReturnType<typeof createResultsHandlers>
+) => {
+    const factory = createFactory();
 
-export const getResults = factory.createHandlers(async (c) => {
-    return c.json(await getResultsHandler());
-});
+    const getResults = factory.createHandlers(async (c) => {
+        return c.json(await handlers.getResultsHandler());
+    });
 
-export const getResult = factory.createHandlers(
-    validator("param", validateGetResultParams),
-    async (c) => {
-        const params = c.req.valid("param");
-        const results = await getResultHandler(params.id);
-        return c.json(results ?? []);
-    },
-);
+    const getResult = factory.createHandlers(
+        validator("param", validateGetResultParams),
+        async (c) => {
+            const params = c.req.valid("param");
+            const results = await handlers.getResultHandler(params.id);
+            return c.json(results ?? []);
+        },
+    );
 
-export const saveResult = factory.createHandlers(
-    validator("json", validateSaveResultBody),
-    async (c) => {
-        const body = c.req.valid("json");
-        return c.json(await saveResultHandler(body.messageId, body.result));
-    },
-);
+    const saveResult = factory.createHandlers(
+        validator("json", validateSaveResultBody),
+        async (c) => {
+            const body = c.req.valid("json");
+            return c.json(await handlers.saveResultHandler(body.messageId, body.result));
+        },
+    );
+
+    return { getResults, getResult, saveResult };
+};

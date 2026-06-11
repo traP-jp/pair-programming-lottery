@@ -1,5 +1,4 @@
-import { scheduleRepository } from "../../repository/schedule";
-import { lotteryResponseRepository } from "../../repository/lotteryResponse";
+import type { IScheduleRepository, ILotteryResponseRepository } from "../../repository";
 import {
     buildStampMap,
     collectUserPrefs,
@@ -28,8 +27,12 @@ function isThisMonth(isoDateTime: Date | null, yearMonth: string): boolean {
     return ym === yearMonth;
 }
 
-async function tick(traq: TraqClient) {
-    const schedule = await scheduleRepository.get();
+async function tick(
+    scheduleRepo: IScheduleRepository,
+    lotteryResponseRepo: ILotteryResponseRepository,
+    traq: TraqClient,
+) {
+    const schedule = await scheduleRepo.get();
     if (!schedule || !schedule.enabled) return;
 
     const { day, yearMonth } = todayJst();
@@ -48,7 +51,7 @@ async function tick(traq: TraqClient) {
                 schedule.channelId,
                 stampNameToId,
             );
-            await scheduleRepository.update({
+            await scheduleRepo.update({
                 lastMessageId: messageId,
                 lastPostedAt: new Date(),
             });
@@ -70,6 +73,8 @@ async function tick(traq: TraqClient) {
         );
         try {
             await runScheduledLottery(
+                scheduleRepo,
+                lotteryResponseRepo,
                 traq,
                 schedule.channelId,
                 schedule.lastMessageId,
@@ -82,6 +87,8 @@ async function tick(traq: TraqClient) {
 }
 
 export async function runScheduledLottery(
+    scheduleRepo: IScheduleRepository,
+    lotteryResponseRepo: ILotteryResponseRepository,
     traq: TraqClient,
     channelId: string,
     messageId: string,
@@ -105,13 +112,13 @@ export async function runScheduledLottery(
     const LotteryResponse = runLottery(users);
     const response = formatResult(LotteryResponse, userNameMap);
 
-    const saved = await lotteryResponseRepository.create({
+    const saved = await lotteryResponseRepo.create({
         channelId,
         month: yearMonth,
         result: response as any,
     });
 
-    await scheduleRepository.update({
+    await scheduleRepo.update({
         lastLotteryAt: new Date(),
     });
 
@@ -127,13 +134,17 @@ export async function runScheduledLottery(
     return saved;
 }
 
-export function startScheduler(traq: TraqClient) {
+export function startScheduler(
+    scheduleRepo: IScheduleRepository,
+    lotteryResponseRepo: ILotteryResponseRepository,
+    traq: TraqClient,
+) {
     console.log("[Scheduler] Started — checking every minute");
     setInterval(() => {
-        tick(traq).catch((e) => console.error("[Scheduler] tick error:", e));
+        tick(scheduleRepo, lotteryResponseRepo, traq).catch((e) => console.error("[Scheduler] tick error:", e));
     }, 60_000);
 
-    tick(traq).catch((e) =>
+    tick(scheduleRepo, lotteryResponseRepo, traq).catch((e) =>
         console.error("[Scheduler] initial tick error:", e),
     );
 }

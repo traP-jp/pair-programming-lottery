@@ -1,25 +1,27 @@
 import { Hono, type HonoRequest } from "hono";
 import { getEnv } from "../utilities/env";
-import {
-    getSchedule,
-    putSchedule,
-    triggerLottery,
-    triggerPost,
-} from "../core/presenters/schedule";
-import { postMessage } from "../core/presenters/post-message";
-import { runLottery } from "../core/presenters/lottery";
-import { saveResult } from "../core/presenters/results";
 import { adminOnlyMiddleware } from "../core/middlewares/admin";
+import type { createResultsPresenter } from "../core/presenters/results";
+import type { createSchedulePresenter } from "../core/presenters/schedule";
+import type { createLotteryPresenter } from "../core/presenters/lottery";
+import type { createPostMessagePresenter } from "../core/presenters/post-message";
 
-const app = new Hono();
+export const createAdminRoutes = (
+    resultsPresenter: ReturnType<typeof createResultsPresenter>,
+    schedulePresenter: ReturnType<typeof createSchedulePresenter>,
+    lotteryPresenter: ReturnType<typeof createLotteryPresenter>,
+    postMessagePresenter: ReturnType<typeof createPostMessagePresenter>
+) => {
+    const app = new Hono();
 
-app.use("*", adminOnlyMiddleware);
+    app.use("*", adminOnlyMiddleware);
 
-export const routes = app
-    .post("/results", ...saveResult)
-    .post("/lottery", ...runLottery)
-    .post("/post-message", ...postMessage)
-    .get("/schedule", ...getSchedule)
-    .put("/schedule", ...putSchedule)
-    .post("/schedule/trigger-post", ...triggerPost)
-    .post("/schedule/trigger-lottery", ...triggerLottery);
+    return app
+        .post("/results", ...resultsPresenter.saveResult)
+        .post("/lottery", ...lotteryPresenter.runLottery)
+        .post("/post-message", ...postMessagePresenter.postMessage)
+        .get("/schedule", ...schedulePresenter.getSchedule)
+        .put("/schedule", ...schedulePresenter.putSchedule)
+        .post("/schedule/trigger-post", ...schedulePresenter.triggerPost)
+        .post("/schedule/trigger-lottery", ...schedulePresenter.triggerLottery);
+};

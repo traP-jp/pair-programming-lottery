@@ -1,14 +1,20 @@
 import { createFactory } from "hono/factory";
 import { validator } from "hono/validator";
 import { validateRunLotteryBody } from "../validators/lottery";
-import { runLotteryHandler } from "../handlers/lottery";
+import type { createLotteryHandlers } from "../handlers/lottery";
 
-const factory = createFactory();
+export const createLotteryPresenter = (
+    handlers: ReturnType<typeof createLotteryHandlers>
+) => {
+    const factory = createFactory();
 
-export const runLottery = factory.createHandlers(
-    validator("json", validateRunLotteryBody),
-    async (c) => {
-        const { messageId } = c.req.valid("json");
-        return c.json(await runLotteryHandler(messageId));
-    },
-);
+    const runLottery = factory.createHandlers(
+        validator("json", validateRunLotteryBody),
+        async (c) => {
+            const { messageId } = c.req.valid("json");
+            return c.json(await handlers.runLotteryHandler(messageId));
+        },
+    );
+
+    return { runLottery };
+};
