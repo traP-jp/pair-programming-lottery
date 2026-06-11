@@ -72,11 +72,13 @@ function tryMatching(users: UserPrefs[]): MatchingResult {
         if (commonRegion === "backend") backendPairs++;
     }
 
-    let insertedIntoPairs:
-        | [[UserPrefs, UserPrefs], [UserPrefs, UserPrefs]]
-        | null = null;
-    if (insertedUser && pairs.length >= 2) {
-        insertedIntoPairs = [pairs[0]!, pairs[1]!];
+    let insertedIntoPairs: [UserPrefs, UserPrefs][] | null = null;
+    if (insertedUser) {
+        if (pairs.length >= 2) {
+            insertedIntoPairs = [pairs[0]!, pairs[1]!];
+        } else if (pairs.length === 1) {
+            insertedIntoPairs = [pairs[0]!];
+        }
     }
 
     return {

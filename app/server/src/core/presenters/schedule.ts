@@ -4,7 +4,7 @@ import { validatePostScheduleBody } from "@server/core/validators/schedule";
 import type { createScheduleHandlers } from "@server/core/handlers/schedule";
 
 export const createSchedulePresenter = (
-    handlers: ReturnType<typeof createScheduleHandlers>
+    handlers: ReturnType<typeof createScheduleHandlers>,
 ) => {
     const factory = createFactory();
 

@@ -3,7 +3,9 @@ import { getCurrentYearMonthJst } from "@server/core/services/time";
 import type { LotteryResponse } from "@server/core/services/lottery/format";
 import { traq } from "@server/core/services/traq";
 
-export const createResultsHandlers = (lotteryResponseRepo: ILotteryResponseRepository) => {
+export const createResultsHandlers = (
+    lotteryResponseRepo: ILotteryResponseRepository,
+) => {
     const getResultsHandler = async () => {
         const records = await lotteryResponseRepo.findMany({
             orderBy: { createdAt: "desc" },
@@ -18,9 +20,14 @@ export const createResultsHandlers = (lotteryResponseRepo: ILotteryResponseRepos
         return record;
     };
 
-    const saveResultHandler = async (messageId: string, result: LotteryResponse) => {
+    const saveResultHandler = async (
+        messageId: string,
+        result: LotteryResponse,
+    ) => {
         const messageRes = await traq.messages.getMessage(messageId);
-        const message = ("data" in messageRes ? messageRes.data : messageRes) as {
+        const message = (
+            "data" in messageRes ? messageRes.data : messageRes
+        ) as {
             channelId: string;
         } | null;
 

@@ -4,7 +4,7 @@ import { validateRunLotteryBody } from "@server/core/validators/lottery";
 import type { createLotteryHandlers } from "@server/core/handlers/lottery";
 
 export const createLotteryPresenter = (
-    handlers: ReturnType<typeof createLotteryHandlers>
+    handlers: ReturnType<typeof createLotteryHandlers>,
 ) => {
     const factory = createFactory();
 

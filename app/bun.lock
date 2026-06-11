@@ -46,6 +46,7 @@
     },
   },
   "trustedDependencies": [
+    "prisma",
     "@prisma/client",
   ],
   "packages": {

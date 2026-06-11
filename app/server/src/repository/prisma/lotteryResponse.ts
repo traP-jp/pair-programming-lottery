@@ -3,10 +3,14 @@ import type { LotteryResponse, Prisma } from "@server/generated/prisma/client";
 import type { ILotteryResponseRepository } from "@server/repository/lotteryResponse";
 
 export class PrismaLotteryResponseRepository implements ILotteryResponseRepository {
-    async findMany(options: {
-        orderBy?: { createdAt: "asc" | "desc" };
-        take?: number;
-    } = {}): Promise<Pick<LotteryResponse, "id" | "createdAt" | "channelId" | "month">[]> {
+    async findMany(
+        options: {
+            orderBy?: { createdAt: "asc" | "desc" };
+            take?: number;
+        } = {},
+    ): Promise<
+        Pick<LotteryResponse, "id" | "createdAt" | "channelId" | "month">[]
+    > {
         return prisma.lotteryResponse.findMany({
             orderBy: options.orderBy,
             take: options.take,

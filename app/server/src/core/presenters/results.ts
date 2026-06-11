@@ -1,10 +1,14 @@
 import { createFactory } from "hono/factory";
-import { validateGetResultParams, validateSaveResultBody } from "@server/core/validators/results";
+import {
+    validateGetResultParams,
+    validateSaveResultBody,
+} from "@server/core/validators/results";
 import { validator } from "hono/validator";
 import type { createResultsHandlers } from "@server/core/handlers/results";
+import { ApiErrorMessages } from "@server/error/messages";
 
 export const createResultsPresenter = (
-    handlers: ReturnType<typeof createResultsHandlers>
+    handlers: ReturnType<typeof createResultsHandlers>,
 ) => {
     const factory = createFactory();
 
@@ -17,7 +21,12 @@ export const createResultsPresenter = (
         async (c) => {
             const params = c.req.valid("param");
             const results = await handlers.getResultHandler(params.id);
-            return c.json(results ?? []);
+            if (!results) {
+                throw ApiErrorMessages.LOTTERY_RESULT_NOT_FOUND(
+                    params.id,
+                ).asHttpException(404);
+            }
+            return c.json(results);
         },
     );
 
@@ -25,7 +34,9 @@ export const createResultsPresenter = (
         validator("json", validateSaveResultBody),
         async (c) => {
             const body = c.req.valid("json");
-            return c.json(await handlers.saveResultHandler(body.messageId, body.result));
+            return c.json(
+                await handlers.saveResultHandler(body.messageId, body.result),
+            );
         },
     );
 

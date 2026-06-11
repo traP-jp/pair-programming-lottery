@@ -15,8 +15,8 @@ export type MatchingResult = {
     pairs: [UserPrefs, UserPrefs][];
     /** 奇数人のとき2つのペアに挿入される人。nullなら挿入なし */
     insertedUser: UserPrefs | null;
-    /** insertedUser が挿入される2つのペア（pairs の要素と同一参照） */
-    insertedIntoPairs: [[UserPrefs, UserPrefs], [UserPrefs, UserPrefs]] | null;
+    /** insertedUser が挿入されるペア（pairs の要素と同一参照） */
+    insertedIntoPairs: [UserPrefs, UserPrefs][] | null;
     totalScore: number;
     /** フロントエンドペア数とバックエンドペア数の絶対差 */
     regionImbalance: number;

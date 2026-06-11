@@ -9,6 +9,7 @@ COPY client/package.json ./client/
 
 RUN bun install --frozen-lockfile
 
+COPY tsconfig.json ./
 COPY server/src/ ./server/src
 COPY server/prisma/ ./server/prisma
 

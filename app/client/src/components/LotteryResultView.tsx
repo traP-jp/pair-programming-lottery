@@ -7,7 +7,11 @@ export type Props = {
     children?: React.ReactNode;
 };
 
-export function LotteryResultView({ result, title = "抽選結果", children }: Props) {
+export function LotteryResultView({
+    result,
+    title = "抽選結果",
+    children,
+}: Props) {
     return (
         <section className="result-section">
             <div className="result-header">
@@ -35,8 +39,8 @@ export function LotteryResultView({ result, title = "抽選結果", children }: 
 
             {result.insertedUser && (
                 <div className="inserted-note">
-                    ※ @{result.insertedUser.name}{" "}
-                    は人数調整のため上記2ペアに参加します
+                    ※ @{result.insertedUser.name} は人数調整のため上記
+                    {result.insertedUser.pairIndices.length}ペアに参加します
                 </div>
             )}
 

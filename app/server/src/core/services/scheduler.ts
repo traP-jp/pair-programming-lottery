@@ -1,4 +1,7 @@
-import type { IScheduleRepository, ILotteryResponseRepository } from "@server/repository";
+import type {
+    IScheduleRepository,
+    ILotteryResponseRepository,
+} from "@server/repository";
 import {
     buildStampMap,
     collectUserPrefs,
@@ -6,26 +9,16 @@ import {
     buildBotUserIds,
     postLotteryMessage,
 } from "@server/external/traq";
-import { getCurrentYearMonthJst } from "@server/core/services/time";
+import {
+    getJstDate,
+    getCurrentYearMonthJst,
+    isThisMonthJst,
+} from "@server/core/services/time";
 import { runLottery } from "@server/core/services/lottery/matching";
 import { formatResult } from "@server/core/services/lottery/format";
 import type { createApiClient } from "@server/external/traq";
 
 type TraqClient = ReturnType<typeof createApiClient>;
-
-function todayJst(): { day: number; yearMonth: string } {
-    const now = new Date();
-    const day = new Date(now.getTime() + 9 * 60 * 60 * 1000).getUTCDate();
-    const yearMonth = getCurrentYearMonthJst(now);
-    return { day, yearMonth };
-}
-
-function isThisMonth(isoDateTime: Date | null, yearMonth: string): boolean {
-    if (!isoDateTime) return false;
-    const d = new Date(isoDateTime.getTime() + 9 * 60 * 60 * 1000);
-    const ym = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-    return ym === yearMonth;
-}
 
 async function tick(
     scheduleRepo: IScheduleRepository,
@@ -35,11 +28,13 @@ async function tick(
     const schedule = await scheduleRepo.get();
     if (!schedule || !schedule.enabled) return;
 
-    const { day, yearMonth } = todayJst();
+    const now = new Date();
+    const day = getJstDate(now).getUTCDate();
+    const yearMonth = getCurrentYearMonthJst(now);
 
     if (
         day === schedule.postDay &&
-        !isThisMonth(schedule.lastPostedAt, yearMonth)
+        !isThisMonthJst(schedule.lastPostedAt, yearMonth)
     ) {
         console.log(
             `[Scheduler] postDay hit — posting to channel ${schedule.channelId}`,
@@ -65,8 +60,8 @@ async function tick(
     if (
         day === schedule.lotteryDay &&
         schedule.lastMessageId &&
-        isThisMonth(schedule.lastPostedAt, yearMonth) &&
-        !isThisMonth(schedule.lastLotteryAt, yearMonth)
+        isThisMonthJst(schedule.lastPostedAt, yearMonth) &&
+        !isThisMonthJst(schedule.lastLotteryAt, yearMonth)
     ) {
         console.log(
             `[Scheduler] lotteryDay hit — running lottery for message ${schedule.lastMessageId}`,
@@ -141,7 +136,9 @@ export function startScheduler(
 ) {
     console.log("[Scheduler] Started — checking every minute");
     setInterval(() => {
-        tick(scheduleRepo, lotteryResponseRepo, traq).catch((e) => console.error("[Scheduler] tick error:", e));
+        tick(scheduleRepo, lotteryResponseRepo, traq).catch((e) =>
+            console.error("[Scheduler] tick error:", e),
+        );
     }, 60_000);
 
     tick(scheduleRepo, lotteryResponseRepo, traq).catch((e) =>

@@ -7,12 +7,13 @@ import type { Prisma, Schedule } from "@server/generated/prisma/client";
 import type { Optional } from "@server/generated/prisma/client/runtime/client";
 import { runScheduledLottery } from "@server/core/services/scheduler";
 import { getStampMap, traq } from "@server/core/services/traq";
+import { getCurrentYearMonthJst } from "@server/core/services/time";
 
 export type PostScheduleBody = Parameters<IScheduleRepository["upsert"]>;
 
 export const createScheduleHandlers = (
     scheduleRepo: IScheduleRepository,
-    lotteryResponseRepo: ILotteryResponseRepository
+    lotteryResponseRepo: ILotteryResponseRepository,
 ) => {
     const getScheduleHandler = () => {
         return scheduleRepo.get();
@@ -51,8 +52,7 @@ export const createScheduleHandlers = (
         if (!schedule.lastMessageId)
             throw ApiErrorMessages.NO_MESSAGE_POSTED.asHttpException(400);
 
-        const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
-        const yearMonth = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+        const yearMonth = getCurrentYearMonthJst(new Date());
 
         const saved = await runScheduledLottery(
             scheduleRepo,
@@ -70,5 +70,10 @@ export const createScheduleHandlers = (
         return saved.id;
     };
 
-    return { getScheduleHandler, postScheduleHandler, triggerPostHandler, triggerLotteryHandler };
+    return {
+        getScheduleHandler,
+        postScheduleHandler,
+        triggerPostHandler,
+        triggerLotteryHandler,
+    };
 };

@@ -4,7 +4,7 @@ import { createFactory } from "hono/factory";
 import type { createPostMessageHandlers } from "@server/core/handlers/post-message";
 
 export const createPostMessagePresenter = (
-    handlers: ReturnType<typeof createPostMessageHandlers>
+    handlers: ReturnType<typeof createPostMessageHandlers>,
 ) => {
     const factory = createFactory();
 

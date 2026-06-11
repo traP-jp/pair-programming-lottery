@@ -1,4 +1,7 @@
-import { applyBuilder, buildValidationErrorMessage } from "@server/error/builders";
+import {
+    applyBuilder,
+    buildValidationErrorMessage,
+} from "@server/error/builders";
 
 export default applyBuilder(buildValidationErrorMessage, {
     PROPERTY_REQUIRED: (name: string) => `property "${name}" is required.`,

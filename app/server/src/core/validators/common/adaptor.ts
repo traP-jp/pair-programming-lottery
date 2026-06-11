@@ -12,5 +12,6 @@ export const adaptor =
                 if (error instanceof ApplicationError) {
                     throw error.asHttpException(400);
                 }
+                throw error;
             }
         })();

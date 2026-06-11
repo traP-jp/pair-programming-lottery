@@ -6,7 +6,7 @@ import type { createAdminRoutes } from "@server/routes/admin";
 
 export const createApp = (
     publicRoutes: ReturnType<typeof createPublicRoutes>,
-    adminRoutes: ReturnType<typeof createAdminRoutes>
+    adminRoutes: ReturnType<typeof createAdminRoutes>,
 ) => {
     const app = new Hono().basePath("/api");
 

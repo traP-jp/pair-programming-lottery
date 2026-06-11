@@ -7,7 +7,9 @@ export class PrismaScheduleRepository implements IScheduleRepository {
         return prisma.schedule.findUnique({ where: { id: 1 } });
     }
 
-    async upsert(data: Omit<Prisma.ScheduleUpsertArgs["create"], "id">): Promise<Schedule> {
+    async upsert(
+        data: Omit<Prisma.ScheduleUpsertArgs["create"], "id">,
+    ): Promise<Schedule> {
         return prisma.schedule.upsert({
             where: { id: 1 },
             create: { id: 1, ...data },

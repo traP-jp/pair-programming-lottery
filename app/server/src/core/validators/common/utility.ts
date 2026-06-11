@@ -1,8 +1,5 @@
 import { isDate } from "node:util/types";
-import {
-    invoke,
-    type ApplicationErrorGenerator,
-} from "@server/error/builders";
+import { invoke, type ApplicationErrorGenerator } from "@server/error/builders";
 import { ValidationErrorMessages } from "@server/error/messages";
 import {
     isBoolean,
@@ -23,7 +20,8 @@ export const required = <T>(
     return (value: Record<string, unknown>, property: string): T => {
         const v = value[property] as any;
 
-        if (!v) throw ValidationErrorMessages.PROPERTY_REQUIRED(property);
+        if (v === undefined || v === null || v === "")
+            throw ValidationErrorMessages.PROPERTY_REQUIRED(property);
         assert(validate(v), invoke(generator, property));
 
         return v;

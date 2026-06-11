@@ -56,7 +56,7 @@ export type FormattedPair = {
 
 export type LotteryResponse = {
     pairs: FormattedPair[];
-    insertedUser: { name: string; pairIndices: [number, number] } | null;
+    insertedUser: { name: string; pairIndices: number[] } | null;
     score: { normalized: number; total: number; max: number };
     participantCount: number;
     config: {
@@ -137,11 +137,7 @@ export function formatResult(
         formattedPairs.forEach((p, i) => {
             if (p.hasInsertedUser) indices.push(i);
         });
-        if (indices.length >= 2) {
-            insertedUser = { name, pairIndices: [indices[0]!, indices[1]!] };
-        } else {
-            insertedUser = { name, pairIndices: [0, 1] };
-        }
+        insertedUser = { name, pairIndices: indices };
     }
 
     const maxScore =

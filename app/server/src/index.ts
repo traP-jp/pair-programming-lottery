@@ -1,6 +1,5 @@
 import { startScheduler } from "@server/core/services/scheduler";
-import { createApiClient } from "@server/external/traq";
-import { TRAQ_ACCESS_TOKEN } from "@server/config";
+import { traq } from "@server/core/services/traq";
 import { createApp } from "@server/routes";
 import { createPublicRoutes } from "@server/routes/public";
 import { createAdminRoutes } from "@server/routes/admin";
@@ -17,9 +16,6 @@ import {
     scheduleRepository,
     lotteryResponseRepository,
 } from "@server/repository";
-
-// Infrastructure
-const traq = createApiClient(TRAQ_ACCESS_TOKEN);
 
 // Handlers
 const resultsHandlers = createResultsHandlers(lotteryResponseRepository);
