@@ -1,4 +1,5 @@
-import { prisma } from "../../external/db";
+import { scheduleRepository } from "../../repository/schedule";
+import { lotteryResponseRepository } from "../../repository/lotteryResponse";
 import {
     buildStampMap,
     collectUserPrefs,
@@ -28,7 +29,7 @@ function isThisMonth(isoDateTime: Date | null, yearMonth: string): boolean {
 }
 
 async function tick(traq: TraqClient) {
-    const schedule = await prisma.schedule.findUnique({ where: { id: 1 } });
+    const schedule = await scheduleRepository.get();
     if (!schedule || !schedule.enabled) return;
 
     const { day, yearMonth } = todayJst();
@@ -47,12 +48,9 @@ async function tick(traq: TraqClient) {
                 schedule.channelId,
                 stampNameToId,
             );
-            await prisma.schedule.update({
-                where: { id: 1 },
-                data: {
-                    lastMessageId: messageId,
-                    lastPostedAt: new Date(),
-                },
+            await scheduleRepository.update({
+                lastMessageId: messageId,
+                lastPostedAt: new Date(),
             });
             console.log(`[Scheduler] Posted message ${messageId}`);
         } catch (e) {
@@ -107,17 +105,14 @@ export async function runScheduledLottery(
     const LotteryResponse = runLottery(users);
     const response = formatResult(LotteryResponse, userNameMap);
 
-    const saved = await prisma.lotteryResponse.create({
-        data: {
-            channelId,
-            month: yearMonth,
-            result: response as any,
-        },
+    const saved = await lotteryResponseRepository.create({
+        channelId,
+        month: yearMonth,
+        result: response as any,
     });
 
-    await prisma.schedule.update({
-        where: { id: 1 },
-        data: { lastLotteryAt: new Date() },
+    await scheduleRepository.update({
+        lastLotteryAt: new Date(),
     });
 
     const publicUrl = process.env["PUBLIC_URL"] ?? "http://localhost:5173";

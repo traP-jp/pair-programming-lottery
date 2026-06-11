@@ -1,6 +1,6 @@
 import { ApiErrorMessages } from "../../error/messages";
 import { ApplicationError } from "../../error/structure";
-import { prisma } from "../../external/db";
+import { scheduleRepository } from "../../repository/schedule";
 import { postLotteryMessage } from "../../external/traq";
 import type { Prisma, Schedule } from "../../generated/prisma/client";
 import type { Optional } from "../../generated/prisma/client/runtime/client";
@@ -8,19 +8,15 @@ import { runScheduledLottery } from "../services/scheduler";
 import { getStampMap, traq } from "../services/traq";
 
 export const getScheduleHandler = () => {
-    return prisma.schedule.findUnique({ where: { id: 1 } });
+    return scheduleRepository.get();
 };
 
-export type PostScheduleBody = Parameters<typeof prisma.schedule.upsert>;
+export type PostScheduleBody = Parameters<typeof scheduleRepository.upsert>;
 
 export const postScheduleHandler = (
     data: Omit<Prisma.ScheduleUpsertArgs["create"], "id">,
 ) => {
-    return prisma.schedule.upsert({
-        where: { id: 1 },
-        create: { id: 1, ...data },
-        update: data,
-    });
+    return scheduleRepository.upsert(data);
 };
 
 export const triggerPostHandler = async () => {
@@ -35,16 +31,16 @@ export const triggerPostHandler = async () => {
         stampNameToId,
     );
 
-    await prisma.schedule.update({
-        where: { id: 1 },
-        data: { lastMessageId: messageId, lastPostedAt: new Date() },
+    await scheduleRepository.update({
+        lastMessageId: messageId,
+        lastPostedAt: new Date(),
     });
 
     return messageId;
 };
 
 export const triggerLotteryHandler = async () => {
-    const schedule = await prisma.schedule.findUnique({ where: { id: 1 } });
+    const schedule = await scheduleRepository.get();
     if (!schedule)
         throw ApiErrorMessages.SCHEDULE_NOT_FOUND.asHttpException(400);
     if (!schedule.lastMessageId)
