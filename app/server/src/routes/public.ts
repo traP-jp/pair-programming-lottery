@@ -10,3 +10,5 @@ export const createPublicRoutes = (
         .get("/results", ...resultsPresenter.getResults)
         .get("/results/:id", ...resultsPresenter.getResult);
 };
+
+export type PublicRoutes = ReturnType<typeof createPublicRoutes>;

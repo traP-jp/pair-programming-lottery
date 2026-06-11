@@ -4,11 +4,18 @@ import {
     validateSaveResultBody,
 } from "@server/core/validators/results";
 import { validator } from "hono/validator";
-import type { createResultsHandlers } from "@server/core/handlers/results";
 import { ApiErrorMessages } from "@server/error/messages";
+import type { LotteryResponse } from "@server/generated/prisma/client";
+import type { LotteryResponse as LotteryResponseType } from "@server/core/services/lottery/format";
+
+export interface IResultsHandlers {
+    getResultsHandler(): Promise<Pick<LotteryResponse, "id" | "createdAt" | "channelId" | "month">[]>;
+    getResultHandler(id: string): Promise<LotteryResponse | null>;
+    saveResultHandler(messageId: string, result: LotteryResponseType): Promise<LotteryResponse>;
+}
 
 export const createResultsPresenter = (
-    handlers: ReturnType<typeof createResultsHandlers>,
+    handlers: IResultsHandlers,
 ) => {
     const factory = createFactory();
 

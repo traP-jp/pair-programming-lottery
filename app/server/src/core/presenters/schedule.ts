@@ -1,10 +1,17 @@
 import { createFactory } from "hono/factory";
 import { validator } from "hono/validator";
 import { validatePostScheduleBody } from "@server/core/validators/schedule";
-import type { createScheduleHandlers } from "@server/core/handlers/schedule";
+import type { Schedule, Prisma } from "@server/generated/prisma/client";
+
+export interface IScheduleHandlers {
+    getScheduleHandler(): Promise<Schedule | null>;
+    postScheduleHandler(data: Omit<Prisma.ScheduleUpsertArgs["create"], "id">): Promise<Schedule>;
+    triggerPostHandler(): Promise<string>;
+    triggerLotteryHandler(): Promise<string>;
+}
 
 export const createSchedulePresenter = (
-    handlers: ReturnType<typeof createScheduleHandlers>,
+    handlers: IScheduleHandlers,
 ) => {
     const factory = createFactory();
 

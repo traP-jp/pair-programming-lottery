@@ -8,6 +8,7 @@ import {
     buildUserNameMap,
     buildBotUserIds,
     postLotteryMessage,
+    type ITraqClient,
 } from "@server/external/traq";
 import {
     getJstDay,
@@ -16,14 +17,11 @@ import {
 } from "@server/core/services/time";
 import { runLottery } from "@server/core/services/lottery/matching";
 import { formatResult } from "@server/core/services/lottery/format";
-import type { createApiClient } from "@server/external/traq";
-
-type TraqClient = ReturnType<typeof createApiClient>;
 
 async function tick(
     scheduleRepo: IScheduleRepository,
     lotteryResponseRepo: ILotteryResponseRepository,
-    traq: TraqClient,
+    traq: ITraqClient,
 ) {
     const schedule = await scheduleRepo.get();
     if (!schedule || !schedule.enabled) return;
@@ -84,7 +82,7 @@ async function tick(
 export async function runScheduledLottery(
     scheduleRepo: IScheduleRepository,
     lotteryResponseRepo: ILotteryResponseRepository,
-    traq: TraqClient,
+    traq: ITraqClient,
     channelId: string,
     messageId: string,
     yearMonth: string,
@@ -132,7 +130,7 @@ export async function runScheduledLottery(
 export function startScheduler(
     scheduleRepo: IScheduleRepository,
     lotteryResponseRepo: ILotteryResponseRepository,
-    traq: TraqClient,
+    traq: ITraqClient,
 ) {
     console.log("[Scheduler] Started — checking every minute");
 

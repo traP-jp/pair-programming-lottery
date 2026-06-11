@@ -2,13 +2,12 @@ import {
     buildBotUserIds,
     buildStampMap,
     buildUserNameMap,
-    createApiClient,
+    type StampMaps,
+    type ITraqClient,
 } from "@server/external/traq";
 
-export type TraqClient = ReturnType<typeof createApiClient>;
-
-export function createTraqService(client: TraqClient) {
-    let stampMapPromise: ReturnType<typeof buildStampMap> | null = null;
+export function createTraqService(client: ITraqClient) {
+    let stampMapPromise: Promise<StampMaps> | null = null;
     async function getStampMap() {
         if (!stampMapPromise) stampMapPromise = buildStampMap(client);
         return stampMapPromise;
@@ -43,4 +42,3 @@ export function createTraqService(client: TraqClient) {
     };
 }
 
-export type TraqService = ReturnType<typeof createTraqService>;

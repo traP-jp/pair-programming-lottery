@@ -1,11 +1,17 @@
 import type { ILotteryResponseRepository } from "@server/core/repository/lotteryResponse";
 import { getCurrentYearMonthJst } from "@server/core/services/time";
 import type { LotteryResponse } from "@server/core/services/lottery/format";
-import type { TraqService } from "@server/core/services/traq";
+export interface IResultsTraqService {
+    client: {
+        messages: {
+            getMessage(messageId: string): Promise<any>;
+        };
+    };
+}
 
 export const createResultsHandlers = (
     lotteryResponseRepo: ILotteryResponseRepository,
-    traqService: TraqService,
+    traqService: IResultsTraqService,
 ) => {
     const getResultsHandler = async () => {
         const records = await lotteryResponseRepo.findMany({

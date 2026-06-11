@@ -1,10 +1,14 @@
 import { createFactory } from "hono/factory";
 import { validator } from "hono/validator";
 import { validateRunLotteryBody } from "@server/core/validators/lottery";
-import type { createLotteryHandlers } from "@server/core/handlers/lottery";
+import type { LotteryResponse } from "@server/core/services/lottery/format";
+
+export interface ILotteryHandlers {
+    runLotteryHandler(messageId: string): Promise<LotteryResponse>;
+}
 
 export const createLotteryPresenter = (
-    handlers: ReturnType<typeof createLotteryHandlers>,
+    handlers: ILotteryHandlers,
 ) => {
     const factory = createFactory();
 
@@ -18,3 +22,4 @@ export const createLotteryPresenter = (
 
     return { runLottery };
 };
+

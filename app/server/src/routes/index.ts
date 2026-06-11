@@ -1,12 +1,12 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
-import type { createPublicRoutes } from "@server/routes/public";
-import type { createAdminRoutes } from "@server/routes/admin";
+import type { PublicRoutes } from "./public";
+import type { AdminRoutes } from "./admin";
 
 export const createApp = (
-    publicRoutes: ReturnType<typeof createPublicRoutes>,
-    adminRoutes: ReturnType<typeof createAdminRoutes>,
+    publicRoutes: PublicRoutes,
+    adminRoutes: AdminRoutes,
 ) => {
     const app = new Hono().basePath("/api");
 

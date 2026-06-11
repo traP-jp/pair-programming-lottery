@@ -1,10 +1,13 @@
 import { validatePostMessageBody } from "@server/core/validators/post-message";
 import { validator } from "hono/validator";
 import { createFactory } from "hono/factory";
-import type { createPostMessageHandlers } from "@server/core/handlers/post-message";
+
+export interface IPostMessageHandlers {
+    postMessageHandler(channelId: string): Promise<string>;
+}
 
 export const createPostMessagePresenter = (
-    handlers: ReturnType<typeof createPostMessageHandlers>,
+    handlers: IPostMessageHandlers,
 ) => {
     const factory = createFactory();
 
@@ -19,3 +22,4 @@ export const createPostMessagePresenter = (
 
     return { postMessage };
 };
+

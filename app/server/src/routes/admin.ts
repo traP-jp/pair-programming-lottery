@@ -24,3 +24,5 @@ export const createAdminRoutes = (
         .post("/schedule/trigger-post", ...schedulePresenter.triggerPost)
         .post("/schedule/trigger-lottery", ...schedulePresenter.triggerLottery);
 };
+
+export type AdminRoutes = ReturnType<typeof createAdminRoutes>;

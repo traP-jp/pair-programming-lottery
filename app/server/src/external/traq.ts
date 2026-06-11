@@ -8,7 +8,7 @@ const TARGET_STAMP_NAMES = [
     "regional_indicator_b",
 ] as const;
 
-type TargetStampName = (typeof TARGET_STAMP_NAMES)[number];
+export type TargetStampName = (typeof TARGET_STAMP_NAMES)[number];
 
 export function createApiClient(token: string) {
     return new Api({
@@ -27,13 +27,36 @@ function unwrapResponse<T>(res: { data: T } | T): T {
         : (res as T);
 }
 
+export interface ITraqClient {
+    stamps: {
+        getStamps(): Promise<any>;
+    };
+    messages: {
+        getMessage(messageId: string): Promise<any>;
+        addMessageStamp(
+            messageId: string,
+            stampId: string,
+            data: { count: number },
+        ): Promise<any>;
+    };
+    users: {
+        getUsers(): Promise<any>;
+    };
+    channels: {
+        postMessage(
+            channelId: string,
+            data: { content: string; embed: boolean },
+        ): Promise<any>;
+    };
+}
+
 export type StampMaps = {
     stampIdToName: Map<string, TargetStampName>;
     stampNameToId: Map<string, string>;
 };
 
 export async function buildStampMap(
-    api: ReturnType<typeof createApiClient>,
+    api: ITraqClient,
 ): Promise<StampMaps> {
     const stampsRes = await api.stamps.getStamps();
     const stampsData = unwrapResponse(stampsRes) as {
@@ -61,7 +84,7 @@ export async function buildStampMap(
 }
 
 export async function collectUserPrefs(
-    api: ReturnType<typeof createApiClient>,
+    api: ITraqClient,
     messageId: string,
     stampIdToName: Map<string, TargetStampName>,
     botUserIds: Set<string>,
@@ -120,7 +143,7 @@ export async function collectUserPrefs(
 }
 
 export async function buildUserNameMap(
-    api: ReturnType<typeof createApiClient>,
+    api: ITraqClient,
 ): Promise<Map<string, string>> {
     const usersRes = await api.users.getUsers();
     const systemUsers = unwrapResponse(usersRes) as {
@@ -138,7 +161,7 @@ export async function buildUserNameMap(
 }
 
 export async function buildBotUserIds(
-    api: ReturnType<typeof createApiClient>,
+    api: ITraqClient,
 ): Promise<Set<string>> {
     const usersRes = await api.users.getUsers();
     const systemUsers = unwrapResponse(usersRes) as {
@@ -161,7 +184,7 @@ const LOTTERY_MESSAGE = `## ペアプロ抽選
 `;
 
 export async function postLotteryMessage(
-    api: ReturnType<typeof createApiClient>,
+    api: ITraqClient,
     channelId: string,
     stampNameToId: Map<string, string>,
 ): Promise<string> {

@@ -6,15 +6,17 @@ import { postLotteryMessage } from "@server/external/traq";
 import type { Prisma, Schedule } from "@server/generated/prisma/client";
 import type { Optional } from "@server/generated/prisma/client/runtime/client";
 import { runScheduledLottery } from "@server/core/services/scheduler";
-import type { TraqService } from "@server/core/services/traq";
 import { getCurrentYearMonthJst } from "@server/core/services/time";
 
-export type PostScheduleBody = Parameters<IScheduleRepository["upsert"]>;
+export interface IScheduleTraqService {
+    client: any;
+    getStampMap(): Promise<{ stampNameToId: Map<string, string> }>;
+}
 
 export const createScheduleHandlers = (
     scheduleRepo: IScheduleRepository,
     lotteryResponseRepo: ILotteryResponseRepository,
-    traqService: TraqService,
+    traqService: IScheduleTraqService,
 ) => {
     const getScheduleHandler = () => {
         return scheduleRepo.get();
