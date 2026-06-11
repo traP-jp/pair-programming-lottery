@@ -1,4 +1,4 @@
-import { applyBuilder, buildApiErrorMessage } from "../builders";
+import { applyBuilder, buildApiErrorMessage } from "@server/error/builders";
 
 export default applyBuilder(buildApiErrorMessage, {
     LOTTERY_RESULT_NOT_FOUND: (id: string) =>

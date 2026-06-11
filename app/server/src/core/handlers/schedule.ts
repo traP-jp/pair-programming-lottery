@@ -1,12 +1,12 @@
-import { ApiErrorMessages } from "../../error/messages";
-import { ApplicationError } from "../../error/structure";
-import type { IScheduleRepository } from "../../repository/schedule";
-import type { ILotteryResponseRepository } from "../../repository/lotteryResponse";
-import { postLotteryMessage } from "../../external/traq";
-import type { Prisma, Schedule } from "../../generated/prisma/client";
-import type { Optional } from "../../generated/prisma/client/runtime/client";
-import { runScheduledLottery } from "../services/scheduler";
-import { getStampMap, traq } from "../services/traq";
+import { ApiErrorMessages } from "@server/error/messages";
+import { ApplicationError } from "@server/error/structure";
+import type { IScheduleRepository } from "@server/repository/schedule";
+import type { ILotteryResponseRepository } from "@server/repository/lotteryResponse";
+import { postLotteryMessage } from "@server/external/traq";
+import type { Prisma, Schedule } from "@server/generated/prisma/client";
+import type { Optional } from "@server/generated/prisma/client/runtime/client";
+import { runScheduledLottery } from "@server/core/services/scheduler";
+import { getStampMap, traq } from "@server/core/services/traq";
 
 export type PostScheduleBody = Parameters<IScheduleRepository["upsert"]>;
 

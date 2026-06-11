@@ -1,6 +1,6 @@
-import { prisma } from "../../external/db";
-import type { LotteryResponse, Prisma } from "../../generated/prisma/client";
-import type { ILotteryResponseRepository } from "../lotteryResponse";
+import { prisma } from "@server/external/db";
+import type { LotteryResponse, Prisma } from "@server/generated/prisma/client";
+import type { ILotteryResponseRepository } from "@server/repository/lotteryResponse";
 
 export class PrismaLotteryResponseRepository implements ILotteryResponseRepository {
     async findMany(options: {

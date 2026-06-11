@@ -2,15 +2,15 @@ import { isDate } from "node:util/types";
 import {
     invoke,
     type ApplicationErrorGenerator,
-} from "../../../error/builders";
-import { ValidationErrorMessages } from "../../../error/messages";
+} from "@server/error/builders";
+import { ValidationErrorMessages } from "@server/error/messages";
 import {
     isBoolean,
     isNumber,
     isString,
     type Fn,
-} from "../../../utilities/types";
-import type { ApplicationError } from "../../../error/structure";
+} from "@server/utilities/types";
+import type { ApplicationError } from "@server/error/structure";
 
 export const assert = (expression: boolean, error: ApplicationError) => {
     if (!expression) throw error;

@@ -1,7 +1,7 @@
 import { createFactory } from "hono/factory";
-import { validateGetResultParams, validateSaveResultBody } from "../validators/results";
+import { validateGetResultParams, validateSaveResultBody } from "@server/core/validators/results";
 import { validator } from "hono/validator";
-import type { createResultsHandlers } from "../handlers/results";
+import type { createResultsHandlers } from "@server/core/handlers/results";
 
 export const createResultsPresenter = (
     handlers: ReturnType<typeof createResultsHandlers>

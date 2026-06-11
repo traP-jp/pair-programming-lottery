@@ -1,5 +1,5 @@
-import { isString } from "../utilities/types";
-import { ApplicationError } from "./structure";
+import { isString } from "@server/utilities/types";
+import { ApplicationError } from "@server/error/structure";
 
 export const buildApplicationErrorMessage = (message: string) =>
     new ApplicationError(`Application Error: ${message}`);

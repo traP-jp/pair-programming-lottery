@@ -1,5 +1,5 @@
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient } from "@server/generated/prisma/client";
 
 const adapter = new PrismaMariaDb({
     database: process.env.NS_MARIADB_DATABASE,

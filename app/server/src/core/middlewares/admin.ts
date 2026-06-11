@@ -1,5 +1,5 @@
 import type { HonoRequest } from "hono";
-import { getEnv } from "../../utilities/env";
+import { getEnv } from "@server/utilities/env";
 import { createMiddleware } from "hono/factory";
 
 const ADMINS = getEnv("ADMINS").split(",");

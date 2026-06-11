@@ -1,7 +1,7 @@
-import { ValidationErrorMessages } from "../../error/messages";
-import type { LotteryResponse } from "../services/lottery/format";
-import { adaptor } from "./common/adaptor";
-import { requireString } from "./common/utility";
+import { ValidationErrorMessages } from "@server/error/messages";
+import type { LotteryResponse } from "@server/core/services/lottery/format";
+import { adaptor } from "@server/core/validators/common/adaptor";
+import { requireString } from "@server/core/validators/common/utility";
 
 export const validateGetResultParams = adaptor("param")((params) => {
     const id = requireString(params, "id");

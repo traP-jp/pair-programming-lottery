@@ -1,5 +1,5 @@
-import { postLotteryMessage } from "../../external/traq";
-import { getStampMap, traq } from "../services/traq";
+import { postLotteryMessage } from "@server/external/traq";
+import { getStampMap, traq } from "@server/core/services/traq";
 
 export const createPostMessageHandlers = () => {
     const postMessageHandler = async (channelId: string) => {

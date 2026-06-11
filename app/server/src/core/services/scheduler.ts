@@ -1,15 +1,15 @@
-import type { IScheduleRepository, ILotteryResponseRepository } from "../../repository";
+import type { IScheduleRepository, ILotteryResponseRepository } from "@server/repository";
 import {
     buildStampMap,
     collectUserPrefs,
     buildUserNameMap,
     buildBotUserIds,
     postLotteryMessage,
-} from "../../external/traq";
-import { getCurrentYearMonthJst } from "./time";
-import { runLottery } from "./lottery/matching";
-import { formatResult } from "./lottery/format";
-import type { createApiClient } from "../../external/traq";
+} from "@server/external/traq";
+import { getCurrentYearMonthJst } from "@server/core/services/time";
+import { runLottery } from "@server/core/services/lottery/matching";
+import { formatResult } from "@server/core/services/lottery/format";
+import type { createApiClient } from "@server/external/traq";
 
 type TraqClient = ReturnType<typeof createApiClient>;
 

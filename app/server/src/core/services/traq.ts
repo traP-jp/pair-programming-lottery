@@ -3,8 +3,8 @@ import {
     buildStampMap,
     buildUserNameMap,
     createApiClient,
-} from "../../external/traq";
-import { getEnv } from "../../utilities/env";
+} from "@server/external/traq";
+import { getEnv } from "@server/utilities/env";
 
 export const traq = createApiClient(getEnv("TRAQ_ACCESS_TOKEN"));
 

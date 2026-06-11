@@ -1,4 +1,4 @@
-import type { LotteryResponse, Prisma } from "../generated/prisma/client";
+import type { LotteryResponse, Prisma } from "@server/generated/prisma/client";
 
 export interface ILotteryResponseRepository {
     findMany(options?: {

@@ -1,10 +1,10 @@
 import { Hono, type HonoRequest } from "hono";
-import { getEnv } from "../utilities/env";
-import { adminOnlyMiddleware } from "../core/middlewares/admin";
-import type { createResultsPresenter } from "../core/presenters/results";
-import type { createSchedulePresenter } from "../core/presenters/schedule";
-import type { createLotteryPresenter } from "../core/presenters/lottery";
-import type { createPostMessagePresenter } from "../core/presenters/post-message";
+import { getEnv } from "@server/utilities/env";
+import { adminOnlyMiddleware } from "@server/core/middlewares/admin";
+import type { createResultsPresenter } from "@server/core/presenters/results";
+import type { createSchedulePresenter } from "@server/core/presenters/schedule";
+import type { createLotteryPresenter } from "@server/core/presenters/lottery";
+import type { createPostMessagePresenter } from "@server/core/presenters/post-message";
 
 export const createAdminRoutes = (
     resultsPresenter: ReturnType<typeof createResultsPresenter>,

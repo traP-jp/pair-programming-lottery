@@ -1,7 +1,7 @@
-import type { ILotteryResponseRepository } from "../../repository/lotteryResponse";
-import { getCurrentYearMonthJst } from "../services/time";
-import type { LotteryResponse } from "../services/lottery/format";
-import { traq } from "../services/traq";
+import type { ILotteryResponseRepository } from "@server/repository/lotteryResponse";
+import { getCurrentYearMonthJst } from "@server/core/services/time";
+import type { LotteryResponse } from "@server/core/services/lottery/format";
+import { traq } from "@server/core/services/traq";
 
 export const createResultsHandlers = (lotteryResponseRepo: ILotteryResponseRepository) => {
     const getResultsHandler = async () => {

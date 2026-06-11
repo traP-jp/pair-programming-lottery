@@ -1,5 +1,5 @@
-import ApiErrorMessages from "./api";
-import ProcessErrorMessages from "./process";
-import ValidationErrorMessages from "./validation";
+import ApiErrorMessages from "@server/error/messages/api";
+import ProcessErrorMessages from "@server/error/messages/process";
+import ValidationErrorMessages from "@server/error/messages/validation";
 
 export { ApiErrorMessages, ProcessErrorMessages, ValidationErrorMessages };

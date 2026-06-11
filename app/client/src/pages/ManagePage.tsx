@@ -5,9 +5,9 @@ import {
     runLottery,
     saveResult,
     type LotteryResponse,
-} from "@/api";
-import { LotteryResultView } from "@/components/LotteryResultView";
-import { paths } from "@/router";
+} from "@client/api";
+import { LotteryResultView } from "@client/components/LotteryResultView";
+import { paths } from "@client/router";
 
 export function ManagePage() {
     const [channelId, setChannelId] = useState("");

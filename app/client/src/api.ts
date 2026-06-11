@@ -1,5 +1,5 @@
 import { hc, type InferResponseType } from "hono/client";
-import type { Routes } from "../../server/src/routes";
+import type { Routes } from "@server/routes";
 
 const client = hc<Routes>("/");
 

@@ -1,4 +1,4 @@
-import type { UserPrefs, MatchingResult } from "../../../types";
+import type { UserPrefs, MatchingResult } from "@server/types";
 
 const SCORE_REGION_MATCH = 100;
 const SCORE_ROLE_COMPLEMENT = 10;

@@ -1,9 +1,9 @@
-import type { UserPrefs, MatchingResult } from "../../../types";
+import type { UserPrefs, MatchingResult } from "@server/types";
 import {
     SCORE_REGION_MATCH,
     SCORE_ROLE_COMPLEMENT,
     SIMULATION_ROUNDS,
-} from "./matching";
+} from "@server/core/services/lottery/matching";
 
 export type Region = "frontend" | "backend";
 export type Role = "navigator" | "driver";

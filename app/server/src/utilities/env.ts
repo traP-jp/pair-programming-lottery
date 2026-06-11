@@ -1,4 +1,4 @@
-import { ProcessErrorMessages } from "../error/messages";
+import { ProcessErrorMessages } from "@server/error/messages";
 
 export interface GetEnvOptions<Fallback> {
     readonly fallback?: Fallback;

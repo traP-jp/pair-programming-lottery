@@ -1,7 +1,7 @@
 import { createFactory } from "hono/factory";
 import { validator } from "hono/validator";
-import { validateRunLotteryBody } from "../validators/lottery";
-import type { createLotteryHandlers } from "../handlers/lottery";
+import { validateRunLotteryBody } from "@server/core/validators/lottery";
+import type { createLotteryHandlers } from "@server/core/handlers/lottery";
 
 export const createLotteryPresenter = (
     handlers: ReturnType<typeof createLotteryHandlers>

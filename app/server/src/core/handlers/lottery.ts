@@ -1,13 +1,13 @@
-import { ApiErrorMessages } from "../../error/messages";
-import { collectUserPrefs } from "../../external/traq";
-import { formatResult } from "../services/lottery/format";
-import { runLottery as runLotteryService } from "../services/lottery/matching";
+import { ApiErrorMessages } from "@server/error/messages";
+import { collectUserPrefs } from "@server/external/traq";
+import { formatResult } from "@server/core/services/lottery/format";
+import { runLottery as runLotteryService } from "@server/core/services/lottery/matching";
 import {
     getBotUserIds,
     getStampMap,
     getUserNameMap,
     traq,
-} from "../services/traq";
+} from "@server/core/services/traq";
 
 export const createLotteryHandlers = () => {
     const runLotteryHandler = async (messageId: string) => {

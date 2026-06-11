@@ -1,11 +1,11 @@
-import { ApiErrorMessages } from "../../error/messages";
-import { adaptor } from "./common/adaptor";
+import { ApiErrorMessages } from "@server/error/messages";
+import { adaptor } from "@server/core/validators/common/adaptor";
 import {
     assert,
     requireBoolean,
     requireNumber,
     requireString,
-} from "./common/utility";
+} from "@server/core/validators/common/utility";
 
 export const validatePostScheduleBody = adaptor("json")((value) => {
     const channelId = requireString(value, "channelId");

@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { createResultsPresenter } from "../core/presenters/results";
+import type { createResultsPresenter } from "@server/core/presenters/results";
 
 export const createPublicRoutes = (
     resultsPresenter: ReturnType<typeof createResultsPresenter>

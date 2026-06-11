@@ -1,5 +1,5 @@
 import { Api } from "traq-bot-ts";
-import type { UserPrefs, Region, Role } from "../types";
+import type { UserPrefs, Region, Role } from "@server/types";
 
 const TARGET_STAMP_NAMES = [
     "one",

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getResult, type LotteryResponse } from "@/api";
-import { LotteryResultView } from "@/components/LotteryResultView";
-import { paths } from "@/router";
-import { ChevronDownIcon, CopyIcon, CheckIcon } from "@/components/icons";
+import { getResult, type LotteryResponse } from "@client/api";
+import { LotteryResultView } from "@client/components/LotteryResultView";
+import { paths } from "@client/router";
+import { ChevronDownIcon, CopyIcon, CheckIcon } from "@client/components/icons";
 
 type RawResult = {
     id: string;

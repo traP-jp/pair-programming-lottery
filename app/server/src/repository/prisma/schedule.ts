@@ -1,6 +1,6 @@
-import { prisma } from "../../external/db";
-import type { Schedule, Prisma } from "../../generated/prisma/client";
-import type { IScheduleRepository } from "../schedule";
+import { prisma } from "@server/external/db";
+import type { Schedule, Prisma } from "@server/generated/prisma/client";
+import type { IScheduleRepository } from "@server/repository/schedule";
 
 export class PrismaScheduleRepository implements IScheduleRepository {
     async get(): Promise<Schedule | null> {

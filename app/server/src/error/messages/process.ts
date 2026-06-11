@@ -1,4 +1,4 @@
-import { applyBuilder, buildProcessErrorMessage } from "../builders";
+import { applyBuilder, buildProcessErrorMessage } from "@server/error/builders";
 
 export default applyBuilder(buildProcessErrorMessage, {
     ENV_VAR_REQUIRED: (name: string) =>

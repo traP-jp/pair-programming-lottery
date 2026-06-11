@@ -1,7 +1,7 @@
-import { validatePostMessageBody } from "../validators/post-message";
+import { validatePostMessageBody } from "@server/core/validators/post-message";
 import { validator } from "hono/validator";
 import { createFactory } from "hono/factory";
-import type { createPostMessageHandlers } from "../handlers/post-message";
+import type { createPostMessageHandlers } from "@server/core/handlers/post-message";
 
 export const createPostMessagePresenter = (
     handlers: ReturnType<typeof createPostMessageHandlers>

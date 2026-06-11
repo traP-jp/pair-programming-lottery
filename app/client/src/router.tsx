@@ -5,11 +5,11 @@ import {
     Outlet,
     Navigate,
 } from "react-router-dom";
-import { ManagePage } from "@/pages/ManagePage";
-import { ResultsPage } from "@/pages/ResultsPage";
-import { ResultDetailPage } from "@/pages/ResultDetailPage";
-import { AdminPage } from "@/pages/AdminPage";
-import { AuthProvider, AdminRoute } from "@/hooks/useAuth";
+import { ManagePage } from "@client/pages/ManagePage";
+import { ResultsPage } from "@client/pages/ResultsPage";
+import { ResultDetailPage } from "@client/pages/ResultDetailPage";
+import { AdminPage } from "@client/pages/AdminPage";
+import { AuthProvider, AdminRoute } from "@client/hooks/useAuth";
 
 export const paths = {
     home: "/",

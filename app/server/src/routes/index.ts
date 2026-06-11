@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
-import type { createPublicRoutes } from "./public";
-import type { createAdminRoutes } from "./admin";
+import type { createPublicRoutes } from "@server/routes/public";
+import type { createAdminRoutes } from "@server/routes/admin";
 
 export const createApp = (
     publicRoutes: ReturnType<typeof createPublicRoutes>,

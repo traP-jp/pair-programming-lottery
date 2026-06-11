@@ -1,5 +1,5 @@
 import type { ValidationTargets } from "hono";
-import { ApplicationError } from "../../../error/structure";
+import { ApplicationError } from "@server/error/structure";
 
 export const adaptor =
     <Target extends keyof ValidationTargets>(target: Target) =>

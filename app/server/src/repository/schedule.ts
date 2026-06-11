@@ -1,4 +1,4 @@
-import type { Schedule, Prisma } from "../generated/prisma/client";
+import type { Schedule, Prisma } from "@server/generated/prisma/client";
 
 export interface IScheduleRepository {
     get(): Promise<Schedule | null>;

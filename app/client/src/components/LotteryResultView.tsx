@@ -1,5 +1,5 @@
-import type { LotteryResponse } from "@/api";
-import { PairCard } from "@/components/PairCard";
+import type { LotteryResponse } from "@client/api";
+import { PairCard } from "@client/components/PairCard";
 
 export type Props = {
     result: LotteryResponse;

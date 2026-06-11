@@ -1,7 +1,7 @@
 import { createFactory } from "hono/factory";
 import { validator } from "hono/validator";
-import { validatePostScheduleBody } from "../validators/schedule";
-import type { createScheduleHandlers } from "../handlers/schedule";
+import { validatePostScheduleBody } from "@server/core/validators/schedule";
+import type { createScheduleHandlers } from "@server/core/handlers/schedule";
 
 export const createSchedulePresenter = (
     handlers: ReturnType<typeof createScheduleHandlers>
