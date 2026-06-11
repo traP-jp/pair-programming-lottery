@@ -1,7 +1,7 @@
 import type {
     IScheduleRepository,
     ILotteryResponseRepository,
-} from "@server/repository";
+} from "@server/core/repository";
 import {
     buildStampMap,
     collectUserPrefs,
@@ -10,7 +10,7 @@ import {
     postLotteryMessage,
 } from "@server/external/traq";
 import {
-    getJstDate,
+    getJstDay,
     getCurrentYearMonthJst,
     isThisMonthJst,
 } from "@server/core/services/time";
@@ -29,7 +29,7 @@ async function tick(
     if (!schedule || !schedule.enabled) return;
 
     const now = new Date();
-    const day = getJstDate(now).getUTCDate();
+    const day = getJstDay(now);
     const yearMonth = getCurrentYearMonthJst(now);
 
     if (
@@ -135,13 +135,16 @@ export function startScheduler(
     traq: TraqClient,
 ) {
     console.log("[Scheduler] Started — checking every minute");
-    setInterval(() => {
-        tick(scheduleRepo, lotteryResponseRepo, traq).catch((e) =>
-            console.error("[Scheduler] tick error:", e),
-        );
-    }, 60_000);
 
-    tick(scheduleRepo, lotteryResponseRepo, traq).catch((e) =>
-        console.error("[Scheduler] initial tick error:", e),
-    );
+    async function runTicker() {
+        try {
+            await tick(scheduleRepo, lotteryResponseRepo, traq);
+        } catch (e) {
+            console.error("[Scheduler] tick error:", e);
+        } finally {
+            setTimeout(runTicker, 60_000);
+        }
+    }
+
+    runTicker();
 }

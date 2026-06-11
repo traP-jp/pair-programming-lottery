@@ -1,12 +1,12 @@
 import { ApiErrorMessages } from "@server/error/messages";
 import { ApplicationError } from "@server/error/structure";
-import type { IScheduleRepository } from "@server/repository/schedule";
-import type { ILotteryResponseRepository } from "@server/repository/lotteryResponse";
+import type { IScheduleRepository } from "@server/core/repository/schedule";
+import type { ILotteryResponseRepository } from "@server/core/repository/lotteryResponse";
 import { postLotteryMessage } from "@server/external/traq";
 import type { Prisma, Schedule } from "@server/generated/prisma/client";
 import type { Optional } from "@server/generated/prisma/client/runtime/client";
 import { runScheduledLottery } from "@server/core/services/scheduler";
-import { getStampMap, traq } from "@server/core/services/traq";
+import type { TraqService } from "@server/core/services/traq";
 import { getCurrentYearMonthJst } from "@server/core/services/time";
 
 export type PostScheduleBody = Parameters<IScheduleRepository["upsert"]>;
@@ -14,6 +14,7 @@ export type PostScheduleBody = Parameters<IScheduleRepository["upsert"]>;
 export const createScheduleHandlers = (
     scheduleRepo: IScheduleRepository,
     lotteryResponseRepo: ILotteryResponseRepository,
+    traqService: TraqService,
 ) => {
     const getScheduleHandler = () => {
         return scheduleRepo.get();
@@ -30,9 +31,9 @@ export const createScheduleHandlers = (
         if (!schedule)
             throw ApiErrorMessages.SCHEDULE_NOT_FOUND.asHttpException(400);
 
-        const { stampNameToId } = await getStampMap();
+        const { stampNameToId } = await traqService.getStampMap();
         const messageId = await postLotteryMessage(
-            traq,
+            traqService.client,
             schedule.channelId,
             stampNameToId,
         );
@@ -57,7 +58,7 @@ export const createScheduleHandlers = (
         const saved = await runScheduledLottery(
             scheduleRepo,
             lotteryResponseRepo,
-            traq,
+            traqService.client,
             schedule.channelId,
             schedule.lastMessageId,
             yearMonth,

@@ -21,6 +21,12 @@ export function createApiClient(token: string) {
     });
 }
 
+function unwrapResponse<T>(res: { data: T } | T): T {
+    return (res && typeof res === "object" && "data" in res)
+        ? (res.data as T)
+        : (res as T);
+}
+
 export type StampMaps = {
     stampIdToName: Map<string, TargetStampName>;
     stampNameToId: Map<string, string>;
@@ -30,7 +36,7 @@ export async function buildStampMap(
     api: ReturnType<typeof createApiClient>,
 ): Promise<StampMaps> {
     const stampsRes = await api.stamps.getStamps();
-    const stampsData = ("data" in stampsRes ? stampsRes.data : stampsRes) as {
+    const stampsData = unwrapResponse(stampsRes) as {
         id: string;
         name: string;
     }[];
@@ -61,9 +67,7 @@ export async function collectUserPrefs(
     botUserIds: Set<string>,
 ): Promise<UserPrefs[]> {
     const messageRes = await api.messages.getMessage(messageId);
-    const messageInfo = (
-        "data" in messageRes ? messageRes.data : messageRes
-    ) as { stamps: { stampId: string; userId: string }[] } | null;
+    const messageInfo = unwrapResponse(messageRes) as { stamps: { stampId: string; userId: string }[] } | null;
 
     if (!messageInfo?.stamps) {
         throw new Error(
@@ -119,7 +123,7 @@ export async function buildUserNameMap(
     api: ReturnType<typeof createApiClient>,
 ): Promise<Map<string, string>> {
     const usersRes = await api.users.getUsers();
-    const systemUsers = ("data" in usersRes ? usersRes.data : usersRes) as {
+    const systemUsers = unwrapResponse(usersRes) as {
         id: string;
         name: string;
         displayName: string;
@@ -137,7 +141,7 @@ export async function buildBotUserIds(
     api: ReturnType<typeof createApiClient>,
 ): Promise<Set<string>> {
     const usersRes = await api.users.getUsers();
-    const systemUsers = ("data" in usersRes ? usersRes.data : usersRes) as {
+    const systemUsers = unwrapResponse(usersRes) as {
         id: string;
         bot: boolean;
     }[];
@@ -165,7 +169,7 @@ export async function postLotteryMessage(
         content: LOTTERY_MESSAGE,
         embed: false,
     });
-    const data = ("data" in res ? res.data : res) as { id: string };
+    const data = unwrapResponse(res) as { id: string };
     const messageId = data.id;
 
     await Promise.all(

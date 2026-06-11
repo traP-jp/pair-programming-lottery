@@ -90,7 +90,14 @@ export function formatResult(
         return aRegion !== bRegion ? aRegion - bRegion : aRole - bRole;
     });
 
-    const insertedPairSet = new Set(result.insertedIntoPairs ?? []);
+    const getPairKey = (pair: [UserPrefs, UserPrefs]) => {
+        if (!pair[0] || !pair[1]) return "";
+        return [pair[0].id, pair[1].id].sort().join("-");
+    };
+
+    const insertedPairKeys = new Set(
+        (result.insertedIntoPairs ?? []).map(getPairKey)
+    );
 
     const formattedPairs: FormattedPair[] = sortedPairs.map((pair) => {
         const [u1, u2] = pair;
@@ -125,7 +132,7 @@ export function formatResult(
         return {
             region,
             members: [member1, member2] as [FormattedMember, FormattedMember],
-            hasInsertedUser: insertedPairSet.has(pair),
+            hasInsertedUser: insertedPairKeys.has(getPairKey(pair)),
         };
     });
 

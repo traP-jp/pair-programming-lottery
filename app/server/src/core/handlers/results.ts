@@ -1,10 +1,11 @@
-import type { ILotteryResponseRepository } from "@server/repository/lotteryResponse";
+import type { ILotteryResponseRepository } from "@server/core/repository/lotteryResponse";
 import { getCurrentYearMonthJst } from "@server/core/services/time";
 import type { LotteryResponse } from "@server/core/services/lottery/format";
-import { traq } from "@server/core/services/traq";
+import type { TraqService } from "@server/core/services/traq";
 
 export const createResultsHandlers = (
     lotteryResponseRepo: ILotteryResponseRepository,
+    traqService: TraqService,
 ) => {
     const getResultsHandler = async () => {
         const records = await lotteryResponseRepo.findMany({
@@ -24,7 +25,8 @@ export const createResultsHandlers = (
         messageId: string,
         result: LotteryResponse,
     ) => {
-        const messageRes = await traq.messages.getMessage(messageId);
+        const messageRes =
+            await traqService.client.messages.getMessage(messageId);
         const message = (
             "data" in messageRes ? messageRes.data : messageRes
         ) as {

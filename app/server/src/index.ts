@@ -1,5 +1,6 @@
 import { startScheduler } from "@server/core/services/scheduler";
-import { traq } from "@server/core/services/traq";
+import { createTraqService } from "@server/core/services/traq";
+import { createApiClient } from "@server/external/traq";
 import { createApp } from "@server/routes";
 import { createPublicRoutes } from "@server/routes/public";
 import { createAdminRoutes } from "@server/routes/admin";
@@ -15,16 +16,24 @@ import { getEnv } from "@server/utilities/env";
 import {
     scheduleRepository,
     lotteryResponseRepository,
-} from "@server/repository";
+} from "@server/core/repository";
+
+// Services
+const traqClient = createApiClient(getEnv("TRAQ_ACCESS_TOKEN"));
+const traqService = createTraqService(traqClient);
 
 // Handlers
-const resultsHandlers = createResultsHandlers(lotteryResponseRepository);
+const resultsHandlers = createResultsHandlers(
+    lotteryResponseRepository,
+    traqService,
+);
 const scheduleHandlers = createScheduleHandlers(
     scheduleRepository,
     lotteryResponseRepository,
+    traqService,
 );
-const lotteryHandlers = createLotteryHandlers();
-const postMessageHandlers = createPostMessageHandlers();
+const lotteryHandlers = createLotteryHandlers(traqService);
+const postMessageHandlers = createPostMessageHandlers(traqService);
 
 // Presenters
 const resultsPresenter = createResultsPresenter(resultsHandlers);
@@ -43,7 +52,7 @@ const adminRoutes = createAdminRoutes(
 
 const app = createApp(publicRoutes, adminRoutes);
 
-startScheduler(scheduleRepository, lotteryResponseRepository, traq);
+startScheduler(scheduleRepository, lotteryResponseRepository, traqClient);
 
 const port = Number(getEnv("PORT", { fallback: 3000 }));
 
