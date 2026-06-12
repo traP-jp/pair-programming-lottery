@@ -1,17 +1,9 @@
-import {
-    type ITraqClient,
-} from "@server/external/traq";
-import type { UserPrefs, Region, Role } from "@server/types";
+import { type ITraqClient } from "@server/external/traq";
+import type { Region, Role, UserPrefs } from "@server/types";
 
-const TARGET_STAMP_NAMES = [
-    "one",
-    "two",
-    "regional_indicator_a",
-    "regional_indicator_b",
-] as const;
+const TARGET_STAMP_NAMES = ["one", "two", "regional_indicator_a", "regional_indicator_b"] as const;
 
 export type TargetStampName = (typeof TARGET_STAMP_NAMES)[number];
-
 
 export type StampMaps = {
     stampIdToName: Map<string, TargetStampName>;
@@ -47,10 +39,10 @@ export function createTraqService(client: ITraqClient) {
 
     async function getBotUserIds(): Promise<Set<string>> {
         const users = await client.getUsers();
-        return new Set(users.filter((u) => u.bot).map((u) => u.id));
+        return new Set(users.filter(u => u.bot).map(u => u.id));
     }
 
-    async function getUserNameMap(): Promise<Map<string, string>> {
+    async function getuserNameMap(): Promise<Map<string, string>> {
         const users = await client.getUsers();
         const map = new Map<string, string>();
         for (const u of users) {
@@ -63,16 +55,11 @@ export function createTraqService(client: ITraqClient) {
      * 指定メッセージのスタンプ情報を元に参加者の希望（UserPrefs）を収集する。
      */
     async function collectUserPrefs(messageId: string): Promise<UserPrefs[]> {
-        const [{ stampIdToName }, botUserIds] = await Promise.all([
-            getStampMap(),
-            getBotUserIds(),
-        ]);
+        const [{ stampIdToName }, botUserIds] = await Promise.all([getStampMap(), getBotUserIds()]);
 
         const message = await client.getMessage(messageId);
         if (!message?.stamps) {
-            throw new Error(
-                "指定されたメッセージが見つからないか、スタンプが存在しません。",
-            );
+            throw new Error("指定されたメッセージが見つからないか、スタンプが存在しません。");
         }
 
         const usersMap = new Map<string, UserPrefs>();
@@ -115,7 +102,7 @@ export function createTraqService(client: ITraqClient) {
             }
         }
 
-        return Array.from(usersMap.values());
+        return [...usersMap.values()];
     }
 
     const LOTTERY_MESSAGE = `## ペアプロ抽選
@@ -135,17 +122,14 @@ export function createTraqService(client: ITraqClient) {
     async function postLotteryMessage(channelId: string): Promise<string> {
         const { stampNameToId } = await getStampMap();
 
-        const { id: messageId } = await client.postChannelMessage(
-            channelId,
-            LOTTERY_MESSAGE,
-        );
+        const { id: messageId } = await client.postChannelMessage(channelId, LOTTERY_MESSAGE);
 
         await Promise.all(
-            TARGET_STAMP_NAMES.map((stampName) => {
+            TARGET_STAMP_NAMES.map(stampName => {
                 const stampId = stampNameToId.get(stampName);
                 if (!stampId) return Promise.resolve();
                 return client.addMessageStamp(messageId, stampId, 1);
-            }),
+            })
         );
 
         return messageId;
@@ -165,17 +149,14 @@ export function createTraqService(client: ITraqClient) {
     /**
      * 指定チャンネルにテキストメッセージを投稿する。
      */
-    async function postMessage(
-        channelId: string,
-        content: string,
-    ): Promise<void> {
+    async function postMessage(channelId: string, content: string): Promise<void> {
         await client.postChannelMessage(channelId, content);
     }
 
     return {
         getStampMap,
         getBotUserIds,
-        getUserNameMap,
+        getuserNameMap,
         collectUserPrefs,
         postLotteryMessage,
         getChannelId,

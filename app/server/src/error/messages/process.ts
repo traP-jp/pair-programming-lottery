@@ -1,6 +1,5 @@
 import { applyBuilder, buildProcessErrorMessage } from "@server/error/builders";
 
 export default applyBuilder(buildProcessErrorMessage, {
-    ENV_VAR_REQUIRED: (name: string) =>
-        `environment variable "${name}" is required.`,
+    ENV_VAR_REQUIRED: (name: string) => `environment variable "${name}" is required.`,
 } as const);

@@ -1,9 +1,7 @@
 {
     "compilerOptions": {
         // Environment setup & latest features
-        "lib": [
-            "ESNext"
-        ],
+        "lib": ["ESNext", "ES2025", "DOM"],
         "target": "ESNext",
         "module": "Preserve",
         "moduleDetection": "force",
@@ -26,12 +24,8 @@
         "noPropertyAccessFromIndexSignature": false,
         // Aliases
         "paths": {
-            "@server/*": [
-                "./server/src/*"
-            ],
-            "@client/*": [
-                "./client/src/*"
-            ]
+            "@server/*": ["./server/src/*"],
+            "@client/*": ["./client/src/*"]
         }
     }
 }

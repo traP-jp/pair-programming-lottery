@@ -1,7 +1,5 @@
 import { Api } from "traq-bot-ts";
 
-
-
 export type StampInfo = {
     id: string;
     name: string;
@@ -30,22 +28,13 @@ export interface ITraqClient {
     /** メッセージ情報を取得 */
     getMessage(messageId: string): Promise<MessageInfo | null>;
     /** メッセージにスタンプを付与 */
-    addMessageStamp(
-        messageId: string,
-        stampId: string,
-        count: number,
-    ): Promise<void>;
+    addMessageStamp(messageId: string, stampId: string, count: number): Promise<void>;
     /** チャンネルにメッセージを投稿 */
-    postChannelMessage(
-        channelId: string,
-        content: string,
-    ): Promise<{ id: string }>;
+    postChannelMessage(channelId: string, content: string): Promise<{ id: string }>;
 }
 
 function unwrapResponse<T>(res: { data: T } | T): T {
-    return res && typeof res === "object" && "data" in res
-        ? (res as { data: T }).data
-        : res as T;
+    return res && typeof res === "object" && "data" in res ? (res as { data: T }).data : (res as T);
 }
 
 /**
@@ -53,9 +42,7 @@ function unwrapResponse<T>(res: { data: T } | T): T {
  * ビジネスロジックは持たない。
  */
 
-export class TraqClient<
-    SecurityDataType extends unknown = {},
-> implements ITraqClient {
+export class TraqClient<SecurityDataType = unknown> implements ITraqClient {
     private readonly api: Api<SecurityDataType>;
 
     /** スタンプは変更頻度が低いため永続キャッシュ */
@@ -80,7 +67,7 @@ export class TraqClient<
         if (!this.stampsCache) {
             const res = await this.api.stamps.getStamps();
             const data = unwrapResponse<{ id: string; name: string }[]>(res);
-            this.stampsCache = data.map((s) => ({ id: s.id, name: s.name }));
+            this.stampsCache = data.map(s => ({ id: s.id, name: s.name }));
         }
         return this.stampsCache;
     }
@@ -89,13 +76,15 @@ export class TraqClient<
         const now = Date.now();
         if (!this.usersCache || now > this.usersCache.expiresAt) {
             const res = await this.api.users.getUsers();
-            const data = unwrapResponse<{
-                id: string;
-                name: string;
-                displayName: string;
-                bot: boolean;
-            }[]>(res);
-            const users = data.map((u) => ({
+            const data = unwrapResponse<
+                {
+                    id: string;
+                    name: string;
+                    displayName: string;
+                    bot: boolean;
+                }[]
+            >(res);
+            const users = data.map(u => ({
                 id: u.id,
                 name: u.name,
                 bot: u.bot,
@@ -118,18 +107,11 @@ export class TraqClient<
         };
     }
 
-    async addMessageStamp(
-        messageId: string,
-        stampId: string,
-        count: number,
-    ): Promise<void> {
+    async addMessageStamp(messageId: string, stampId: string, count: number): Promise<void> {
         await this.api.messages.addMessageStamp(messageId, stampId, { count });
     }
 
-    async postChannelMessage(
-        channelId: string,
-        content: string,
-    ): Promise<{ id: string }> {
+    async postChannelMessage(channelId: string, content: string): Promise<{ id: string }> {
         const res = await this.api.channels.postMessage(channelId, {
             content,
             embed: false,
@@ -138,5 +120,3 @@ export class TraqClient<
         return { id: data.id };
     }
 }
-
-

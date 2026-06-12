@@ -1,5 +1,5 @@
-import type { HonoRequest } from "hono";
 import { ADMINS } from "@server/config";
+import type { HonoRequest } from "hono";
 import { createMiddleware } from "hono/factory";
 
 function isAdmin(request: HonoRequest): boolean {
@@ -8,8 +8,7 @@ function isAdmin(request: HonoRequest): boolean {
 }
 
 export const adminOnlyMiddleware = createMiddleware(async (context, next) => {
-    if (!isAdmin(context.req))
-        return context.json({ error: "Unauthorized" }, 401);
+    if (!isAdmin(context.req)) return context.json({ error: "Unauthorized" }, 401);
 
     await next();
 });

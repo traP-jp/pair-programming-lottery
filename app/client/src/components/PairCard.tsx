@@ -21,9 +21,7 @@ function Member({ member }: { member: FormattedMember }) {
         <span className="member">
             <span className="member-name">@{member.name}</span>
             {member.role && (
-                <span className={`role-tag ${member.role}`}>
-                    {getRoleLabel(member.role)}
-                </span>
+                <span className={`role-tag ${member.role}`}>{getRoleLabel(member.role)}</span>
             )}
         </span>
     );
@@ -54,9 +52,7 @@ export function PairCard({ pair, index, insertedUser }: Props) {
                     <>
                         <span className="pair-separator">&amp;</span>
                         <span className="member">
-                            <span className="member-name">
-                                @{insertedUser.name}
-                            </span>
+                            <span className="member-name">@{insertedUser.name}</span>
                             <span className="role-tag inserted">参加</span>
                         </span>
                     </>

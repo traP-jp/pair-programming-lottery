@@ -1,15 +1,10 @@
-import {
-    createBrowserRouter,
-    RouterProvider,
-    Link,
-    Outlet,
-    Navigate,
-} from "react-router-dom";
-import { ManagePage } from "@client/pages/ManagePage";
-import { ResultsPage } from "@client/pages/ResultsPage";
-import { ResultDetailPage } from "@client/pages/ResultDetailPage";
+import { Link, Navigate, Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+
+import { AdminRoute, AuthProvider } from "@client/hooks/useAuth";
 import { AdminPage } from "@client/pages/AdminPage";
-import { AuthProvider, AdminRoute } from "@client/hooks/useAuth";
+import { ManagePage } from "@client/pages/ManagePage";
+import { ResultDetailPage } from "@client/pages/ResultDetailPage";
+import { ResultsPage } from "@client/pages/ResultsPage";
 
 export const paths = {
     home: "/",
@@ -25,17 +20,29 @@ function Layout() {
         <AuthProvider>
             <div>
                 <nav className="nav-bar">
-                    <Link to={paths.home} className="nav-brand">
+                    <Link
+                        to={paths.home}
+                        className="nav-brand"
+                    >
                         ペアプロ抽選
                     </Link>
                     <div className="nav-links">
-                        <Link to={paths.results} className="nav-link">
+                        <Link
+                            to={paths.results}
+                            className="nav-link"
+                        >
                             結果
                         </Link>
-                        <Link to={paths.manage} className="nav-link">
+                        <Link
+                            to={paths.manage}
+                            className="nav-link"
+                        >
                             操作
                         </Link>
-                        <Link to={paths.admin} className="nav-link">
+                        <Link
+                            to={paths.admin}
+                            className="nav-link"
+                        >
                             管理
                         </Link>
                     </div>
@@ -50,7 +57,15 @@ const router = createBrowserRouter([
     {
         element: <Layout />,
         children: [
-            { path: "*", element: <Navigate to={paths.results} replace /> },
+            {
+                path: "*",
+                element: (
+                    <Navigate
+                        to={paths.results}
+                        replace
+                    />
+                ),
+            },
             { path: paths.results, element: <ResultsPage /> },
             { path: paths.resultDetailPattern, element: <ResultDetailPage /> },
 

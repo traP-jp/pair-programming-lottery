@@ -1,10 +1,11 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
+
 import {
-    getSchedule,
-    upsertSchedule,
-    triggerPost,
-    triggerLottery,
     type ScheduleRecord,
+    getSchedule,
+    triggerLottery,
+    triggerPost,
+    upsertSchedule,
 } from "@client/api";
 
 export function AdminPage() {
@@ -31,15 +32,15 @@ export function AdminPage() {
                 setLotteryDay(s.lotteryDay);
                 setEnabled(s.enabled);
             }
-        } catch (e) {
-            setError(e instanceof Error ? e.message : "取得失敗");
+        } catch (error_) {
+            setError(error_ instanceof Error ? error_.message : "取得失敗");
         } finally {
             setLoading(false);
         }
     }, []);
 
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSave = async (event: React.FormEvent) => {
+        event.preventDefault();
         setSaving(true);
         setError(null);
         setSuccess(null);
@@ -52,8 +53,8 @@ export function AdminPage() {
             });
             setSchedule(s);
             setSuccess("設定を保存しました。");
-        } catch (e) {
-            setError(e instanceof Error ? e.message : "保存失敗");
+        } catch (error_) {
+            setError(error_ instanceof Error ? error_.message : "保存失敗");
         } finally {
             setSaving(false);
         }
@@ -66,8 +67,8 @@ export function AdminPage() {
             const { messageId } = await triggerPost();
             setSuccess(`✅ メッセージを投稿しました (${messageId})`);
             fetchSchedule();
-        } catch (e) {
-            setError(e instanceof Error ? e.message : "投稿失敗");
+        } catch (error_) {
+            setError(error_ instanceof Error ? error_.message : "投稿失敗");
         }
     };
 
@@ -77,12 +78,13 @@ export function AdminPage() {
         try {
             const { responseId } = await triggerLottery();
             setSuccess(`✅ 抽選が完了しました。結果 ID: ${responseId}`);
-        } catch (e) {
-            setError(e instanceof Error ? e.message : "抽選失敗");
+        } catch (error_) {
+            setError(error_ instanceof Error ? error_.message : "抽選失敗");
         }
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchSchedule();
     }, [fetchSchedule]);
 
@@ -110,16 +112,17 @@ export function AdminPage() {
 
             <section className="input-section">
                 <h2 className="step-title">スケジュール</h2>
-                <form onSubmit={handleSave} className="admin-form">
+                <form
+                    onSubmit={handleSave}
+                    className="admin-form"
+                >
                     <div className="form-group">
-                        <label htmlFor="admin-channel-id">
-                            チャンネル ID (UUID)
-                        </label>
+                        <label htmlFor="admin-channel-id">チャンネル ID (UUID)</label>
                         <input
                             id="admin-channel-id"
                             type="text"
                             value={channelId}
-                            onChange={(e) => setChannelId(e.target.value)}
+                            onChange={event => setChannelId(event.target.value)}
                             placeholder="例: 9afe32b4-f79d-4f4a-8f95-1c7c9c2a7f33"
                             required
                             pattern="[0-9a-f\-]{36}"
@@ -134,40 +137,32 @@ export function AdminPage() {
                                 min={1}
                                 max={27}
                                 value={postDay}
-                                onChange={(e) =>
-                                    setPostDay(Number(e.target.value))
-                                }
+                                onChange={event => setPostDay(Number(event.target.value))}
                                 required
                             />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="lottery-day">
-                                抽選日 (毎月何日)
-                            </label>
+                            <label htmlFor="lottery-day">抽選日 (毎月何日)</label>
                             <input
                                 id="lottery-day"
                                 type="number"
                                 min={2}
                                 max={28}
                                 value={lotteryDay}
-                                onChange={(e) =>
-                                    setLotteryDay(Number(e.target.value))
-                                }
+                                onChange={event => setLotteryDay(Number(event.target.value))}
                                 required
                             />
                         </div>
                     </div>
                     {postDay >= lotteryDay && (
-                        <div className="inline-error">
-                            抽選日は投稿日より後にしてください。
-                        </div>
+                        <div className="inline-error">抽選日は投稿日より後にしてください。</div>
                     )}
                     <div className="form-group">
                         <label className="checkbox-label">
                             <input
                                 type="checkbox"
                                 checked={enabled}
-                                onChange={(e) => setEnabled(e.target.checked)}
+                                onChange={event => setEnabled(event.target.checked)}
                             />
                             スケジュールを有効にする
                         </label>
@@ -227,10 +222,7 @@ export function AdminPage() {
                             className="text-muted"
                             style={{ fontSize: "0.8rem" }}
                         >
-                            直近の抽選:{" "}
-                            {new Date(schedule.lastLotteryAt).toLocaleString(
-                                "ja-JP",
-                            )}
+                            直近の抽選: {new Date(schedule.lastLotteryAt).toLocaleString("ja-JP")}
                         </p>
                     )}
                 </section>

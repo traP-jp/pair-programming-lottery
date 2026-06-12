@@ -1,9 +1,7 @@
-import { Hono } from "hono";
 import type { createResultsPresenter } from "@server/core/presenters/results";
+import { Hono } from "hono";
 
-export const createPublicRoutes = (
-    resultsPresenter: ReturnType<typeof createResultsPresenter>,
-) => {
+export const createPublicRoutes = (resultsPresenter: ReturnType<typeof createResultsPresenter>) => {
     const app = new Hono();
 
     return app

@@ -1,15 +1,15 @@
-import type { UserPrefs, MatchingResult } from "@server/types";
 import {
     SCORE_REGION_MATCH,
     SCORE_ROLE_COMPLEMENT,
     SIMULATION_ROUNDS,
 } from "@server/core/services/lottery/matching";
+import type { MatchingResult, UserPrefs } from "@server/types";
 
 export type Region = "frontend" | "backend";
 export type Role = "navigator" | "driver";
 
 function getPairRegion(u: UserPrefs, v: UserPrefs): Region | null {
-    return Array.from(u.regions).find((r) => v.regions.has(r)) ?? null;
+    return [...u.regions].find(r => v.regions.has(r)) ?? null;
 }
 
 function hasComplementaryRole(u1: UserPrefs, u2: UserPrefs): boolean {
@@ -19,14 +19,11 @@ function hasComplementaryRole(u1: UserPrefs, u2: UserPrefs): boolean {
     );
 }
 
-function resolveRolesPair(
-    u1: UserPrefs,
-    u2: UserPrefs,
-): [Role | null, Role | null] {
+function resolveRolesPair(u1: UserPrefs, u2: UserPrefs): [Role | null, Role | null] {
     if (!hasComplementaryRole(u1, u2)) return [null, null];
 
-    const u1Roles = Array.from(u1.roles);
-    const u2Roles = Array.from(u2.roles);
+    const u1Roles = [...u1.roles];
+    const u2Roles = [...u2.roles];
 
     if (u1Roles.length === 1) {
         const u1Role = u1Roles[0]!;
@@ -66,40 +63,37 @@ export type LotteryResult = {
     };
 };
 
+const getPairKey = (pair: [UserPrefs, UserPrefs]) => {
+    if (!pair[0] || !pair[1]) return "";
+    return [pair[0].id, pair[1].id].toSorted().join("-");
+};
+
 export function formatResult(
     result: MatchingResult,
-    userIdToName: Map<string, string>,
+    userIdToName: Map<string, string>
 ): LotteryResult {
     const REGION_ORDER: Record<string, number> = { frontend: 0, backend: 1 };
 
     const getPairSortKey = (pair: [UserPrefs, UserPrefs]): [number, number] => {
         const [u1, u2] = pair;
         if (!u1 || !u2) return [2, 1];
-        const commonRegion = Array.from(u1.regions).find((r) =>
-            u2.regions.has(r),
-        );
-        const regionKey =
-            commonRegion !== undefined ? (REGION_ORDER[commonRegion] ?? 2) : 2;
+        const commonRegion = [...u1.regions].find(r => u2.regions.has(r));
+        const regionKey = commonRegion === undefined ? 2 : (REGION_ORDER[commonRegion] ?? 2);
         const roleKey = hasComplementaryRole(u1, u2) ? 0 : 1;
         return [regionKey, roleKey];
     };
 
-    const sortedPairs = [...result.pairs].sort((a, b) => {
+    const sortedPairs = [...result.pairs].toSorted((a, b) => {
         const [aRegion, aRole] = getPairSortKey(a);
         const [bRegion, bRole] = getPairSortKey(b);
-        return aRegion !== bRegion ? aRegion - bRegion : aRole - bRole;
+        return aRegion === bRegion ? aRole - bRole : aRegion - bRegion;
     });
 
-    const getPairKey = (pair: [UserPrefs, UserPrefs]) => {
-        if (!pair[0] || !pair[1]) return "";
-        return [pair[0].id, pair[1].id].sort().join("-");
-    };
-
     const insertedPairKeys = new Set(
-        (result.insertedIntoPairs ?? []).map(getPairKey),
+        (result.insertedIntoPairs ?? []).map(pair => getPairKey(pair))
     );
 
-    const formattedPairs: FormattedPair[] = sortedPairs.map((pair) => {
+    const formattedPairs: FormattedPair[] = sortedPairs.map(pair => {
         const [u1, u2] = pair;
         if (!u1 || !u2) {
             return {
@@ -138,21 +132,18 @@ export function formatResult(
 
     let insertedUser: LotteryResult["insertedUser"] = null;
     if (result.insertedUser) {
-        const name =
-            userIdToName.get(result.insertedUser.id) ?? result.insertedUser.id;
+        const name = userIdToName.get(result.insertedUser.id) ?? result.insertedUser.id;
         const indices: number[] = [];
-        formattedPairs.forEach((p, i) => {
-            if (p.hasInsertedUser) indices.push(i);
-        });
+        for (const [index, p] of formattedPairs.entries()) {
+            if (p.hasInsertedUser) indices.push(index);
+        }
         insertedUser = { name, pairIndices: indices };
     }
 
-    const maxScore =
-        result.pairs.length * (SCORE_REGION_MATCH + SCORE_ROLE_COMPLEMENT);
+    const maxScore = result.pairs.length * (SCORE_REGION_MATCH + SCORE_ROLE_COMPLEMENT);
     const normalized = maxScore > 0 ? result.totalScore / maxScore : 0;
 
-    const totalParticipants =
-        result.pairs.length * 2 + (result.insertedUser ? 1 : 0);
+    const totalParticipants = result.pairs.length * 2 + (result.insertedUser ? 1 : 0);
 
     return {
         pairs: formattedPairs,

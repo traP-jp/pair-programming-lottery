@@ -7,15 +7,19 @@ COPY package.json bun.lock ./
 COPY server/package.json ./server/
 COPY client/package.json ./client/
 
-RUN bun install --frozen-lockfile
+RUN \
+    if [ "${BUILD_ENV}" = "production" ]; then \
+        bun install --frozen-lockfile --production; \
+    fi
 
 COPY tsconfig.json ./
 COPY server/src/ ./server/src
 COPY server/prisma/ ./server/prisma
 
-ENV DATABASE_URL="dummy"
-RUN bun run --filter server --bun db:generate
-ENV DATABASE_URL=""
+RUN \
+    if [ "${BUILD_ENV}" = "production" ]; then \
+        DATABASE_URL="dummy" bun run --filter server --bun db:generate; \
+    fi
 
 COPY server/scripts ./server/scripts
 RUN chmod +x ./server/scripts/start.sh

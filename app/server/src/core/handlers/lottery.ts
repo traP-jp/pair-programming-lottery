@@ -1,23 +1,20 @@
-import { ApiErrorMessages } from "@server/error/messages";
-import type { UserPrefs, MatchingResult } from "@server/types";
 import type { LotteryResult } from "@server/core/services/lottery/format";
+import { ApiErrorMessages } from "@server/error/messages";
+import type { MatchingResult, UserPrefs } from "@server/types";
 
 export interface ILotteryService {
     runLottery(users: UserPrefs[]): MatchingResult;
-    formatResult(
-        result: MatchingResult,
-        userNameMap: Map<string, string>,
-    ): LotteryResult;
+    formatResult(result: MatchingResult, userNameMap: Map<string, string>): LotteryResult;
 }
 
 export interface ILotteryTraqService {
     collectUserPrefs(messageId: string): Promise<UserPrefs[]>;
-    getUserNameMap(): Promise<Map<string, string>>;
+    getuserNameMap(): Promise<Map<string, string>>;
 }
 
 export const createLotteryHandlers = (
     traqService: ILotteryTraqService,
-    lotteryService: ILotteryService,
+    lotteryService: ILotteryService
 ) => {
     const runLotteryHandler = async (messageId: string) => {
         const users = await traqService.collectUserPrefs(messageId);
@@ -25,13 +22,10 @@ export const createLotteryHandlers = (
         const userCount = users.length;
 
         if (userCount < 2) {
-            throw ApiErrorMessages.TARGET_USERS_MUST_BE_MULTIPLE(
-                messageId,
-                userCount,
-            );
+            throw ApiErrorMessages.TARGET_USERS_MUST_BE_MULTIPLE(messageId, userCount);
         }
 
-        const userNameMap = await traqService.getUserNameMap();
+        const userNameMap = await traqService.getuserNameMap();
         const result = lotteryService.runLottery(users);
 
         return lotteryService.formatResult(result, userNameMap);

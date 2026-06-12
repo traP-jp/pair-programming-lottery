@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getResults, type ResultSummary } from "@client/api";
+
+import { type ResultSummary, getResults } from "@client/api";
 import { paths } from "@client/router";
 
 export function ResultsPage() {
@@ -11,7 +12,7 @@ export function ResultsPage() {
     useEffect(() => {
         getResults()
             .then(setResults)
-            .catch((e) => setError(e instanceof Error ? e.message : "取得失敗"))
+            .catch(error_ => setError(error_ instanceof Error ? error_.message : "取得失敗"))
             .finally(() => setLoading(false));
     }, []);
 
@@ -30,7 +31,7 @@ export function ResultsPage() {
             )}
 
             <div className="results-list">
-                {results.map((r) => (
+                {results.map(r => (
                     <Link
                         key={r.id}
                         to={paths.resultDetail(r.id)}

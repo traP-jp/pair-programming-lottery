@@ -6,7 +6,7 @@ export interface GetEnvOptions<Fallback> {
 
 export const getEnv = <Fallback = string>(
     name: string,
-    { fallback = "" as Fallback }: GetEnvOptions<Fallback> = {},
+    { fallback = "" as Fallback }: GetEnvOptions<Fallback> = {}
 ) => {
     const value = process.env[name] ?? fallback;
 

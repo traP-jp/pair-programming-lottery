@@ -1,36 +1,21 @@
-import { hc, type InferResponseType } from "hono/client";
 import type { Routes } from "@server/routes";
+import { type InferResponseType, hc } from "hono/client";
 
 const client = hc<Routes>("/");
 
-export type LotteryResult = InferResponseType<
-    typeof client.api.lottery.$post,
-    200
->;
-export type ScheduleRecord = Exclude<
-    InferResponseType<typeof client.api.schedule.$get, 200>,
-    null
->;
-export type ResultSummary = InferResponseType<
-    typeof client.api.results.$get,
-    200
->[number];
-export type ResultDetail = InferResponseType<
-    (typeof client.api.results)[":id"]["$get"],
-    200
->;
-export type SavedResult = InferResponseType<
-    typeof client.api.results.$post,
-    200
->;
+export type LotteryResult = InferResponseType<typeof client.api.lottery.$post, 200>;
+export type ScheduleRecord = Exclude<InferResponseType<typeof client.api.schedule.$get, 200>, null>;
+export type ResultSummary = InferResponseType<typeof client.api.results.$get, 200>[number];
+export type ResultDetail = InferResponseType<(typeof client.api.results)[":id"]["$get"], 200>;
+export type SavedResult = InferResponseType<typeof client.api.results.$post, 200>;
 
 export async function postMessage(channelId: string): Promise<string> {
-    const res = await client.api["post-message"].$post({ json: { channelId } });
-    if (!res.ok) {
-        const d = (await res.json()) as { error?: string };
-        throw new Error(d.error ?? `HTTP ${res.status}`);
+    const response = await client.api["post-message"].$post({ json: { channelId } });
+    if (!response.ok) {
+        const d = (await response.json()) as { error?: string };
+        throw new Error(d.error ?? `HTTP ${response.status}`);
     }
-    return (await res.json()).messageId;
+    return response.json().then(({ messageId }) => messageId);
 }
 
 export async function runLottery(messageId: string): Promise<LotteryResult> {

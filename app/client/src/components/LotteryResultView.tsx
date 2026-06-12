@@ -7,31 +7,23 @@ export type Props = {
     children?: React.ReactNode;
 };
 
-export function LotteryResultView({
-    result,
-    title = "抽選結果",
-    children,
-}: Props) {
+export function LotteryResultView({ result, title = "抽選結果", children }: Props) {
     return (
         <section className="result-section">
             <div className="result-header">
                 <h2>{title}</h2>
                 <div className="stats">
-                    <span className="stat-badge">
-                        {result.participantCount}人
-                    </span>
-                    <span className="stat-badge">
-                        スコア {result.score.normalized.toFixed(3)}
-                    </span>
+                    <span className="stat-badge">{result.participantCount}人</span>
+                    <span className="stat-badge">スコア {result.score.normalized.toFixed(3)}</span>
                 </div>
             </div>
 
             <div className="pairs-container">
-                {result.pairs.map((pair, i) => (
+                {result.pairs.map((pair, index) => (
                     <PairCard
-                        key={i}
+                        key={index}
                         pair={pair}
-                        index={i}
+                        index={index}
                         insertedUser={result.insertedUser}
                     />
                 ))}

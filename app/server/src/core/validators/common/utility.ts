@@ -1,13 +1,9 @@
 import { isDate } from "node:util/types";
-import { invoke, type ApplicationErrorGenerator } from "@server/error/builders";
+
+import { type ApplicationErrorGenerator, invoke } from "@server/error/builders";
 import { ValidationErrorMessages } from "@server/error/messages";
-import {
-    isBoolean,
-    isNumber,
-    isString,
-    type Fn,
-} from "@server/utilities/types";
 import type { ApplicationError } from "@server/error/structure";
+import { isBoolean, isNumber, isString } from "@server/utilities/types";
 
 export const assert = (expression: boolean, error: ApplicationError) => {
     if (!expression) throw error;
@@ -15,12 +11,12 @@ export const assert = (expression: boolean, error: ApplicationError) => {
 
 export const required = <T>(
     validate: (value: unknown) => boolean,
-    generator: ApplicationErrorGenerator,
+    generator: ApplicationErrorGenerator
 ) => {
     return (value: Record<string, unknown>, property: string): T => {
         const v = value[property] as T;
 
-        if (v === undefined || v === null || v === "")
+        if ([undefined, null, ""].includes(v as unknown as string | null | undefined))
             throw ValidationErrorMessages.PROPERTY_REQUIRED(property);
         assert(validate(v), invoke(generator, property));
 
@@ -30,32 +26,29 @@ export const required = <T>(
 
 export const requireString = required<string>(
     isString,
-    ValidationErrorMessages.PROPERTY_MUST_BE_STRING,
+    ValidationErrorMessages.PROPERTY_MUST_BE_STRING
 );
 
 export const requireNumber = required<number>(
     isNumber,
-    ValidationErrorMessages.PROPERTY_MUST_BE_NUMBER,
+    ValidationErrorMessages.PROPERTY_MUST_BE_NUMBER
 );
 
 export const requireBoolean = required<boolean>(
     isBoolean,
-    ValidationErrorMessages.PROPERTY_MUST_BE_BOOLEAN,
+    ValidationErrorMessages.PROPERTY_MUST_BE_BOOLEAN
 );
 
-export const requireDate = (value: any, property: string) => {
+export const requireDate = (value: Record<string, unknown>, property: string) => {
     const date = (() => {
         try {
             return new Date(requireString(value, property));
-        } catch (error) {
+        } catch {
             throw ValidationErrorMessages.PROPERTY_MUST_BE_DATE(property);
         }
     })();
 
-    assert(
-        isDate(date),
-        ValidationErrorMessages.PROPERTY_MUST_BE_DATE(property),
-    );
+    assert(isDate(date), ValidationErrorMessages.PROPERTY_MUST_BE_DATE(property));
 
     return date;
 };

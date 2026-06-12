@@ -1,5 +1,5 @@
-import { isString } from "@server/utilities/types";
 import { ApplicationError } from "@server/error/structure";
+import { isString } from "@server/utilities/types";
 
 export const buildApplicationErrorMessage = (message: string) =>
     new ApplicationError(`Application Error: ${message}`);
@@ -15,23 +15,22 @@ export const buildProcessErrorMessage = (message: string) =>
 
 type Builder = (message: string) => ApplicationError;
 
-type ErrorSeed = (...args: any[]) => string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ErrorSeed = (...args_: any[]) => string;
 type ErrorSource = string | ErrorSeed;
 type ErrorSources = Record<string, ErrorSource>;
 
-export const applyBuilder = <Ss extends ErrorSources>(
-    builder: Builder,
-    sources: Ss,
-) => {
+export const applyBuilder = <Ss extends ErrorSources>(builder: Builder, sources: Ss) => {
     type ApplyReturn<G extends ErrorSource> = G extends string
         ? ReturnType<typeof builder>
-        : G extends (...args: infer P) => string
-          ? (...args: P) => ReturnType<typeof builder>
+        : G extends (...args_: infer P) => string
+          ? (...args_: P) => ReturnType<typeof builder>
           : never;
 
     function apply<S extends ErrorSource>(source: S): ApplyReturn<S> {
         if (isString(source)) return builder(source) as ApplyReturn<S>;
-        return ((...args: any[]) => builder(source(...args))) as ApplyReturn<S>;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return ((...args_: any[]) => builder(source(...args_))) as ApplyReturn<S>;
     }
 
     type Result = {
@@ -39,21 +38,21 @@ export const applyBuilder = <Ss extends ErrorSources>(
     };
 
     return Object.entries(sources).reduce(
-        (object, [name, generator]) =>
-            Object.assign(object, { [name]: apply(generator) }),
-        {} as Result,
+        (object, [name, generator]) => Object.assign(object, { [name]: apply(generator) }),
+        {} as Result
     );
 };
 
-export type ApplicationErrorGenerator = (...args: any[]) => ApplicationError;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ApplicationErrorGenerator = (...args_: any[]) => ApplicationError;
 
 export const invoke = <G extends ApplicationErrorGenerator | ApplicationError>(
     error: G,
-    ...args: G extends ApplicationErrorGenerator ? Parameters<G> : never
+    ...args_: G extends ApplicationErrorGenerator ? Parameters<G> : never
 ) => {
     if (error instanceof ApplicationError) {
         return error;
     }
 
-    return error(...args);
+    return error(...args_);
 };

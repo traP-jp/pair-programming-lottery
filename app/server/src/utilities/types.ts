@@ -1,6 +1,6 @@
-export type Invocable = (...args: any[]) => any;
-export type Callable<Args extends unknown[]> = (...args: Args) => any;
-export type Fn<R> = (...args: any[]) => R;
+export type Invocable = (...args_: unknown[]) => unknown;
+export type Callable<args_ extends unknown[]> = (...args_: args_) => unknown;
+export type Function_<R> = (...args_: unknown[]) => R;
 
 export const isString = (value: unknown): value is string => {
     return typeof value === "string";

@@ -1,23 +1,20 @@
-import { createSchedulerService } from "@server/core/services/scheduler";
-import { createTraqService } from "@server/core/services/traq";
-import { createLotteryService } from "@server/core/services/lottery";
-import { TraqClient } from "@server/external/traq";
-import { createApp } from "@server/routes";
-import { createPublicRoutes } from "@server/routes/public";
-import { createAdminRoutes } from "@server/routes/admin";
-import { createResultsPresenter } from "@server/core/presenters/results";
-import { createSchedulePresenter } from "@server/core/presenters/schedule";
-import { createLotteryPresenter } from "@server/core/presenters/lottery";
-import { createPostMessagePresenter } from "@server/core/presenters/post-message";
+import { createLotteryHandlers } from "@server/core/handlers/lottery";
+import { createPostMessageHandlers } from "@server/core/handlers/postMessage";
 import { createResultsHandlers } from "@server/core/handlers/results";
 import { createScheduleHandlers } from "@server/core/handlers/schedule";
-import { createLotteryHandlers } from "@server/core/handlers/lottery";
-import { createPostMessageHandlers } from "@server/core/handlers/post-message";
+import { createLotteryPresenter } from "@server/core/presenters/lottery";
+import { createPostMessagePresenter } from "@server/core/presenters/postMessage";
+import { createResultsPresenter } from "@server/core/presenters/results";
+import { createSchedulePresenter } from "@server/core/presenters/schedule";
+import { lotteryResponseRepository, scheduleRepository } from "@server/core/repository";
+import { createLotteryService } from "@server/core/services/lottery";
+import { createSchedulerService } from "@server/core/services/scheduler";
+import { createTraqService } from "@server/core/services/traq";
+import { TraqClient } from "@server/external/traq";
+import { createApp } from "@server/routes";
+import { createAdminRoutes } from "@server/routes/admin";
+import { createPublicRoutes } from "@server/routes/public";
 import { getEnv } from "@server/utilities/env";
-import {
-    scheduleRepository,
-    lotteryResponseRepository,
-} from "@server/core/repository";
 
 // Services
 const traqClient = new TraqClient(getEnv("TRAQ_ACCESS_TOKEN"));
@@ -26,19 +23,12 @@ const lotteryService = createLotteryService();
 const schedulerService = createSchedulerService(
     scheduleRepository,
     lotteryResponseRepository,
-    traqService,
+    traqService
 );
 
 // Handlers
-const resultsHandlers = createResultsHandlers(
-    lotteryResponseRepository,
-    traqService,
-);
-const scheduleHandlers = createScheduleHandlers(
-    scheduleRepository,
-    traqService,
-    schedulerService,
-);
+const resultsHandlers = createResultsHandlers(lotteryResponseRepository, traqService);
+const scheduleHandlers = createScheduleHandlers(scheduleRepository, traqService, schedulerService);
 const lotteryHandlers = createLotteryHandlers(traqService, lotteryService);
 const postMessageHandlers = createPostMessageHandlers(traqService);
 
@@ -54,7 +44,7 @@ const adminRoutes = createAdminRoutes(
     resultsPresenter,
     schedulePresenter,
     lotteryPresenter,
-    postMessagePresenter,
+    postMessagePresenter
 );
 
 const app = createApp(publicRoutes, adminRoutes);

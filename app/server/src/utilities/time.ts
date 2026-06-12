@@ -17,13 +17,10 @@ export function getJstDay(date = new Date()): number {
         timeZone: "Asia/Tokyo",
         day: "numeric",
     });
-    return parseInt(formatter.format(date), 10);
+    return Number.parseInt(formatter.format(date), 10);
 }
 
-export function isThisMonthJst(
-    isoDateTime: Date | null,
-    yearMonth: string,
-): boolean {
+export function isThisMonthJst(isoDateTime: Date | null, yearMonth: string): boolean {
     if (!isoDateTime) return false;
     return getCurrentYearMonthJst(isoDateTime) === yearMonth;
 }

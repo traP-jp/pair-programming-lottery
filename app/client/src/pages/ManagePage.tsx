@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-    postMessage,
-    runLottery,
-    saveResult,
-    type LotteryResult,
-} from "@client/api";
+
+import { type LotteryResult, postMessage, runLottery, saveResult } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
 import { paths } from "@client/router";
 
@@ -23,8 +19,8 @@ export function ManagePage() {
     const [savedResultId, setSavedResultId] = useState<string | null>(null);
     const [result, setResult] = useState<LotteryResult | null>(null);
 
-    const handlePost = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handlePost = async (event: React.FormEvent) => {
+        event.preventDefault();
         const id = channelId.trim();
         if (!id) return;
 
@@ -32,18 +28,18 @@ export function ManagePage() {
         setPostError(null);
         setPostedMessageId(null);
         try {
-            const msgId = await postMessage(id);
-            setPostedMessageId(msgId);
-            setMessageId(msgId);
-        } catch (err) {
-            setPostError(err instanceof Error ? err.message : "不明なエラー");
+            const messageId_ = await postMessage(id);
+            setPostedMessageId(messageId_);
+            setMessageId(messageId_);
+        } catch (error_) {
+            setPostError(error_ instanceof Error ? error_.message : "不明なエラー");
         } finally {
             setPosting(false);
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
         const id = messageId.trim();
         if (!id) return;
 
@@ -55,8 +51,8 @@ export function ManagePage() {
         try {
             const data = await runLottery(id);
             setResult(data);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "不明なエラー");
+        } catch (error_) {
+            setError(error_ instanceof Error ? error_.message : "不明なエラー");
         } finally {
             setLoading(false);
         }
@@ -71,8 +67,8 @@ export function ManagePage() {
         try {
             const saved = await saveResult({ messageId: id, result });
             setSavedResultId(saved.id);
-        } catch (err) {
-            setSaveError(err instanceof Error ? err.message : "不明なエラー");
+        } catch (error_) {
+            setSaveError(error_ instanceof Error ? error_.message : "不明なエラー");
         } finally {
             setSaving(false);
         }
@@ -96,11 +92,14 @@ export function ManagePage() {
                             id="channel-id"
                             placeholder="例: 9afe32b4-f79d-4f4a-8f95-1c7c9c2a7f33"
                             value={channelId}
-                            onChange={(e) => setChannelId(e.target.value)}
+                            onChange={event => setChannelId(event.target.value)}
                             required
                             pattern="[0-9a-f\-]{36}"
                         />
-                        <button type="submit" disabled={posting}>
+                        <button
+                            type="submit"
+                            disabled={posting}
+                        >
                             {posting ? (
                                 <>
                                     <span className="spinner" />
@@ -115,12 +114,9 @@ export function ManagePage() {
                 {postError && <div className="inline-error">{postError}</div>}
                 {postedMessageId && (
                     <div className="inline-success">
-                        ✅
-                        メッセージを投稿しました。スタンプが集まったら抽選してください。
+                        ✅ メッセージを投稿しました。スタンプが集まったら抽選してください。
                         <br />
-                        <span className="message-id-display">
-                            メッセージ ID: {postedMessageId}
-                        </span>
+                        <span className="message-id-display">メッセージ ID: {postedMessageId}</span>
                     </div>
                 )}
             </section>
@@ -137,11 +133,14 @@ export function ManagePage() {
                             id="message-id"
                             placeholder="例: 019d2f72-199d-75d9-9e01-ef0edd3d5dc0"
                             value={messageId}
-                            onChange={(e) => setMessageId(e.target.value)}
+                            onChange={event => setMessageId(event.target.value)}
                             required
                             pattern="[0-9a-f\-]{36}"
                         />
-                        <button type="submit" disabled={loading}>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                        >
                             {loading ? (
                                 <>
                                     <span className="spinner" />
@@ -169,7 +168,10 @@ export function ManagePage() {
 
             {result && (
                 <LotteryResultView result={result}>
-                    <div className="trigger-row" style={{ marginTop: "1rem" }}>
+                    <div
+                        className="trigger-row"
+                        style={{ marginTop: "1rem" }}
+                    >
                         <button
                             className="btn-secondary"
                             type="button"

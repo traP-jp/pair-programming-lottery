@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { getResult, type LotteryResult, type ResultDetail } from "@client/api";
+import { Link, useParams } from "react-router-dom";
+
+import { type LotteryResult, type ResultDetail, getResult } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
+import { CheckIcon, ChevronDownIcon, CopyIcon } from "@client/components/icons";
 import { paths } from "@client/router";
-import { ChevronDownIcon, CopyIcon, CheckIcon } from "@client/components/icons";
 
 export function ResultDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -14,8 +15,8 @@ export function ResultDetailPage() {
     useEffect(() => {
         if (!id) return;
         getResult(id)
-            .then((d) => setRecord(d))
-            .catch((e) => setError(e instanceof Error ? e.message : "取得失敗"))
+            .then(d => setRecord(d))
+            .catch(error_ => setError(error_ instanceof Error ? error_.message : "取得失敗"))
             .finally(() => setLoading(false));
     }, [id]);
 
@@ -37,19 +38,24 @@ export function ResultDetailPage() {
 
     return (
         <div className="container">
-            <Link to={paths.results} className="back-link">
+            <Link
+                to={paths.results}
+                className="back-link"
+            >
                 ← 一覧に戻る
             </Link>
 
             <header className="header">
                 <h1>抽選結果</h1>
                 <p className="subtitle">
-                    {record.month} —{" "}
-                    {new Date(record.createdAt).toLocaleString("ja-JP")}
+                    {record.month} — {new Date(record.createdAt).toLocaleString("ja-JP")}
                 </p>
             </header>
 
-            <LotteryResultView result={result} title="ペア一覧" />
+            <LotteryResultView
+                result={result}
+                title="ペア一覧"
+            />
 
             <CopyParticipantsSection result={result} />
         </div>
@@ -69,17 +75,15 @@ function CopyParticipantsSection({ result }: { result: LotteryResult }) {
         participantNames.add(result.insertedUser.name);
     }
 
-    const csvText = Array.from(participantNames)
-        .map((name) => `@${name}`)
-        .join(", ");
+    const csvText = [...participantNames].map(name => `@${name}`).join(", ");
 
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(csvText);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error("Failed to copy: ", err);
+        } catch (error) {
+            console.error("Failed to copy:", error);
         }
     };
 
@@ -94,7 +98,10 @@ function CopyParticipantsSection({ result }: { result: LotteryResult }) {
             <div className="participants-content">
                 <div className="code-block-container">
                     <code className="participants-code">{csvText}</code>
-                    <button className="copy-btn" onClick={handleCopy}>
+                    <button
+                        className="copy-btn"
+                        onClick={handleCopy}
+                    >
                         {copied ? (
                             <>
                                 <CheckIcon className="copy-btn-icon success" />

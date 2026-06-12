@@ -1,10 +1,5 @@
-import {
-    createContext,
-    useContext,
-    useEffect,
-    useState,
-    type ReactNode,
-} from "react";
+import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
+
 import { getSchedule } from "@client/api";
 
 interface AuthContextType {
@@ -26,16 +21,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setIsAdmin(true);
                 setError(null);
             })
-            .catch((err) => {
-                if (err instanceof Error && err.message === "unauthorized") {
+            .catch(error_ => {
+                if (error_ instanceof Error && error_.message === "unauthorized") {
                     setIsAdmin(false);
                     setError(null);
                 } else {
-                    setError(
-                        err instanceof Error
-                            ? err.message
-                            : "認証の確認に失敗しました",
-                    );
+                    setError(error_ instanceof Error ? error_.message : "認証の確認に失敗しました");
                 }
             })
             .finally(() => {
@@ -44,9 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isAdmin, loading, error }}>
-            {children}
-        </AuthContext.Provider>
+        <AuthContext.Provider value={{ isAdmin, loading, error }}>{children}</AuthContext.Provider>
     );
 }
 
