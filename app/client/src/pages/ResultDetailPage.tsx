@@ -1,28 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getResult, type LotteryResponse } from "@client/api";
+import { getResult, type LotteryResult, type ResultDetail } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
 import { paths } from "@client/router";
 import { ChevronDownIcon, CopyIcon, CheckIcon } from "@client/components/icons";
 
-type RawResult = {
-    id: string;
-    createdAt: string;
-    channelId: string;
-    month: string;
-    result: LotteryResponse;
-};
-
 export function ResultDetailPage() {
     const { id } = useParams<{ id: string }>();
-    const [record, setRecord] = useState<RawResult | null>(null);
+    const [record, setRecord] = useState<ResultDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!id) return;
         getResult(id)
-            .then((d) => setRecord(d as unknown as RawResult))
+            .then((d) => setRecord(d))
             .catch((e) => setError(e instanceof Error ? e.message : "取得失敗"))
             .finally(() => setLoading(false));
     }, [id]);
@@ -64,7 +56,7 @@ export function ResultDetailPage() {
     );
 }
 
-function CopyParticipantsSection({ result }: { result: LotteryResponse }) {
+function CopyParticipantsSection({ result }: { result: LotteryResult }) {
     const [copied, setCopied] = useState(false);
 
     const participantNames = new Set<string>();

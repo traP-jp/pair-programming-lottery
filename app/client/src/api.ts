@@ -3,7 +3,7 @@ import type { Routes } from "@server/routes";
 
 const client = hc<Routes>("/");
 
-export type LotteryResponse = InferResponseType<
+export type LotteryResult = InferResponseType<
     typeof client.api.lottery.$post,
     200
 >;
@@ -33,13 +33,13 @@ export async function postMessage(channelId: string): Promise<string> {
     return (await res.json()).messageId;
 }
 
-export async function runLottery(messageId: string): Promise<LotteryResponse> {
+export async function runLottery(messageId: string): Promise<LotteryResult> {
     const res = await client.api.lottery.$post({ json: { messageId } });
     if (!res.ok) {
         const d = (await res.json()) as { error?: string };
         throw new Error(d.error ?? `HTTP ${res.status}`);
     }
-    return (await res.json()) as LotteryResponse;
+    return res.json();
 }
 
 export async function getResults(): Promise<ResultSummary[]> {
@@ -54,7 +54,7 @@ export async function getResult(id: string): Promise<ResultDetail> {
         const d = (await res.json()) as { error?: string };
         throw new Error(d.error ?? `HTTP ${res.status}`);
     }
-    return res.json() as Promise<ResultDetail>;
+    return res.json();
 }
 
 export async function getSchedule(): Promise<ScheduleRecord | null> {
@@ -76,7 +76,7 @@ export async function upsertSchedule(data: {
         const d = (await res.json()) as { error?: string };
         throw new Error(d.error ?? `HTTP ${res.status}`);
     }
-    return res.json() as Promise<ScheduleRecord>;
+    return res.json();
 }
 
 export async function triggerPost(): Promise<{ messageId: string }> {
@@ -86,7 +86,7 @@ export async function triggerPost(): Promise<{ messageId: string }> {
         const d = (await res.json()) as { error?: string };
         throw new Error(d.error ?? `HTTP ${res.status}`);
     }
-    return res.json() as Promise<{ messageId: string }>;
+    return res.json();
 }
 
 export async function triggerLottery(): Promise<{ responseId: string }> {
@@ -96,17 +96,17 @@ export async function triggerLottery(): Promise<{ responseId: string }> {
         const d = (await res.json()) as { error?: string };
         throw new Error(d.error ?? `HTTP ${res.status}`);
     }
-    return res.json() as Promise<{ responseId: string }>;
+    return res.json();
 }
 
 export async function saveResult(data: {
     messageId: string;
-    result: LotteryResponse;
+    result: LotteryResult;
 }): Promise<SavedResult> {
     const res = await client.api.results.$post({ json: data });
     if (!res.ok) {
         const d = (await res.json()) as { error?: string };
         throw new Error(d.error ?? `HTTP ${res.status}`);
     }
-    return res.json() as Promise<SavedResult>;
+    return res.json();
 }

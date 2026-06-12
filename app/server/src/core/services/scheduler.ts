@@ -3,25 +3,66 @@ import type {
     ILotteryResponseRepository,
 } from "@server/core/repository";
 import {
-    buildStampMap,
-    collectUserPrefs,
-    buildUserNameMap,
-    buildBotUserIds,
-    postLotteryMessage,
-    type ITraqClient,
-} from "@server/external/traq";
-import {
     getJstDay,
     getCurrentYearMonthJst,
     isThisMonthJst,
-} from "@server/core/services/time";
+} from "@server/utilities/time";
 import { runLottery } from "@server/core/services/lottery/matching";
 import { formatResult } from "@server/core/services/lottery/format";
+import type { UserPrefs } from "@server/types";
 
-async function tick(
+interface ISchedulerTraqService {
+    collectUserPrefs(messageId: string): Promise<UserPrefs[]>;
+    getUserNameMap(): Promise<Map<string, string>>;
+    postLotteryMessage(channelId: string): Promise<string>;
+    postMessage(channelId: string, content: string): Promise<void>;
+}
+
+async function _runScheduledLottery(
     scheduleRepo: IScheduleRepository,
     lotteryResponseRepo: ILotteryResponseRepository,
-    traq: ITraqClient,
+    traq: ISchedulerTraqService,
+    channelId: string,
+    messageId: string,
+    yearMonth: string,
+) {
+    const users = await traq.collectUserPrefs(messageId);
+
+    if (users.length < 2) {
+        console.warn(`[Scheduler] Not enough participants: ${users.length}`);
+        return null;
+    }
+
+    const userNameMap = await traq.getUserNameMap();
+    const lotteryResult = runLottery(users);
+    const response = formatResult(lotteryResult, userNameMap);
+
+    const saved = await lotteryResponseRepo.create({
+        channelId,
+        month: yearMonth,
+        result: response,
+    });
+
+    await scheduleRepo.update({
+        lastLotteryAt: new Date(),
+    });
+
+    const publicUrl = process.env["PUBLIC_URL"] ?? "http://localhost:5173";
+    const resultUrl = `${publicUrl}/${saved.id}`;
+    const pairs = response.pairs.length;
+    const participants = response.participantCount;
+    await traq.postMessage(
+        channelId,
+        `抽選結果\n${participants}人が参加し、${pairs}ペアを組みました。\n結果はこちら: ${resultUrl}`,
+    );
+    console.log(`[Scheduler] Lottery done, result URL: ${resultUrl}`);
+    return saved;
+}
+
+async function _tick(
+    scheduleRepo: IScheduleRepository,
+    lotteryResponseRepo: ILotteryResponseRepository,
+    traq: ISchedulerTraqService,
 ) {
     const schedule = await scheduleRepo.get();
     if (!schedule || !schedule.enabled) return;
@@ -38,12 +79,7 @@ async function tick(
             `[Scheduler] postDay hit — posting to channel ${schedule.channelId}`,
         );
         try {
-            const { stampNameToId } = await buildStampMap(traq);
-            const messageId = await postLotteryMessage(
-                traq,
-                schedule.channelId,
-                stampNameToId,
-            );
+            const messageId = await traq.postLotteryMessage(schedule.channelId);
             await scheduleRepo.update({
                 lastMessageId: messageId,
                 lastPostedAt: new Date(),
@@ -65,7 +101,7 @@ async function tick(
             `[Scheduler] lotteryDay hit — running lottery for message ${schedule.lastMessageId}`,
         );
         try {
-            await runScheduledLottery(
+            await _runScheduledLottery(
                 scheduleRepo,
                 lotteryResponseRepo,
                 traq,
@@ -79,70 +115,41 @@ async function tick(
     }
 }
 
-export async function runScheduledLottery(
+export function createSchedulerService(
     scheduleRepo: IScheduleRepository,
     lotteryResponseRepo: ILotteryResponseRepository,
-    traq: ITraqClient,
-    channelId: string,
-    messageId: string,
-    yearMonth: string,
+    traq: ISchedulerTraqService,
 ) {
-    const { stampIdToName } = await buildStampMap(traq);
-    const botUserIds = await buildBotUserIds(traq);
-    const users = await collectUserPrefs(
-        traq,
-        messageId,
-        stampIdToName,
-        botUserIds,
-    );
+    return {
+        async runScheduledLottery(
+            channelId: string,
+            messageId: string,
+            yearMonth: string,
+        ) {
+            return _runScheduledLottery(
+                scheduleRepo,
+                lotteryResponseRepo,
+                traq,
+                channelId,
+                messageId,
+                yearMonth,
+            );
+        },
 
-    if (users.length < 2) {
-        console.warn(`[Scheduler] Not enough participants: ${users.length}`);
-        return null;
-    }
+        startScheduler() {
+            console.log("[Scheduler] Started — checking every minute");
 
-    const userNameMap = await buildUserNameMap(traq);
-    const LotteryResponse = runLottery(users);
-    const response = formatResult(LotteryResponse, userNameMap);
+            async function runTicker() {
+                try {
+                    await _tick(scheduleRepo, lotteryResponseRepo, traq);
+                } catch (e) {
+                    console.error("[Scheduler] tick error:", e);
+                } finally {
+                    setTimeout(runTicker, 60_000);
+                }
+            }
 
-    const saved = await lotteryResponseRepo.create({
-        channelId,
-        month: yearMonth,
-        result: response as any,
-    });
-
-    await scheduleRepo.update({
-        lastLotteryAt: new Date(),
-    });
-
-    const publicUrl = process.env["PUBLIC_URL"] ?? "http://localhost:5173";
-    const resultUrl = `${publicUrl}/${saved.id}`;
-    const pairs = response.pairs.length;
-    const participants = response.participantCount;
-    await traq.channels.postMessage(channelId, {
-        content: `抽選結果\n${participants}人が参加し、${pairs}ペアを組みました。\n結果はこちら: ${resultUrl}`,
-        embed: false,
-    });
-    console.log(`[Scheduler] Lottery done, result URL: ${resultUrl}`);
-    return saved;
-}
-
-export function startScheduler(
-    scheduleRepo: IScheduleRepository,
-    lotteryResponseRepo: ILotteryResponseRepository,
-    traq: ITraqClient,
-) {
-    console.log("[Scheduler] Started — checking every minute");
-
-    async function runTicker() {
-        try {
-            await tick(scheduleRepo, lotteryResponseRepo, traq);
-        } catch (e) {
-            console.error("[Scheduler] tick error:", e);
-        } finally {
-            setTimeout(runTicker, 60_000);
-        }
-    }
-
-    runTicker();
+            runTicker();
+        },
+    };
 }

@@ -1,5 +1,5 @@
 import { ValidationErrorMessages } from "@server/error/messages";
-import type { LotteryResponse } from "@server/core/services/lottery/format";
+import type { LotteryResult } from "@server/core/services/lottery/format";
 import { adaptor } from "@server/core/validators/common/adaptor";
 import { requireString } from "@server/core/validators/common/utility";
 
@@ -18,6 +18,6 @@ export const validateSaveResultBody = adaptor("json")((value) => {
 
     return {
         messageId,
-        result: result as LotteryResponse,
+        result: result as LotteryResult,
     };
 });

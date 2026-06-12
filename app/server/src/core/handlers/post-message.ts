@@ -1,17 +1,10 @@
-import { postLotteryMessage } from "@server/external/traq";
 export interface IPostMessageTraqService {
-    client: any;
-    getStampMap(): Promise<{ stampNameToId: Map<string, string> }>;
+    postLotteryMessage(channelId: string): Promise<string>;
 }
 
 export const createPostMessageHandlers = (traqService: IPostMessageTraqService) => {
     const postMessageHandler = async (channelId: string) => {
-        const { stampNameToId } = await traqService.getStampMap();
-        const messageId = await postLotteryMessage(
-            traqService.client,
-            channelId,
-            stampNameToId,
-        );
+        const messageId = await traqService.postLotteryMessage(channelId);
         return messageId;
     };
 

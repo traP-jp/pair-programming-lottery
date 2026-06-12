@@ -1,4 +1,9 @@
-import type { LotteryResponse, Prisma } from "@server/generated/prisma/client";
+import type { LotteryResponse as PrismaLotteryResponse } from "@server/generated/prisma/client";
+import type { LotteryResult } from "@server/core/services/lottery/format";
+
+export type LotteryResponse = Omit<PrismaLotteryResponse, "result"> & {
+    result: LotteryResult;
+};
 
 export interface ILotteryResponseRepository {
     findMany(options?: {
@@ -11,6 +16,6 @@ export interface ILotteryResponseRepository {
     create(data: {
         channelId: string;
         month: string;
-        result: Prisma.InputJsonValue;
+        result: object;
     }): Promise<LotteryResponse>;
 }

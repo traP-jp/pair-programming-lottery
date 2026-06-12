@@ -18,7 +18,7 @@ export const required = <T>(
     generator: ApplicationErrorGenerator,
 ) => {
     return (value: Record<string, unknown>, property: string): T => {
-        const v = value[property] as any;
+        const v = value[property] as T;
 
         if (v === undefined || v === null || v === "")
             throw ValidationErrorMessages.PROPERTY_REQUIRED(property);

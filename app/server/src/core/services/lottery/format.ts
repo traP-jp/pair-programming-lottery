@@ -54,7 +54,7 @@ export type FormattedPair = {
     hasInsertedUser: boolean;
 };
 
-export type LotteryResponse = {
+export type LotteryResult = {
     pairs: FormattedPair[];
     insertedUser: { name: string; pairIndices: number[] } | null;
     score: { normalized: number; total: number; max: number };
@@ -69,7 +69,7 @@ export type LotteryResponse = {
 export function formatResult(
     result: MatchingResult,
     userIdToName: Map<string, string>,
-): LotteryResponse {
+): LotteryResult {
     const REGION_ORDER: Record<string, number> = { frontend: 0, backend: 1 };
 
     const getPairSortKey = (pair: [UserPrefs, UserPrefs]): [number, number] => {
@@ -96,7 +96,7 @@ export function formatResult(
     };
 
     const insertedPairKeys = new Set(
-        (result.insertedIntoPairs ?? []).map(getPairKey)
+        (result.insertedIntoPairs ?? []).map(getPairKey),
     );
 
     const formattedPairs: FormattedPair[] = sortedPairs.map((pair) => {
@@ -131,12 +131,12 @@ export function formatResult(
 
         return {
             region,
-            members: [member1, member2] as [FormattedMember, FormattedMember],
+            members: [member1, member2],
             hasInsertedUser: insertedPairKeys.has(getPairKey(pair)),
         };
     });
 
-    let insertedUser: LotteryResponse["insertedUser"] = null;
+    let insertedUser: LotteryResult["insertedUser"] = null;
     if (result.insertedUser) {
         const name =
             userIdToName.get(result.insertedUser.id) ?? result.insertedUser.id;

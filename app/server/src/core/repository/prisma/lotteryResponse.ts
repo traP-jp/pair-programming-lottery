@@ -1,6 +1,10 @@
 import { prisma } from "@server/external/db";
-import type { LotteryResponse, Prisma } from "@server/generated/prisma/client";
-import type { ILotteryResponseRepository } from "@server/core/repository/lotteryResponse";
+import type { Prisma } from "@server/generated/prisma/client";
+import type {
+    ILotteryResponseRepository,
+    LotteryResponse,
+} from "@server/core/repository/lotteryResponse";
+import type { LotteryResult as LotteryResponseType } from "@server/core/services/lottery/format";
 
 export class PrismaLotteryResponseRepository implements ILotteryResponseRepository {
     async findMany(
@@ -19,18 +23,30 @@ export class PrismaLotteryResponseRepository implements ILotteryResponseReposito
     }
 
     async findById(id: string): Promise<LotteryResponse | null> {
-        return prisma.lotteryResponse.findUnique({
+        const record = await prisma.lotteryResponse.findUnique({
             where: { id },
         });
+        if (!record) return null;
+        return {
+            ...record,
+            result: record.result as unknown as LotteryResponseType,
+        };
     }
 
     async create(data: {
         channelId: string;
         month: string;
-        result: Prisma.InputJsonValue;
+        result: object;
     }): Promise<LotteryResponse> {
-        return prisma.lotteryResponse.create({
-            data,
+        const saved = await prisma.lotteryResponse.create({
+            data: {
+                ...data,
+                result: data.result as Prisma.InputJsonValue,
+            },
         });
+        return {
+            ...saved,
+            result: data.result as unknown as LotteryResponseType,
+        };
     }
 }

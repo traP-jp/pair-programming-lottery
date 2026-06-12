@@ -1,8 +1,8 @@
-import type { LotteryResponse } from "@client/api";
+import type { LotteryResult } from "@client/api";
 import { PairCard } from "@client/components/PairCard";
 
 export type Props = {
-    result: LotteryResponse;
+    result: LotteryResult;
     title?: string;
     children?: React.ReactNode;
 };

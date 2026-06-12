@@ -1,22 +1,24 @@
 import { ApiErrorMessages } from "@server/error/messages";
-import { ApplicationError } from "@server/error/structure";
 import type { IScheduleRepository } from "@server/core/repository/schedule";
-import type { ILotteryResponseRepository } from "@server/core/repository/lotteryResponse";
-import { postLotteryMessage } from "@server/external/traq";
-import type { Prisma, Schedule } from "@server/generated/prisma/client";
-import type { Optional } from "@server/generated/prisma/client/runtime/client";
-import { runScheduledLottery } from "@server/core/services/scheduler";
-import { getCurrentYearMonthJst } from "@server/core/services/time";
+import type { Prisma } from "@server/generated/prisma/client";
+import { getCurrentYearMonthJst } from "@server/utilities/time";
 
 export interface IScheduleTraqService {
-    client: any;
-    getStampMap(): Promise<{ stampNameToId: Map<string, string> }>;
+    postLotteryMessage(channelId: string): Promise<string>;
+}
+
+export interface IScheduleSchedulerService {
+    runScheduledLottery(
+        channelId: string,
+        messageId: string,
+        yearMonth: string,
+    ): Promise<{ id: string } | null>;
 }
 
 export const createScheduleHandlers = (
     scheduleRepo: IScheduleRepository,
-    lotteryResponseRepo: ILotteryResponseRepository,
     traqService: IScheduleTraqService,
+    schedulerService: IScheduleSchedulerService,
 ) => {
     const getScheduleHandler = () => {
         return scheduleRepo.get();
@@ -33,12 +35,7 @@ export const createScheduleHandlers = (
         if (!schedule)
             throw ApiErrorMessages.SCHEDULE_NOT_FOUND.asHttpException(400);
 
-        const { stampNameToId } = await traqService.getStampMap();
-        const messageId = await postLotteryMessage(
-            traqService.client,
-            schedule.channelId,
-            stampNameToId,
-        );
+        const messageId = await traqService.postLotteryMessage(schedule.channelId);
 
         await scheduleRepo.update({
             lastMessageId: messageId,
@@ -57,10 +54,7 @@ export const createScheduleHandlers = (
 
         const yearMonth = getCurrentYearMonthJst(new Date());
 
-        const saved = await runScheduledLottery(
-            scheduleRepo,
-            lotteryResponseRepo,
-            traqService.client,
+        const saved = await schedulerService.runScheduledLottery(
             schedule.channelId,
             schedule.lastMessageId,
             yearMonth,

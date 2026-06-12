@@ -1,26 +1,26 @@
 import { ApiErrorMessages } from "@server/error/messages";
-import { collectUserPrefs } from "@server/external/traq";
-import { formatResult } from "@server/core/services/lottery/format";
-import { runLottery as runLotteryService } from "@server/core/services/lottery/matching";
-import type { TargetStampName } from "@server/external/traq";
+import type { UserPrefs, MatchingResult } from "@server/types";
+import type { LotteryResult } from "@server/core/services/lottery/format";
+
+export interface ILotteryService {
+    runLottery(users: UserPrefs[]): MatchingResult;
+    formatResult(
+        result: MatchingResult,
+        userNameMap: Map<string, string>,
+    ): LotteryResult;
+}
 
 export interface ILotteryTraqService {
-    client: any;
-    getStampMap(): Promise<{ stampIdToName: Map<string, TargetStampName>; stampNameToId: Map<string, string> }>;
-    getBotUserIds(): Promise<Set<string>>;
+    collectUserPrefs(messageId: string): Promise<UserPrefs[]>;
     getUserNameMap(): Promise<Map<string, string>>;
 }
 
-export const createLotteryHandlers = (traqService: ILotteryTraqService) => {
+export const createLotteryHandlers = (
+    traqService: ILotteryTraqService,
+    lotteryService: ILotteryService,
+) => {
     const runLotteryHandler = async (messageId: string) => {
-        const { stampIdToName } = await traqService.getStampMap();
-        const botUserIds = await traqService.getBotUserIds();
-        const users = await collectUserPrefs(
-            traqService.client,
-            messageId,
-            stampIdToName,
-            botUserIds,
-        );
+        const users = await traqService.collectUserPrefs(messageId);
 
         const userCount = users.length;
 
@@ -32,9 +32,9 @@ export const createLotteryHandlers = (traqService: ILotteryTraqService) => {
         }
 
         const userNameMap = await traqService.getUserNameMap();
-        const result = runLotteryService(users);
+        const result = lotteryService.runLottery(users);
 
-        return formatResult(result, userNameMap);
+        return lotteryService.formatResult(result, userNameMap);
     };
 
     return { runLotteryHandler };

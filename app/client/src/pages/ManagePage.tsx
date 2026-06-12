@@ -4,7 +4,7 @@ import {
     postMessage,
     runLottery,
     saveResult,
-    type LotteryResponse,
+    type LotteryResult,
 } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
 import { paths } from "@client/router";
@@ -21,7 +21,7 @@ export function ManagePage() {
     const [error, setError] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [savedResultId, setSavedResultId] = useState<string | null>(null);
-    const [result, setResult] = useState<LotteryResponse | null>(null);
+    const [result, setResult] = useState<LotteryResult | null>(null);
 
     const handlePost = async (e: React.FormEvent) => {
         e.preventDefault();

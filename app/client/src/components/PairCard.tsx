@@ -1,7 +1,7 @@
-import type { LotteryResponse } from "@client/api";
+import type { LotteryResult } from "@client/api";
 
-type FormattedMember = LotteryResponse["pairs"][number]["members"][number];
-type FormattedPair = LotteryResponse["pairs"][number];
+type FormattedMember = LotteryResult["pairs"][number]["members"][number];
+type FormattedPair = LotteryResult["pairs"][number];
 
 function getRegionLabel(region: string | null): string {
     if (region === "frontend") return "フロントエンド";
@@ -32,7 +32,7 @@ function Member({ member }: { member: FormattedMember }) {
 export type Props = {
     pair: FormattedPair;
     index: number;
-    insertedUser: LotteryResponse["insertedUser"];
+    insertedUser: LotteryResult["insertedUser"];
 };
 
 export function PairCard({ pair, index, insertedUser }: Props) {
