@@ -17,12 +17,11 @@ function getRoleLabel(role: string | null): string {
 }
 
 function Member({ member }: { member: FormattedMember }) {
+    const roleLabel = getRoleLabel(member.role);
     return (
         <span className="member">
             <span className="member-name">@{member.name}</span>
-            {member.role && (
-                <span className={`role-tag ${member.role}`}>{getRoleLabel(member.role)}</span>
-            )}
+            {roleLabel ? <span className={`role-tag ${member.role}`}>{roleLabel}</span> : null}
         </span>
     );
 }

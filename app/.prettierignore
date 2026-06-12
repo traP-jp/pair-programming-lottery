@@ -4,3 +4,4 @@ dist/
 generated/
 prisma/migrations/
 bun.lock
+**/coverage/

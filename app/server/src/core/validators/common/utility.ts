@@ -48,7 +48,10 @@ export const requireDate = (value: Record<string, unknown>, property: string) =>
         }
     })();
 
-    assert(isDate(date), ValidationErrorMessages.PROPERTY_MUST_BE_DATE(property));
+    assert(
+        isDate(date) && !isNaN(date.getTime()),
+        ValidationErrorMessages.PROPERTY_MUST_BE_DATE(property)
+    );
 
     return date;
 };

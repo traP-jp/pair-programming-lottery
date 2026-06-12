@@ -52,7 +52,7 @@ async function _runScheduledLottery(
     return saved;
 }
 
-async function _tick(
+export async function _tick(
     scheduleRepo: IScheduleRepository,
     lotteryResponseRepo: ILotteryResponseRepository,
     traq: ISchedulerTraqService

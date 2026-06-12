@@ -7,6 +7,8 @@ import { prisma } from "@server/external/database";
 import type { Prisma } from "@server/generated/prisma/client";
 
 export class PrismaLotteryResponseRepository implements ILotteryResponseRepository {
+    constructor() {}
+
     async findMany(
         options: {
             orderBy?: { createdAt: "asc" | "desc" };

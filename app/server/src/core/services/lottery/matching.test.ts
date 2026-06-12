@@ -1,0 +1,90 @@
+import { describe, expect, it } from "bun:test";
+
+import { runLottery } from "./matching";
+
+import type { Region, Role, UserPrefs } from "../../../types";
+
+describe("runLottery", () => {
+    const createUser = (
+        id: string,
+        regions: Region[],
+        roles: Role[],
+        origRegSize = regions.length,
+        origRoleSize = roles.length
+    ): UserPrefs => ({
+        id,
+        regions: new Set(regions),
+        roles: new Set(roles),
+        originalRegionSize: origRegSize,
+        originalRoleSize: origRoleSize,
+    });
+
+    it("should pair users with matching regions and complementary roles to maximize score", () => {
+        // We have 4 users.
+        // User A and B both want frontend, A is navigator, B is driver. (perfect match)
+        // User C and D both want backend, C is navigator, D is driver. (perfect match)
+        const userA = createUser("A", ["frontend"], ["navigator"]);
+        const userB = createUser("B", ["frontend"], ["driver"]);
+        const userC = createUser("C", ["backend"], ["navigator"]);
+        const userD = createUser("D", ["backend"], ["driver"]);
+
+        const result = runLottery([userA, userB, userC, userD]);
+
+        expect(result.pairs.length).toBe(2);
+        expect(result.insertedUser).toBeNull();
+        expect(result.insertedIntoPairs).toBeNull();
+
+        // Total score should be:
+        // Pair 1 (A-B): region match (100) + role complement (10) = 110
+        // Pair 2 (C-D): region match (100) + role complement (10) = 110
+        // Total = 220
+        expect(result.totalScore).toBe(220);
+        expect(result.regionImbalance).toBe(0); // 1 frontend pair, 1 backend pair
+    });
+
+    it("should handle odd number of users by leaving one out and placing them in insertedUser", () => {
+        const users = [
+            createUser("A", ["frontend"], ["navigator"]),
+            createUser("B", ["frontend"], ["driver"]),
+            createUser("C", ["backend"], ["navigator"]),
+            createUser("D", ["backend"], ["driver"]),
+            createUser("E", ["frontend"], ["driver"]),
+        ];
+
+        const result = runLottery(users);
+
+        expect(result.pairs.length).toBe(2);
+        expect(result.insertedUser).not.toBeNull();
+        expect(result.insertedIntoPairs).not.toBeNull();
+        // The insertedUser should be one of the users
+        expect(users.map(u => u.id)).toContain(result.insertedUser!.id);
+        // insertedIntoPairs should contain either 1 or 2 pairs where the insertedUser is assigned
+        expect(result.insertedIntoPairs!.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("should minimize region imbalance if scores are tied", () => {
+        // Users all have the same role complement, but we have 2 frontend-preferring and 2 backend-preferring.
+        // To minimize region imbalance, they should be paired (frontend-frontend) and (backend-backend)
+        // giving regionImbalance = 0.
+        const userA = createUser("A", ["frontend"], ["navigator"]);
+        const userB = createUser("B", ["frontend"], ["driver"]);
+        const userC = createUser("C", ["backend"], ["navigator"]);
+        const userD = createUser("D", ["backend"], ["driver"]);
+
+        const result = runLottery([userA, userC, userB, userD]);
+        expect(result.regionImbalance).toBe(0);
+    });
+
+    it("should handle odd number of users with a flexible user and swap it to be left out", () => {
+        const userA = createUser("A", ["frontend", "backend"], ["navigator"]);
+        const userB = createUser("B", ["frontend"], ["driver"]);
+        const userC = createUser("C", ["backend"], ["driver"]);
+
+        const result = runLottery([userA, userB, userC]);
+
+        expect(result.pairs.length).toBe(1);
+        expect(result.insertedUser).not.toBeNull();
+        expect(result.insertedIntoPairs).not.toBeNull();
+        expect(result.insertedIntoPairs!.length).toBe(1);
+    });
+});

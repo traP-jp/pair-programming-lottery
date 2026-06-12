@@ -127,5 +127,13 @@ export default tseslint.config(
         },
     },
     ...eslintPluginJsonc.configs["flat/prettier"],
+    {
+        files: ["**/*.test.{ts,tsx}"],
+        rules: {
+            "@typescript-eslint/no-explicit-any": "off",
+            "unicorn/prevent-abbreviations": "off",
+            "@typescript-eslint/no-unused-vars": "off",
+        },
+    },
     eslintConfigPrettier
 );

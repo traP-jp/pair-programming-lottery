@@ -6,16 +6,19 @@
         "dev": "docker compose -f compose.yaml -f compose.dev.yaml up -d",
         "dev:build": "bun run --bun dev --build",
         "down": "docker compose down",
-        "check:type": "bun run --filter client typecheck && bun run --filter server typecheck",
+        "check:type": "bun run scripts/runChecks.ts type",
         "check:lint": "eslint . --cache",
         "check:lint:fix": "eslint . --fix --cache",
         "check:format": "prettier --check --cache .",
         "check:format:fix": "prettier --write --cache .",
-        "check": "bun run --bun check:lint && bun run --bun check:format && bun run --bun check:type",
-        "check:fix": "bun run --bun check:lint:fix && bun run --bun check:format:fix && bun run --bun check:type",
+        "check:test": "bun run scripts/runChecks.ts test",
+        "check": "bun run scripts/runChecks.ts check",
+        "check:fix": "bun run scripts/runChecks.ts fix",
         "husky:prepare": "cd .. && husky app/.husky"
     },
     "dependencies": {
+        "@types/glob": "^9.0.0",
+        "glob": "^13.0.6",
         "hono": "^4.12"
     },
     "devDependencies": {

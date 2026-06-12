@@ -3,6 +3,8 @@ import { prisma } from "@server/external/database";
 import type { Prisma, Schedule } from "@server/generated/prisma/client";
 
 export class PrismaScheduleRepository implements IScheduleRepository {
+    constructor() {}
+
     async get(): Promise<Schedule | null> {
         return prisma.schedule.findUnique({ where: { id: 1 } });
     }
