@@ -2,3 +2,4 @@
 preload = ["./setupTest.ts"]
 coverageSkipTestFiles = true
 coveragePathIgnorePatterns = ["**/generated/**", "**/setupTest.ts"]
+pathIgnorePatterns = ["**/dist/**"]

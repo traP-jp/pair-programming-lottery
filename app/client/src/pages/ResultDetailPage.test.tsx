@@ -1,7 +1,7 @@
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import * as api from "@client/api";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ResultDetailPage } from "./ResultDetailPage";
@@ -113,7 +113,7 @@ describe("ResultDetailPage", () => {
 
         // The button should change state
         await waitFor(() => {
-            expect(screen.getByText("コピー")).toBeInTheDocument();
+            expect(copyBtn.querySelector(".success")).toBeInTheDocument();
         });
     });
 
@@ -158,14 +158,25 @@ describe("ResultDetailPage", () => {
         // Enable fake timers only after rendering and getting copy button
         vi.useFakeTimers();
 
-        fireEvent.click(copyBtn);
+        // Wrap the click and microtask flushes in act
+        await act(async () => {
+            fireEvent.click(copyBtn);
+            // Flush promise microtasks to allow clipboard write to resolve and schedule setTimeout
+            await Promise.resolve();
+            await Promise.resolve();
+        });
 
-        // Flush promise microtasks to allow clipboard write to resolve and schedule setTimeout
-        await Promise.resolve();
-        await Promise.resolve();
+        // Verify the copy state is active
+        expect(copyBtn.querySelector(".success")).toBeInTheDocument();
 
-        // Advance timers by 2 seconds
-        vi.advanceTimersByTime(2000);
+        // Advance timers by 2 seconds inside act
+        await act(async () => {
+            vi.advanceTimersByTime(2000);
+        });
+
+        // Verify the copy state has reset
+        expect(copyBtn.querySelector(".success")).not.toBeInTheDocument();
+
         vi.useRealTimers();
     });
 
