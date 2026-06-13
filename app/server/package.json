@@ -2,12 +2,13 @@
     "name": "server",
     "private": true,
     "scripts": {
-        "dev": "bun run --watch ./src/index.ts",
+        "build": "bun build ./src/index.ts --outdir ./dist --target bun",
         "db:generate": "bunx --bun prisma generate",
         "db:migrate": "bunx --bun prisma migrate deploy",
         "db:migrate:dev": "bunx --bun prisma migrate dev",
-        "typecheck": "bunx --bun tsc --noEmit --skipLibCheck false",
-        "test": "bun test"
+        "dev": "bun run --watch ./src/index.ts",
+        "test": "bun test",
+        "typecheck": "bunx --bun tsc --noEmit --skipLibCheck false"
     },
     "dependencies": {
         "@prisma/adapter-mariadb": "^7.7.0",
@@ -15,6 +16,7 @@
         "@prisma/client-runtime-utils": "^7.7.0",
         "dotenv": "^17.4.1",
         "dotenv-expand": "^13.0.0",
+        "hono": "^4.12",
         "traq-bot-ts": "^1.5"
     },
     "devDependencies": {

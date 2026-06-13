@@ -1,23 +1,33 @@
 services:
     server:
         build:
-            args:
-                BUILD_ENV: development
+            dockerfile: server/Dockerfile.dev
         volumes:
-            - ./server/src:/app/server/src:ro
-            - ./server/prisma:/app/server/prisma:ro
-            - ./node_modules:/app/node_modules
-            - ./server/node_modules:/app/server/node_modules
-        entrypoint: ["bun", "run", "--watch", "./src/index.ts"]
+            - .:/app:ro
+            - root-node-modules:/app/node_modules
+            - server-node-modules:/app/server/node_modules
+            - client-node-modules:/app/client/node_modules
+        entrypoint:
+            [
+                "bash",
+                "-c",
+                "cd /app && bun install && cd /app/server && bun run --watch ./src/index.ts",
+            ]
 
     client:
         build:
-            args:
-                BUILD_ENV: development
+            dockerfile: client/Dockerfile.dev
         ports:
             - "5173:5173"
         volumes:
-            - ./client/src:/app/client/src:ro
-            - ./node_modules:/app/node_modules
-            - ./client/node_modules:/app/client/node_modules
-        entrypoint: ["bunx", "--bun", "vite", "--host"]
+            - .:/app:ro
+            - root-node-modules:/app/node_modules
+            - server-node-modules:/app/server/node_modules
+            - client-node-modules:/app/client/node_modules
+        entrypoint:
+            ["bash", "-c", "cd /app && bun install && cd /app/client && bunx --bun vite --host"]
+
+volumes:
+    root-node-modules:
+    server-node-modules:
+    client-node-modules:

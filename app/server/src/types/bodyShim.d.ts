@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface Body {
-    readonly body: any;
+    // readonly body: any;
     readonly bodyUsed: boolean;
     arrayBuffer(): Promise<any>;
     blob(): Promise<any>;

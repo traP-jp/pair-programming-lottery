@@ -1,0 +1,18 @@
+FROM oven/bun:1
+WORKDIR /app
+
+COPY package.json bun.lock bunfig.toml ./
+COPY server/package.json server/bunfig.toml ./server/
+COPY client/package.json client/bunfig.toml ./client/
+
+COPY tsconfig.json ./
+COPY server/src/ ./server/src
+COPY server/prisma/ ./server/prisma
+
+EXPOSE 3000
+ENV PORT=3000
+
+WORKDIR /app/server/
+
+ENTRYPOINT [ "bun" ]
+CMD [ "run", "src/index.js" ]
