@@ -9,19 +9,11 @@ function getRegionLabel(region: string | null): string {
     return "";
 }
 
-function getRoleLabel(role: string | null): string {
-    if (!role) return "";
-    if (role === "navigator") return "ナビゲーター";
-    if (role === "driver") return "ドライバー";
-    return "";
-}
-
 function Member({ member }: { member: FormattedMember }) {
-    const roleLabel = getRoleLabel(member.role);
     return (
         <span className="member">
             <span className="member-name">@{member.name}</span>
-            {roleLabel ? <span className={`role-tag ${member.role}`}>{roleLabel}</span> : null}
+            {member.level === "beginner" ? <span className="beginner-mark">🔰</span> : null}
         </span>
     );
 }

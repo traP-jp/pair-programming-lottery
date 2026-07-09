@@ -11,16 +11,16 @@ describe("LotteryResultView", () => {
                 {
                     region: "frontend",
                     members: [
-                        { name: "Alice", role: "navigator" },
-                        { name: "Bob", role: "driver" },
+                        { name: "Alice", level: "beginner" },
+                        { name: "Bob", level: "muscle" },
                     ],
                     hasInsertedUser: false,
                 },
                 {
                     region: "backend",
                     members: [
-                        { name: "Charlie", role: "navigator" },
-                        { name: "Dave", role: "driver" },
+                        { name: "Charlie", level: "beginner" },
+                        { name: "Dave", level: "muscle" },
                     ],
                     hasInsertedUser: false,
                 },
@@ -34,7 +34,7 @@ describe("LotteryResultView", () => {
             },
             config: {
                 regionMatchScore: 100,
-                roleComplementScore: 10,
+                penaltyBeginnerPair: 10000,
                 simulationRounds: 5000,
             },
         },

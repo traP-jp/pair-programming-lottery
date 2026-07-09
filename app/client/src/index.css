@@ -256,14 +256,9 @@ body {
     font-weight: 600;
 }
 
-.role-tag.navigator {
-    background: rgba(253, 203, 110, 0.15);
-    color: var(--navigator);
-}
-
-.role-tag.driver {
-    background: rgba(225, 112, 85, 0.15);
-    color: var(--driver);
+.beginner-mark {
+    font-size: 0.9rem;
+    margin-left: -0.2rem;
 }
 
 .role-tag.inserted {

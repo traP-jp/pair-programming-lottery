@@ -8,8 +8,8 @@ import type { ITraqClient, MessageInfo, StampInfo, UserInfo } from "../../extern
 const mockStamps: StampInfo[] = [
     { id: "s1", name: "one" },
     { id: "s2", name: "two" },
-    { id: "s3", name: "regional_indicator_a" },
-    { id: "s4", name: "regional_indicator_b" },
+    { id: "s3", name: "beginner" },
+    { id: "s4", name: "muscle" },
     { id: "s5", name: "random_stamp" },
 ];
 
@@ -23,9 +23,9 @@ const mockMessage: MessageInfo = {
     channelId: "channel-123",
     stamps: [
         { stampId: "s1", userId: "u1" }, // user1 likes frontend
-        { stampId: "s3", userId: "u1" }, // user1 likes navigator
+        { stampId: "s3", userId: "u1" }, // user1 likes beginner
         { stampId: "s2", userId: "u2" }, // user2 likes backend
-        { stampId: "s4", userId: "u2" }, // user2 likes driver
+        { stampId: "s4", userId: "u2" }, // user2 likes muscle
         { stampId: "s1", userId: "u3" }, // bot likes frontend (should be ignored)
     ],
 };
@@ -48,8 +48,8 @@ describe("traqService", () => {
         expect(client.getStamps).toHaveBeenCalled();
         expect(stampIdToName.get("s1")).toBe("one");
         expect(stampIdToName.get("s2")).toBe("two");
-        expect(stampIdToName.get("s3")).toBe("regional_indicator_a");
-        expect(stampIdToName.get("s4")).toBe("regional_indicator_b");
+        expect(stampIdToName.get("s3")).toBe("beginner");
+        expect(stampIdToName.get("s4")).toBe("muscle");
         expect(stampIdToName.get("s5")).toBeUndefined(); // ignored non-target stamp
 
         expect(stampNameToId.get("one")).toBe("s1");
@@ -93,11 +93,11 @@ describe("traqService", () => {
 
         const p1 = prefs.find(p => p.id === "u1")!;
         expect([...p1.regions]).toEqual(["frontend"]);
-        expect([...p1.roles]).toEqual(["navigator"]);
+        expect([...p1.levels]).toEqual(["beginner"]);
 
         const p2 = prefs.find(p => p.id === "u2")!;
         expect([...p2.regions]).toEqual(["backend"]);
-        expect([...p2.roles]).toEqual(["driver"]);
+        expect([...p2.levels]).toEqual(["muscle"]);
     });
 
     it("should throw error if message is not found or has no stamps in collectUserPrefs", async () => {
@@ -127,8 +127,8 @@ describe("traqService", () => {
         const p1 = prefs[0]!;
         // Multi-select region falls back to both
         expect([...p1.regions]).toEqual(["frontend", "backend"]);
-        // Zero-select role falls back to both
-        expect([...p1.roles]).toEqual(["navigator", "driver"]);
+        // Zero-select level falls back to both
+        expect([...p1.levels]).toEqual(["beginner", "muscle"]);
     });
 
     it("should post lottery message and add initial stamps", async () => {

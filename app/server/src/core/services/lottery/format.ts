@@ -1,48 +1,52 @@
 import {
+    PENALTY_BEGINNER_PAIR,
     SCORE_REGION_MATCH,
-    SCORE_ROLE_COMPLEMENT,
     SIMULATION_ROUNDS,
 } from "@server/core/services/lottery/matching";
 import type { MatchingResult, UserPrefs } from "@server/types";
 
 export type Region = "frontend" | "backend";
-export type Role = "navigator" | "driver";
+export type Level = "beginner" | "muscle";
 
 function getPairRegion(u: UserPrefs, v: UserPrefs): Region | null {
     return [...u.regions].find(r => v.regions.has(r)) ?? null;
 }
 
-function hasComplementaryRole(u1: UserPrefs, u2: UserPrefs): boolean {
+function isBeginnerPair(u1: UserPrefs, u2: UserPrefs): boolean {
     return (
-        (u1.roles.has("navigator") && u2.roles.has("driver")) ||
-        (u1.roles.has("driver") && u2.roles.has("navigator"))
+        u1.levels.has("beginner") &&
+        !u1.levels.has("muscle") &&
+        u2.levels.has("beginner") &&
+        !u2.levels.has("muscle")
     );
 }
 
-function resolveRolesPair(u1: UserPrefs, u2: UserPrefs): [Role | null, Role | null] {
-    if (!hasComplementaryRole(u1, u2)) return [null, null];
+function resolveLevelsPair(u1: UserPrefs, u2: UserPrefs): [Level | null, Level | null] {
+    const u1Levels = [...u1.levels];
+    const u2Levels = [...u2.levels];
 
-    const u1Roles = [...u1.roles];
-    const u2Roles = [...u2.roles];
-
-    if (u1Roles.length === 1) {
-        const u1Role = u1Roles[0]!;
-        const u2Role = u1Role === "navigator" ? "driver" : "navigator";
-        return [u1Role, u2Role];
+    if (u1Levels.length === 1 && u2Levels.length === 2) {
+        const u1Level = u1Levels[0]!;
+        const u2Level = u1Level === "beginner" ? "muscle" : "beginner";
+        return [u1Level, u2Level];
     }
 
-    if (u2Roles.length === 1) {
-        const u2Role = u2Roles[0]!;
-        const u1Role = u2Role === "navigator" ? "driver" : "navigator";
-        return [u1Role, u2Role];
+    if (u2Levels.length === 1 && u1Levels.length === 2) {
+        const u2Level = u2Levels[0]!;
+        const u1Level = u2Level === "beginner" ? "muscle" : "beginner";
+        return [u1Level, u2Level];
     }
 
-    return ["navigator", "driver"];
+    if (u1Levels.length === 2 && u2Levels.length === 2) {
+        return ["beginner", "muscle"];
+    }
+
+    return [u1Levels[0] ?? null, u2Levels[0] ?? null];
 }
 
 export type FormattedMember = {
     name: string;
-    role: Role | null;
+    level: Level | null;
 };
 
 export type FormattedPair = {
@@ -58,7 +62,7 @@ export type LotteryResult = {
     participantCount: number;
     config: {
         regionMatchScore: number;
-        roleComplementScore: number;
+        penaltyBeginnerPair: number;
         simulationRounds: number;
     };
 };
@@ -79,8 +83,8 @@ export function formatResult(
         if (!u1 || !u2) return [2, 1];
         const commonRegion = [...u1.regions].find(r => u2.regions.has(r));
         const regionKey = commonRegion === undefined ? 2 : (REGION_ORDER[commonRegion] ?? 2);
-        const roleKey = hasComplementaryRole(u1, u2) ? 0 : 1;
-        return [regionKey, roleKey];
+        const levelKey = isBeginnerPair(u1, u2) ? 1 : 0;
+        return [regionKey, levelKey];
     };
 
     const sortedPairs = [...result.pairs].toSorted((a, b) => {
@@ -99,8 +103,8 @@ export function formatResult(
             return {
                 region: null,
                 members: [
-                    { name: "?", role: null },
-                    { name: "?", role: null },
+                    { name: "?", level: null },
+                    { name: "?", level: null },
                 ],
                 hasInsertedUser: false,
             };
@@ -108,18 +112,18 @@ export function formatResult(
 
         const region = getPairRegion(u1, u2);
 
-        const [role1, role2] = resolveRolesPair(u1, u2);
+        const [level1, level2] = resolveLevelsPair(u1, u2);
 
         let member1: FormattedMember = {
             name: userIdToName.get(u1.id) ?? u1.id,
-            role: role1,
+            level: level1,
         };
         let member2: FormattedMember = {
             name: userIdToName.get(u2.id) ?? u2.id,
-            role: role2,
+            level: level2,
         };
 
-        if (member1.role === "driver") {
+        if (member1.level === "beginner") {
             [member1, member2] = [member2, member1];
         }
 
@@ -140,7 +144,7 @@ export function formatResult(
         insertedUser = { name, pairIndices: indices };
     }
 
-    const maxScore = result.pairs.length * (SCORE_REGION_MATCH + SCORE_ROLE_COMPLEMENT);
+    const maxScore = result.pairs.length * SCORE_REGION_MATCH;
     const normalized = maxScore > 0 ? result.totalScore / maxScore : 0;
 
     const totalParticipants = result.pairs.length * 2 + (result.insertedUser ? 1 : 0);
@@ -156,7 +160,7 @@ export function formatResult(
         participantCount: totalParticipants,
         config: {
             regionMatchScore: SCORE_REGION_MATCH,
-            roleComplementScore: SCORE_ROLE_COMPLEMENT,
+            penaltyBeginnerPair: PENALTY_BEGINNER_PAIR,
             simulationRounds: SIMULATION_ROUNDS,
         },
     };

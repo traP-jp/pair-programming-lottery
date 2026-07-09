@@ -66,16 +66,16 @@ describe("scheduler service", () => {
             {
                 id: "u1",
                 regions: new Set(["frontend"]),
-                roles: new Set(["navigator"]),
+                levels: new Set(["beginner"]),
                 originalRegionSize: 1,
-                originalRoleSize: 1,
+                originalLevelSize: 1,
             },
             {
                 id: "u2",
                 regions: new Set(["backend"]),
-                roles: new Set(["driver"]),
+                levels: new Set(["muscle"]),
                 originalRegionSize: 1,
-                originalRoleSize: 1,
+                originalLevelSize: 1,
             },
         ];
         traq.userNameMap.set("u1", "user-one");
@@ -100,9 +100,9 @@ describe("scheduler service", () => {
             {
                 id: "u1",
                 regions: new Set(["frontend"]),
-                roles: new Set(["navigator"]),
+                levels: new Set(["beginner"]),
                 originalRegionSize: 1,
-                originalRoleSize: 1,
+                originalLevelSize: 1,
             },
         ];
 
@@ -169,16 +169,16 @@ describe("scheduler service", () => {
                 {
                     id: "u1",
                     regions: new Set(["frontend"]),
-                    roles: new Set(["navigator"]),
+                    levels: new Set(["beginner"]),
                     originalRegionSize: 1,
-                    originalRoleSize: 1,
+                    originalLevelSize: 1,
                 },
                 {
                     id: "u2",
                     regions: new Set(["backend"]),
-                    roles: new Set(["driver"]),
+                    levels: new Set(["muscle"]),
                     originalRegionSize: 1,
-                    originalRoleSize: 1,
+                    originalLevelSize: 1,
                 },
             ];
 

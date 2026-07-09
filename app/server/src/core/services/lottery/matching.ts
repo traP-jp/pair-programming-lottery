@@ -1,7 +1,7 @@
 import type { MatchingResult, UserPrefs } from "@server/types";
 
 const SCORE_REGION_MATCH = 100;
-const SCORE_ROLE_COMPLEMENT = 10;
+const PENALTY_BEGINNER_PAIR = 10000;
 const SIMULATION_ROUNDS = 5000;
 
 function getPairScore(u: UserPrefs, v: UserPrefs): number {
@@ -10,10 +10,10 @@ function getPairScore(u: UserPrefs, v: UserPrefs): number {
     const hasCommonRegion = [...u.regions].some(r => v.regions.has(r));
     if (hasCommonRegion) score += SCORE_REGION_MATCH;
 
-    const hasComplementaryRole =
-        (u.roles.has("navigator") && v.roles.has("driver")) ||
-        (u.roles.has("driver") && v.roles.has("navigator"));
-    if (hasComplementaryRole) score += SCORE_ROLE_COMPLEMENT;
+    // ペアの両方が初心者（beginnerのみ）の場合は大きなペナルティを与える
+    const isUBeginner = u.levels.has("beginner") && !u.levels.has("muscle");
+    const isVBeginner = v.levels.has("beginner") && !v.levels.has("muscle");
+    if (isUBeginner && isVBeginner) score -= PENALTY_BEGINNER_PAIR;
 
     return score;
 }
@@ -34,10 +34,10 @@ function tryMatching(users: UserPrefs[]): MatchingResult {
         const lastIndex = shuffled.length - 1;
         const lastUser = shuffled[lastIndex]!;
 
-        if (lastUser.originalRegionSize !== 2 && lastUser.originalRoleSize !== 2) {
+        if (lastUser.originalRegionSize !== 2 && lastUser.originalLevelSize !== 2) {
             const flexIndex = shuffled.findIndex(
                 (u, index) =>
-                    index < lastIndex && (u.originalRegionSize === 2 || u.originalRoleSize === 2)
+                    index < lastIndex && (u.originalRegionSize === 2 || u.originalLevelSize === 2)
             );
             if (flexIndex !== -1) {
                 [shuffled[flexIndex], shuffled[lastIndex]] = [
@@ -102,4 +102,4 @@ export function runLottery(users: UserPrefs[]): MatchingResult {
     return bestResult!;
 }
 
-export { SIMULATION_ROUNDS, SCORE_REGION_MATCH, SCORE_ROLE_COMPLEMENT };
+export { SIMULATION_ROUNDS, SCORE_REGION_MATCH, PENALTY_BEGINNER_PAIR };

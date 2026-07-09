@@ -1,14 +1,14 @@
 export type Region = "frontend" | "backend";
-export type Role = "navigator" | "driver";
+export type Level = "beginner" | "muscle";
 
 export type UserPrefs = {
     id: string;
     regions: Set<Region>;
-    roles: Set<Role>;
+    levels: Set<Level>;
     /** 正規化前の領域スタンプの押下数（0=未押し, 1=片方, 2=両方） */
     originalRegionSize: number;
-    /** 正規化前の役割スタンプの押下数（0=未押し, 1=片方, 2=両方） */
-    originalRoleSize: number;
+    /** 正規化前のレベルスタンプの押下数（0=未押し, 1=片方, 2=両方） */
+    originalLevelSize: number;
 };
 
 export type MatchingResult = {

@@ -9,8 +9,8 @@ describe("PairCard", () => {
         pair: {
             region: "frontend",
             members: [
-                { name: "Alice", role: "navigator" },
-                { name: "Bob", role: "driver" },
+                { name: "Alice", level: "beginner" },
+                { name: "Bob", level: "muscle" },
             ],
             hasInsertedUser: false,
         },
@@ -18,7 +18,7 @@ describe("PairCard", () => {
         insertedUser: null,
     };
 
-    it("should render members with names and roles", () => {
+    it("should render members with names and levels", () => {
         render(<PairCard {...defaultProps} />);
 
         // Check pair number header (index 0 should show "ペア 1")
@@ -31,9 +31,9 @@ describe("PairCard", () => {
         expect(screen.getByText("@Alice")).toBeInTheDocument();
         expect(screen.getByText("@Bob")).toBeInTheDocument();
 
-        // Check role tags
-        expect(screen.getByText("ナビゲーター")).toBeInTheDocument();
-        expect(screen.getByText("ドライバー")).toBeInTheDocument();
+        // Check level tags
+        expect(screen.getByText("🔰")).toBeInTheDocument();
+        expect(screen.queryByText("経験者")).not.toBeInTheDocument();
     });
 
     it("should render backend region correctly", () => {
@@ -53,8 +53,8 @@ describe("PairCard", () => {
             pair: {
                 region: "frontend",
                 members: [
-                    { name: "Alice", role: "navigator" },
-                    { name: "Bob", role: "driver" },
+                    { name: "Alice", level: "beginner" },
+                    { name: "Bob", level: "muscle" },
                 ],
                 hasInsertedUser: true,
             },
@@ -73,14 +73,14 @@ describe("PairCard", () => {
         expect(screen.getByText("参加")).toBeInTheDocument();
     });
 
-    it("should render fallback labels for unknown region and role", () => {
+    it("should render fallback labels for unknown region and level", () => {
         const props: Props = {
             ...defaultProps,
             pair: {
                 region: "unknown_region" as any,
                 members: [
-                    { name: "Alice", role: "unknown_role" as any },
-                    { name: "Bob", role: null },
+                    { name: "Alice", level: "unknown_level" as any },
+                    { name: "Bob", level: null },
                 ],
                 hasInsertedUser: false,
             },
@@ -91,7 +91,7 @@ describe("PairCard", () => {
         expect(screen.queryByText("バックエンド")).not.toBeInTheDocument();
         expect(screen.getByText("@Alice")).toBeInTheDocument();
         expect(screen.getByText("@Bob")).toBeInTheDocument();
-        expect(screen.queryByText("ナビゲーター")).not.toBeInTheDocument();
-        expect(screen.queryByText("ドライバー")).not.toBeInTheDocument();
+        expect(screen.queryByText("🔰")).not.toBeInTheDocument();
+        expect(screen.queryByText("経験者")).not.toBeInTheDocument();
     });
 });

@@ -1,7 +1,7 @@
 import { type ITraqClient } from "@server/external/traq";
-import type { Region, Role, UserPrefs } from "@server/types";
+import type { Level, Region, UserPrefs } from "@server/types";
 
-const TARGET_STAMP_NAMES = ["one", "two", "regional_indicator_a", "regional_indicator_b"] as const;
+const TARGET_STAMP_NAMES = ["one", "two", "beginner", "muscle"] as const;
 
 export type TargetStampName = (typeof TARGET_STAMP_NAMES)[number];
 
@@ -75,45 +75,49 @@ export function createTraqService(client: ITraqClient) {
                 usersMap.set(userId, {
                     id: userId,
                     regions: new Set<Region>(),
-                    roles: new Set<Role>(),
+                    levels: new Set<Level>(),
                     originalRegionSize: 0,
-                    originalRoleSize: 0,
+                    originalLevelSize: 0,
                 });
             }
             const prefs = usersMap.get(userId)!;
 
             if (stampName === "one") prefs.regions.add("frontend");
             if (stampName === "two") prefs.regions.add("backend");
-            if (stampName === "regional_indicator_a") prefs.roles.add("navigator");
-            if (stampName === "regional_indicator_b") prefs.roles.add("driver");
+            if (stampName === "beginner") prefs.levels.add("beginner");
+            if (stampName === "muscle") prefs.levels.add("muscle");
         }
 
         for (const prefs of usersMap.values()) {
             prefs.originalRegionSize = prefs.regions.size;
-            prefs.originalRoleSize = prefs.roles.size;
+            prefs.originalLevelSize = prefs.levels.size;
         }
 
         for (const prefs of usersMap.values()) {
             if (prefs.regions.size !== 1) {
                 prefs.regions = new Set<Region>(["frontend", "backend"]);
             }
-            if (prefs.roles.size !== 1) {
-                prefs.roles = new Set<Role>(["navigator", "driver"]);
+            if (prefs.levels.size !== 1) {
+                prefs.levels = new Set<Level>(["beginner", "muscle"]);
             }
         }
 
         return [...usersMap.values()];
     }
 
-    const LOTTERY_MESSAGE = `## ペアプロ抽選
+    const LOTTERY_MESSAGE = `参加を希望される方は以下に従って 領域 / レベル **それぞれ** にスタンプを押してください。
 
-### 領域
-- :one: フロントエンド
-- :two: バックエンド
+初心者同士がペアにならないように かつ なるべく領域が重複するように 抽選します。
 
-### 役割
-- :regional_indicator_a: ナビゲーター (指示を出す側)
-- :regional_indicator_b: ドライバー (コードを書く側)
+**領域**
+- フロントエンド: :one:
+- バックエンド: :two:
+
+(「どちらでもよい」「迷っている」などといった場合は両方のスタンプを付けてください。)
+
+**レベル**
+- 初心者: :beginner:
+- 経験者: :muscle:
 `;
 
     /**
