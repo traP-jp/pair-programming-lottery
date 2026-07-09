@@ -8,20 +8,20 @@ describe("formatResult", () => {
     const createUser = (
         id: string,
         regions: ("frontend" | "backend")[],
-        levels: ("beginner" | "muscle")[]
+        isBeginner: boolean
     ): UserPrefs => ({
         id,
         regions: new Set(regions),
-        levels: new Set(levels),
+        isBeginner,
         originalRegionSize: regions.length,
-        originalLevelSize: levels.length,
+        originalLevelSize: isBeginner ? 1 : 0,
     });
 
     it("should format matching results correctly", () => {
-        const userA = createUser("A", ["frontend"], ["beginner"]);
-        const userB = createUser("B", ["frontend"], ["muscle"]);
-        const userC = createUser("C", ["backend"], ["beginner"]);
-        const userD = createUser("D", ["backend"], ["muscle"]);
+        const userA = createUser("A", ["frontend"], true);
+        const userB = createUser("B", ["frontend"], false);
+        const userC = createUser("C", ["backend"], true);
+        const userD = createUser("D", ["backend"], false);
 
         const matchingResult: MatchingResult = {
             pairs: [
@@ -59,32 +59,33 @@ describe("formatResult", () => {
         const firstPair = formatted.pairs[0]!;
         expect(firstPair.region).toBe("frontend");
         expect(firstPair.members[0]!.name).toBe("Bob");
-        expect(firstPair.members[0]!.level).toBe("muscle");
+        expect(firstPair.members[0]!.isBeginner).toBe(false);
         expect(firstPair.members[1]!.name).toBe("Alice");
-        expect(firstPair.members[1]!.level).toBe("beginner");
+        expect(firstPair.members[1]!.isBeginner).toBe(true);
 
         const secondPair = formatted.pairs[1]!;
         expect(secondPair.region).toBe("backend");
         expect(secondPair.members[0]!.name).toBe("D"); // fallback to ID
-        expect(secondPair.members[0]!.level).toBe("muscle");
+        expect(secondPair.members[0]!.isBeginner).toBe(false);
         expect(secondPair.members[1]!.name).toBe("Charlie");
-        expect(secondPair.members[1]!.level).toBe("beginner");
+        expect(secondPair.members[1]!.isBeginner).toBe(true);
     });
 
     it("should format inserted user information correctly", () => {
-        const userA = createUser("A", ["frontend"], ["beginner"]);
-        const userB = createUser("B", ["frontend"], ["muscle"]);
-        const userC = createUser("C", ["backend"], ["beginner"]);
-        const userD = createUser("D", ["backend"], ["muscle"]);
-        const userE = createUser("E", ["frontend"], ["muscle"]);
+        const userA = createUser("A", ["frontend"], true);
+        const userB = createUser("B", ["frontend"], false);
+        const userC = createUser("C", ["backend"], true);
+        const userD = createUser("D", ["backend"], false);
+        const userE = createUser("E", ["frontend"], false);
 
         const pair1: [UserPrefs, UserPrefs] = [userA, userB];
-        const pair2: [UserPrefs, UserPrefs] = [userC, userD];
+        const pair2: [UserPrefs, UserPrefs] = [userC, userE];
+        const pair3: [UserPrefs, UserPrefs] = [userD, userE];
 
         const matchingResult: MatchingResult = {
-            pairs: [pair1, pair2],
+            pairs: [pair1, pair2, pair3],
             insertedUser: userE,
-            insertedIntoPairs: [pair1],
+            insertedIntoPairs: [pair2, pair3],
             totalScore: 200,
             regionImbalance: 0,
         };
@@ -99,83 +100,16 @@ describe("formatResult", () => {
 
         const formatted = formatResult(matchingResult, userIdToName);
 
+        // 3 pairs * 2 - 1 insertedUser = 5 participants
         expect(formatted.participantCount).toBe(5);
         expect(formatted.insertedUser).not.toBeNull();
         expect(formatted.insertedUser!.name).toBe("Eve");
 
-        // Eve is inserted into pair1. After sorting, frontend pair (pair1) should be at index 0.
-        expect(formatted.insertedUser!.pairIndices).toContain(0);
-        expect(formatted.pairs[0]!.hasInsertedUser).toBe(true);
-        expect(formatted.pairs[1]!.hasInsertedUser).toBe(false);
-    });
-
-    it("should format correctly when u2 has single level but u1 has multiple levels", () => {
-        const userA = createUser("A", ["frontend"], ["beginner", "muscle"]);
-        const userB = createUser("B", ["frontend"], ["muscle"]);
-
-        const matchingResult: MatchingResult = {
-            pairs: [[userA, userB]],
-            insertedUser: null,
-            insertedIntoPairs: null,
-            totalScore: 100,
-            regionImbalance: 0,
-        };
-
-        const formatted = formatResult(
-            matchingResult,
-            new Map([
-                ["A", "Alice"],
-                ["B", "Bob"],
-            ])
-        );
-        expect(formatted.pairs[0]!.members[0]!.level).toBe("muscle"); // B is muscle
-        expect(formatted.pairs[0]!.members[1]!.level).toBe("beginner"); // A becomes beginner
-    });
-
-    it("should format correctly when both users have multiple levels", () => {
-        const userA = createUser("A", ["frontend"], ["beginner", "muscle"]);
-        const userB = createUser("B", ["frontend"], ["beginner", "muscle"]);
-
-        const matchingResult: MatchingResult = {
-            pairs: [[userA, userB]],
-            insertedUser: null,
-            insertedIntoPairs: null,
-            totalScore: 100,
-            regionImbalance: 0,
-        };
-
-        const formatted = formatResult(
-            matchingResult,
-            new Map([
-                ["A", "Alice"],
-                ["B", "Bob"],
-            ])
-        );
-        expect(formatted.pairs[0]!.members[0]!.level).toBe("muscle");
-        expect(formatted.pairs[0]!.members[1]!.level).toBe("beginner");
-    });
-
-    it("should format correctly when u2 has single level beginner but u1 has multiple levels", () => {
-        const userA = createUser("A", ["frontend"], ["beginner", "muscle"]);
-        const userB = createUser("B", ["frontend"], ["beginner"]);
-
-        const matchingResult: MatchingResult = {
-            pairs: [[userA, userB]],
-            insertedUser: null,
-            insertedIntoPairs: null,
-            totalScore: 100,
-            regionImbalance: 0,
-        };
-
-        const formatted = formatResult(
-            matchingResult,
-            new Map([
-                ["A", "Alice"],
-                ["B", "Bob"],
-            ])
-        );
-        expect(formatted.pairs[0]!.members[0]!.level).toBe("muscle");
-        expect(formatted.pairs[0]!.members[1]!.level).toBe("beginner");
+        // Eve is inserted into pair2 and pair3.
+        // pair2 and pair3 are backend/frontend combinations or similar, but what matters is that 2 pairs have hasInsertedUser
+        const insertedCount = formatted.pairs.filter(p => p.hasInsertedUser).length;
+        expect(insertedCount).toBe(2);
+        expect(formatted.insertedUser!.pairIndices.length).toBe(2);
     });
 
     it("should format correctly when a pair contains undefined/null members", () => {

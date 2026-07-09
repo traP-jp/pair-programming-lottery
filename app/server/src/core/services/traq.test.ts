@@ -93,11 +93,11 @@ describe("traqService", () => {
 
         const p1 = prefs.find(p => p.id === "u1")!;
         expect([...p1.regions]).toEqual(["frontend"]);
-        expect([...p1.levels]).toEqual(["beginner"]);
+        expect(p1.isBeginner).toBe(true);
 
         const p2 = prefs.find(p => p.id === "u2")!;
         expect([...p2.regions]).toEqual(["backend"]);
-        expect([...p2.levels]).toEqual(["muscle"]);
+        expect(p2.isBeginner).toBe(false);
     });
 
     it("should throw error if message is not found or has no stamps in collectUserPrefs", async () => {
@@ -108,14 +108,18 @@ describe("traqService", () => {
         expect(service.collectUserPrefs("invalid-msg")).rejects.toThrow();
     });
 
-    it("should fallback to both options if user selects multiple or zero regions/roles", async () => {
+    it("should ignore muscle stamp and set isBeginner based only on beginner stamp", async () => {
         const client = new MockTraqClient();
-        // user1 selects both frontend and backend, and selects zero roles.
+        // user1 selects beginner and muscle
+        // user2 selects muscle only
+        // user4 selects nothing
         const message: MessageInfo = {
             channelId: "channel-123",
             stamps: [
-                { stampId: "s1", userId: "u1" }, // frontend
-                { stampId: "s2", userId: "u1" }, // backend
+                { stampId: "s3", userId: "u1" }, // beginner
+                { stampId: "s4", userId: "u1" }, // muscle
+                { stampId: "s4", userId: "u2" }, // muscle
+                { stampId: "s1", userId: "u4" }, // one
             ],
         };
         client.getMessage = mock(async () => message);
@@ -123,12 +127,9 @@ describe("traqService", () => {
         const service = createTraqService(client);
         const prefs = await service.collectUserPrefs("msg-123");
 
-        expect(prefs.length).toBe(1);
-        const p1 = prefs[0]!;
-        // Multi-select region falls back to both
-        expect([...p1.regions]).toEqual(["frontend", "backend"]);
-        // Zero-select level falls back to both
-        expect([...p1.levels]).toEqual(["beginner", "muscle"]);
+        expect(prefs.find(p => p.id === "u1")!.isBeginner).toBe(true);
+        expect(prefs.find(p => p.id === "u2")!.isBeginner).toBe(false);
+        expect(prefs.find(p => p.id === "u4")!.isBeginner).toBe(false);
     });
 
     it("should post lottery message and add initial stamps", async () => {

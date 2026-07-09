@@ -6,47 +6,18 @@ import {
 import type { MatchingResult, UserPrefs } from "@server/types";
 
 export type Region = "frontend" | "backend";
-export type Level = "beginner" | "muscle";
 
 function getPairRegion(u: UserPrefs, v: UserPrefs): Region | null {
     return [...u.regions].find(r => v.regions.has(r)) ?? null;
 }
 
 function isBeginnerPair(u1: UserPrefs, u2: UserPrefs): boolean {
-    return (
-        u1.levels.has("beginner") &&
-        !u1.levels.has("muscle") &&
-        u2.levels.has("beginner") &&
-        !u2.levels.has("muscle")
-    );
-}
-
-function resolveLevelsPair(u1: UserPrefs, u2: UserPrefs): [Level | null, Level | null] {
-    const u1Levels = [...u1.levels];
-    const u2Levels = [...u2.levels];
-
-    if (u1Levels.length === 1 && u2Levels.length === 2) {
-        const u1Level = u1Levels[0]!;
-        const u2Level = u1Level === "beginner" ? "muscle" : "beginner";
-        return [u1Level, u2Level];
-    }
-
-    if (u2Levels.length === 1 && u1Levels.length === 2) {
-        const u2Level = u2Levels[0]!;
-        const u1Level = u2Level === "beginner" ? "muscle" : "beginner";
-        return [u1Level, u2Level];
-    }
-
-    if (u1Levels.length === 2 && u2Levels.length === 2) {
-        return ["beginner", "muscle"];
-    }
-
-    return [u1Levels[0] ?? null, u2Levels[0] ?? null];
+    return u1.isBeginner && u2.isBeginner;
 }
 
 export type FormattedMember = {
     name: string;
-    level: Level | null;
+    isBeginner: boolean;
 };
 
 export type FormattedPair = {
@@ -103,8 +74,8 @@ export function formatResult(
             return {
                 region: null,
                 members: [
-                    { name: "?", level: null },
-                    { name: "?", level: null },
+                    { name: "?", isBeginner: false },
+                    { name: "?", isBeginner: false },
                 ],
                 hasInsertedUser: false,
             };
@@ -112,18 +83,17 @@ export function formatResult(
 
         const region = getPairRegion(u1, u2);
 
-        const [level1, level2] = resolveLevelsPair(u1, u2);
-
         let member1: FormattedMember = {
             name: userIdToName.get(u1.id) ?? u1.id,
-            level: level1,
+            isBeginner: u1.isBeginner,
         };
         let member2: FormattedMember = {
             name: userIdToName.get(u2.id) ?? u2.id,
-            level: level2,
+            isBeginner: u2.isBeginner,
         };
 
-        if (member1.level === "beginner") {
+        // 初心者が後ろ (member2) になるようにスワップする
+        if (member1.isBeginner && !member2.isBeginner) {
             [member1, member2] = [member2, member1];
         }
 
@@ -147,7 +117,7 @@ export function formatResult(
     const maxScore = result.pairs.length * SCORE_REGION_MATCH;
     const normalized = maxScore > 0 ? result.totalScore / maxScore : 0;
 
-    const totalParticipants = result.pairs.length * 2 + (result.insertedUser ? 1 : 0);
+    const totalParticipants = result.pairs.length * 2 - (result.insertedUser ? 1 : 0);
 
     return {
         pairs: formattedPairs,

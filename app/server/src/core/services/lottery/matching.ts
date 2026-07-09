@@ -1,7 +1,9 @@
 import type { MatchingResult, UserPrefs } from "@server/types";
 
 const SCORE_REGION_MATCH = 100;
-const PENALTY_BEGINNER_PAIR = 10000;
+const PENALTY_BEGINNER_PAIR = 100000;
+const PENALTY_INSERTED_BEGINNER = 10000;
+const PENALTY_INSERTED_PARTNER_BEGINNER = 500;
 const SIMULATION_ROUNDS = 5000;
 
 function getPairScore(u: UserPrefs, v: UserPrefs): number {
@@ -10,10 +12,7 @@ function getPairScore(u: UserPrefs, v: UserPrefs): number {
     const hasCommonRegion = [...u.regions].some(r => v.regions.has(r));
     if (hasCommonRegion) score += SCORE_REGION_MATCH;
 
-    // ペアの両方が初心者（beginnerのみ）の場合は大きなペナルティを与える
-    const isUBeginner = u.levels.has("beginner") && !u.levels.has("muscle");
-    const isVBeginner = v.levels.has("beginner") && !v.levels.has("muscle");
-    if (isUBeginner && isVBeginner) score -= PENALTY_BEGINNER_PAIR;
+    if (u.isBeginner && v.isBeginner) score -= PENALTY_BEGINNER_PAIR;
 
     return score;
 }
@@ -26,40 +25,53 @@ function shuffle<T>(array: T[]): T[] {
     return array;
 }
 function tryMatching(users: UserPrefs[]): MatchingResult {
-    const shuffled = shuffle([...users]);
+    let shuffled = shuffle([...users]);
 
     let insertedUser: UserPrefs | null = null;
+    let totalScore = 0;
 
     if (shuffled.length % 2 === 1) {
-        const lastIndex = shuffled.length - 1;
-        const lastUser = shuffled[lastIndex]!;
+        insertedUser = shuffled[0]!;
 
-        if (lastUser.originalRegionSize !== 2 && lastUser.originalLevelSize !== 2) {
-            const flexIndex = shuffled.findIndex(
-                (u, index) =>
-                    index < lastIndex && (u.originalRegionSize === 2 || u.originalLevelSize === 2)
-            );
-            if (flexIndex !== -1) {
-                [shuffled[flexIndex], shuffled[lastIndex]] = [
-                    shuffled[lastIndex]!,
-                    shuffled[flexIndex]!,
-                ];
-            }
+        shuffled.push(insertedUser);
+        shuffled = shuffle(shuffled);
+
+        if (insertedUser.isBeginner) {
+            totalScore -= PENALTY_INSERTED_BEGINNER;
         }
-
-        insertedUser = shuffled.pop()!;
     }
 
     const pairs: [UserPrefs, UserPrefs][] = [];
-    let totalScore = 0;
     let frontendPairs = 0;
     let backendPairs = 0;
 
     for (let index = 0; index + 1 < shuffled.length; index += 2) {
         const u = shuffled[index]!;
         const v = shuffled[index + 1]!;
+
+        if (u.id === v.id) {
+            return {
+                pairs: [],
+                insertedUser: null,
+                insertedIntoPairs: null,
+                totalScore: -Infinity,
+                regionImbalance: Infinity,
+            };
+        }
+
         pairs.push([u, v]);
         totalScore += getPairScore(u, v);
+
+        if (insertedUser) {
+            const isUInserted = u.id === insertedUser.id;
+            const isVInserted = v.id === insertedUser.id;
+            if (isUInserted || isVInserted) {
+                const partner = isUInserted ? v : u;
+                if (partner.isBeginner) {
+                    totalScore -= PENALTY_INSERTED_PARTNER_BEGINNER;
+                }
+            }
+        }
 
         const commonRegion = [...u.regions].find(r => v.regions.has(r));
         if (commonRegion === "frontend") frontendPairs++;
@@ -68,11 +80,9 @@ function tryMatching(users: UserPrefs[]): MatchingResult {
 
     let insertedIntoPairs: [UserPrefs, UserPrefs][] | null = null;
     if (insertedUser) {
-        if (pairs.length >= 2) {
-            insertedIntoPairs = [pairs[0]!, pairs[1]!];
-        } else if (pairs.length === 1) {
-            insertedIntoPairs = [pairs[0]!];
-        }
+        insertedIntoPairs = pairs.filter(
+            p => p[0].id === insertedUser!.id || p[1].id === insertedUser!.id
+        );
     }
 
     return {

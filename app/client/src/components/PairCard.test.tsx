@@ -9,8 +9,8 @@ describe("PairCard", () => {
         pair: {
             region: "frontend",
             members: [
-                { name: "Alice", level: "beginner" },
-                { name: "Bob", level: "muscle" },
+                { name: "Alice", isBeginner: true },
+                { name: "Bob", isBeginner: false },
             ],
             hasInsertedUser: false,
         },
@@ -48,50 +48,22 @@ describe("PairCard", () => {
         expect(screen.getByText("バックエンド")).toBeInTheDocument();
     });
 
-    it("should render insertedUser if pair has inserted user", () => {
-        const props: Props = {
-            pair: {
-                region: "frontend",
-                members: [
-                    { name: "Alice", level: "beginner" },
-                    { name: "Bob", level: "muscle" },
-                ],
-                hasInsertedUser: true,
-            },
-            index: 0,
-            insertedUser: {
-                name: "Eve",
-                pairIndices: [0],
-            },
+    it("should render fallback labels for unknown region", () => {
+        const pair = {
+            region: "unknown_region" as any,
+            members: [
+                { name: "Alice", isBeginner: false },
+                { name: "Bob", isBeginner: false },
+            ] as any,
+            hasInsertedUser: false,
         };
-        render(<PairCard {...props} />);
-
-        expect(screen.getByText("@Alice")).toBeInTheDocument();
-        expect(screen.getByText("@Bob")).toBeInTheDocument();
-        // Eve should be present as the third member
-        expect(screen.getByText("@Eve")).toBeInTheDocument();
-        expect(screen.getByText("参加")).toBeInTheDocument();
-    });
-
-    it("should render fallback labels for unknown region and level", () => {
-        const props: Props = {
-            ...defaultProps,
-            pair: {
-                region: "unknown_region" as any,
-                members: [
-                    { name: "Alice", level: "unknown_level" as any },
-                    { name: "Bob", level: null },
-                ],
-                hasInsertedUser: false,
-            },
-        };
-        render(<PairCard {...props} />);
-
-        expect(screen.queryByText("フロントエンド")).not.toBeInTheDocument();
-        expect(screen.queryByText("バックエンド")).not.toBeInTheDocument();
-        expect(screen.getByText("@Alice")).toBeInTheDocument();
-        expect(screen.getByText("@Bob")).toBeInTheDocument();
-        expect(screen.queryByText("🔰")).not.toBeInTheDocument();
-        expect(screen.queryByText("経験者")).not.toBeInTheDocument();
+        const { container } = render(
+            <PairCard
+                pair={pair}
+                index={0}
+                insertedUser={null}
+            />
+        );
+        expect(container.querySelector(".region-tag")?.textContent).toBe("unknown_region");
     });
 });

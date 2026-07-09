@@ -11,16 +11,16 @@ describe("LotteryResultView", () => {
                 {
                     region: "frontend",
                     members: [
-                        { name: "Alice", level: "beginner" },
-                        { name: "Bob", level: "muscle" },
+                        { name: "Alice", isBeginner: true },
+                        { name: "Bob", isBeginner: false },
                     ],
                     hasInsertedUser: false,
                 },
                 {
                     region: "backend",
                     members: [
-                        { name: "Charlie", level: "beginner" },
-                        { name: "Dave", level: "muscle" },
+                        { name: "Charlie", isBeginner: true },
+                        { name: "Dave", isBeginner: false },
                     ],
                     hasInsertedUser: false,
                 },

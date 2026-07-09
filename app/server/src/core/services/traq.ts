@@ -1,5 +1,5 @@
 import { type ITraqClient } from "@server/external/traq";
-import type { Level, Region, UserPrefs } from "@server/types";
+import type { Region, UserPrefs } from "@server/types";
 
 const TARGET_STAMP_NAMES = ["one", "two", "beginner", "muscle"] as const;
 
@@ -75,7 +75,7 @@ export function createTraqService(client: ITraqClient) {
                 usersMap.set(userId, {
                     id: userId,
                     regions: new Set<Region>(),
-                    levels: new Set<Level>(),
+                    isBeginner: false,
                     originalRegionSize: 0,
                     originalLevelSize: 0,
                 });
@@ -84,21 +84,17 @@ export function createTraqService(client: ITraqClient) {
 
             if (stampName === "one") prefs.regions.add("frontend");
             if (stampName === "two") prefs.regions.add("backend");
-            if (stampName === "beginner") prefs.levels.add("beginner");
-            if (stampName === "muscle") prefs.levels.add("muscle");
+            if (stampName === "beginner") prefs.isBeginner = true;
+            if (stampName === "beginner" || stampName === "muscle") prefs.originalLevelSize++;
         }
 
         for (const prefs of usersMap.values()) {
             prefs.originalRegionSize = prefs.regions.size;
-            prefs.originalLevelSize = prefs.levels.size;
         }
 
         for (const prefs of usersMap.values()) {
             if (prefs.regions.size !== 1) {
                 prefs.regions = new Set<Region>(["frontend", "backend"]);
-            }
-            if (prefs.levels.size !== 1) {
-                prefs.levels = new Set<Level>(["beginner", "muscle"]);
             }
         }
 

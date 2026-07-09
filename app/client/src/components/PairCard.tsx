@@ -6,14 +6,14 @@ type FormattedPair = LotteryResult["pairs"][number];
 function getRegionLabel(region: string | null): string {
     if (region === "frontend") return "フロントエンド";
     if (region === "backend") return "バックエンド";
-    return "";
+    return region ?? "";
 }
 
 function Member({ member }: { member: FormattedMember }) {
     return (
         <span className="member">
             <span className="member-name">@{member.name}</span>
-            {member.level === "beginner" ? <span className="beginner-mark">🔰</span> : null}
+            {member.isBeginner ? <span className="beginner-mark">🔰</span> : null}
         </span>
     );
 }
@@ -21,10 +21,9 @@ function Member({ member }: { member: FormattedMember }) {
 export type Props = {
     pair: FormattedPair;
     index: number;
-    insertedUser: LotteryResult["insertedUser"];
 };
 
-export function PairCard({ pair, index, insertedUser }: Props) {
+export function PairCard({ pair, index }: Props) {
     return (
         <div className="pair-card">
             <div className="pair-card-header">
@@ -39,15 +38,6 @@ export function PairCard({ pair, index, insertedUser }: Props) {
                 <Member member={pair.members[0]} />
                 <span className="pair-separator">&amp;</span>
                 <Member member={pair.members[1]} />
-                {pair.hasInsertedUser && insertedUser && (
-                    <>
-                        <span className="pair-separator">&amp;</span>
-                        <span className="member">
-                            <span className="member-name">@{insertedUser.name}</span>
-                            <span className="role-tag inserted">参加</span>
-                        </span>
-                    </>
-                )}
             </div>
         </div>
     );

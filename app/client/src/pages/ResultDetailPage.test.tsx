@@ -36,8 +36,8 @@ describe("ResultDetailPage", () => {
                 {
                     region: "frontend",
                     members: [
-                        { name: "Alice", role: "navigator" },
-                        { name: "Bob", role: "driver" },
+                        { name: "Alice", isBeginner: true },
+                        { name: "Bob", isBeginner: false },
                     ],
                     hasInsertedUser: true,
                 },
@@ -89,7 +89,7 @@ describe("ResultDetailPage", () => {
 
         expect(screen.getByText("@Alice")).toBeInTheDocument();
         expect(screen.getByText("@Bob")).toBeInTheDocument();
-        expect(screen.getByText("@Eve")).toBeInTheDocument();
+        expect(screen.getAllByText(/@Eve/).length).toBeGreaterThan(0);
     });
 
     it("should copy participants CSV text to clipboard on button click", async () => {
@@ -198,8 +198,8 @@ describe("ResultDetailPage", () => {
                     {
                         region: "frontend",
                         members: [
-                            { name: "", role: "navigator" },
-                            { name: null as any, role: "driver" },
+                            { name: "", isBeginner: true },
+                            { name: null as any, isBeginner: false },
                         ],
                         hasInsertedUser: true,
                     },
