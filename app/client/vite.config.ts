@@ -3,12 +3,7 @@ import { readFile } from "node:fs/promises";
 import react from "@vitejs/plugin-react";
 import { type Plugin, defineConfig } from "vite";
 
-function injectSsrHtml(template: string, appHtml: string, initialData: unknown) {
-    const serializedData = JSON.stringify(initialData).replaceAll("<", "\\u003c");
-    return template
-        .replace("<!--ssr-outlet-->", appHtml)
-        .replace("<!--ssr-data-->", serializedData);
-}
+import { injectSsrHtml } from "./src/ssrHtml";
 
 function developmentSsrPlugin(): Plugin {
     return {

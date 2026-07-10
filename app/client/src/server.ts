@@ -3,7 +3,9 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { isAbsolute, relative, resolve } from "node:path";
 
 import { loadInitialData, render } from "@client/entry-server";
+import { type CachePolicy, type PublicPage, resolvePublicPage } from "@client/publicPages";
 import { type InitialData, paths } from "@client/routeDefinitions";
+import { injectSsrHtml } from "@client/ssrHtml";
 
 declare global {
     interface ImportMeta {
@@ -26,12 +28,6 @@ interface CachedPage {
     html: string;
 }
 
-interface CachePolicy {
-    maxAgeMs: number;
-    staleWhileRevalidateMs: number;
-    cacheControl: string;
-}
-
 const clientDirectory = resolve(import.meta.dir, "../client");
 const apiOrigin = process.env.SSR_API_ORIGIN ?? "http://localhost:3000";
 const port = Number(process.env.PORT ?? 4173);
@@ -43,85 +39,63 @@ const cacheDirectory = resolve(
 );
 const regenerating = new Map<string, Promise<CachedPage>>();
 
-const resultListPolicy: CachePolicy = {
-    maxAgeMs: 60_000,
-    staleWhileRevalidateMs: 300_000,
-    cacheControl: "public, max-age=60, stale-while-revalidate=300",
-};
-const resultDetailPolicy: CachePolicy = {
-    maxAgeMs: 86_400_000,
-    staleWhileRevalidateMs: 604_800_000,
-    cacheControl: "public, max-age=86400, immutable",
-};
-
-function injectSsrHtml(appHtml: string, initialData: unknown) {
-    const serializedData = JSON.stringify(initialData).replaceAll("<", "\\u003c");
-    return template
-        .replace("<!--ssr-outlet-->", appHtml)
-        .replace("<!--ssr-data-->", serializedData);
+function getCacheKey(page: PublicPage) {
+    return page.pathname.replaceAll("/", "_").replace(/^_/, "") || "results";
 }
 
-function getPagePolicy(pathname: string): CachePolicy | undefined {
-    if (pathname === paths.home || pathname === paths.results) return resultListPolicy;
-    if (/^\/results\/[^/]+$/.test(pathname)) return resultDetailPolicy;
-    return undefined;
+function getCachePath(page: PublicPage) {
+    return resolve(cacheDirectory, `${getCacheKey(page)}.json`);
 }
 
-function getCacheKey(pathname: string) {
-    const canonicalPath = pathname === paths.home ? paths.results : pathname;
-    return canonicalPath.replaceAll("/", "_").replace(/^_/, "") || "results";
-}
-
-function getCachePath(pathname: string) {
-    return resolve(cacheDirectory, `${getCacheKey(pathname)}.json`);
-}
-
-async function readCachedPage(pathname: string): Promise<CachedPage | undefined> {
+async function readCachedPage(page: PublicPage): Promise<CachedPage | undefined> {
     try {
-        const page = JSON.parse(await readFile(getCachePath(pathname), "utf8")) as CachedPage;
-        if (typeof page.generatedAt !== "number" || typeof page.html !== "string") return undefined;
-        return page;
+        const cachedPage = JSON.parse(await readFile(getCachePath(page), "utf8")) as CachedPage;
+        if (typeof cachedPage.generatedAt !== "number" || typeof cachedPage.html !== "string")
+            return undefined;
+        return cachedPage;
     } catch {
         return undefined;
     }
 }
 
-async function writeCachedPage(pathname: string, page: CachedPage) {
+async function writeCachedPage(publicPage: PublicPage, page: CachedPage) {
     await mkdir(cacheDirectory, { recursive: true });
-    await writeFile(getCachePath(pathname), JSON.stringify(page), "utf8");
+    await writeFile(getCachePath(publicPage), JSON.stringify(page), "utf8");
 }
 
 async function invalidatePage(pathname: string) {
-    await rm(getCachePath(pathname), { force: true });
+    const page = resolvePublicPage(pathname);
+    if (page) await rm(getCachePath(page), { force: true });
 }
 
 async function generatePage(pathname: string, initialData?: InitialData): Promise<CachedPage> {
-    initialData ??= await loadInitialData(pathname);
-    const isList = pathname === paths.home || pathname === paths.results;
-    const hasRequiredData = isList
-        ? initialData.results !== undefined
-        : initialData.result !== undefined;
-    if (!hasRequiredData)
+    const page = resolvePublicPage(pathname);
+    if (!page) throw new Error(`Could not generate non-public page: ${pathname}`);
+
+    initialData ??= await page.loadInitialData();
+    if (!page.hasInitialData(initialData))
         throw new Error(`Could not generate ${pathname}: API data is unavailable`);
 
     return {
         generatedAt: Date.now(),
-        html: injectSsrHtml(render(pathname, initialData), initialData),
+        html: injectSsrHtml(template, render(page.pathname, initialData), initialData),
     };
 }
 
 async function regeneratePage(pathname: string, initialData?: InitialData): Promise<CachedPage> {
-    const canonicalPath = pathname === paths.home ? paths.results : pathname;
-    const pending = regenerating.get(canonicalPath);
+    const page = resolvePublicPage(pathname);
+    if (!page) throw new Error(`Could not regenerate non-public page: ${pathname}`);
+
+    const pending = regenerating.get(page.pathname);
     if (pending) return pending;
 
-    const generation = generatePage(canonicalPath, initialData)
-        .then(async page => {
-            await writeCachedPage(canonicalPath, page);
-            return page;
+    const generation = generatePage(page.pathname, initialData)
+        .then(async cachedPage => {
+            await writeCachedPage(page, cachedPage);
+            return cachedPage;
         })
-        .finally(() => regenerating.delete(canonicalPath));
-    regenerating.set(canonicalPath, generation);
+        .finally(() => regenerating.delete(page.pathname));
+    regenerating.set(page.pathname, generation);
     return generation;
 }
 
@@ -140,7 +114,7 @@ function pageResponse(
 }
 
 function generatingResponse(pathname: string) {
-    return new Response(injectSsrHtml(render(pathname, {}), {}), {
+    return new Response(injectSsrHtml(template, render(pathname, {}), {}), {
         headers: {
             "Cache-Control": "no-store",
             "Content-Type": "text/html; charset=utf-8",
@@ -150,21 +124,38 @@ function generatingResponse(pathname: string) {
 }
 
 async function servePublicPage(pathname: string) {
-    const policy = getPagePolicy(pathname);
-    if (!policy) return undefined;
+    const publicPage = resolvePublicPage(pathname);
+    if (!publicPage) return undefined;
 
-    const page = await readCachedPage(pathname);
+    const page = await readCachedPage(publicPage);
     const age = page ? Date.now() - page.generatedAt : Number.POSITIVE_INFINITY;
-    if (page && age <= policy.maxAgeMs) return pageResponse(page, policy, "HIT");
+    if (page && age <= publicPage.cachePolicy.maxAgeMs)
+        return pageResponse(page, publicPage.cachePolicy, "HIT");
 
-    if (page) {
+    if (
+        page &&
+        age <= publicPage.cachePolicy.maxAgeMs + publicPage.cachePolicy.staleWhileRevalidateMs
+    ) {
         void regeneratePage(pathname).catch(error =>
             console.error("Failed to revalidate page", error)
         );
-        return pageResponse(page, policy, "STALE");
+        return pageResponse(page, publicPage.cachePolicy, "STALE");
     }
 
-    void regeneratePage(pathname).catch(error => console.error("Failed to generate page", error));
+    if (!page) {
+        void regeneratePage(pathname).catch(error =>
+            console.error("Failed to generate page", error)
+        );
+        return generatingResponse(pathname);
+    }
+
+    try {
+        return pageResponse(await regeneratePage(pathname), publicPage.cachePolicy, "MISS");
+    } catch (error) {
+        console.error("Failed to generate page", error);
+        if (page) return pageResponse(page, publicPage.cachePolicy, "STALE");
+    }
+
     return generatingResponse(pathname);
 }
 
@@ -214,8 +205,10 @@ async function serveAsset(pathname: string) {
 }
 
 async function warmPublicPages() {
-    const initialData = await loadInitialData(paths.results);
-    if (initialData.results === undefined) {
+    const listPage = resolvePublicPage(paths.results);
+    if (!listPage) throw new Error("Could not resolve results page");
+    const initialData = await listPage.loadInitialData();
+    if (!listPage.hasInitialData(initialData) || initialData.results === undefined) {
         throw new Error("Could not warm public pages: results API is unavailable");
     }
 
@@ -241,9 +234,15 @@ Bun.serve({
         if (cachedPage) return cachedPage;
 
         const initialData = await loadInitialData(url.pathname);
-        return new Response(injectSsrHtml(render(url.pathname, initialData), initialData), {
-            headers: { "Cache-Control": "no-store", "Content-Type": "text/html; charset=utf-8" },
-        });
+        return new Response(
+            injectSsrHtml(template, render(url.pathname, initialData), initialData),
+            {
+                headers: {
+                    "Cache-Control": "no-store",
+                    "Content-Type": "text/html; charset=utf-8",
+                },
+            }
+        );
     },
 });
 
