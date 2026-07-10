@@ -14,8 +14,22 @@ async function readError(response: Response): Promise<Error> {
     }
 }
 
+interface JsonResponse<T> extends Response {
+    json(): Promise<T>;
+}
+
+async function readJson<T>(
+    response: JsonResponse<T>,
+    { requireAuthentication = false }: { requireAuthentication?: boolean } = {}
+): Promise<T> {
+    if (requireAuthentication && response.status === 401) throw new Error("unauthorized");
+    if (!response.ok) throw await readError(response);
+    return response.json();
+}
+
 export type LotteryResult = InferResponseType<typeof client.api.lottery.$post, 200>;
-export type ScheduleRecord = Exclude<InferResponseType<typeof client.api.schedule.$get, 200>, null>;
+export type ScheduleResponse = InferResponseType<typeof client.api.schedule.$get, 200>;
+export type ScheduleRecord = Exclude<ScheduleResponse, null>;
 export type ResultSummary = InferResponseType<typeof client.api.results.$get, 200>[number];
 export type ResultDetail = InferResponseType<(typeof client.api.results)[":id"]["$get"], 200>;
 export type SavedResult = InferResponseType<typeof client.api.results.$post, 200>;
@@ -38,24 +52,17 @@ function notifyResultSaved(result: ResultDetail) {
 
 export async function postMessage(channelId: string) {
     const response = await client.api["post-message"].$post({ json: { channelId } });
-    if (!response.ok) {
-        throw await readError(response);
-    }
-    return (await response.json()).messageId;
+    return (await readJson(response)).messageId;
 }
 
 export async function runLottery(messageId: string) {
-    const res = await client.api.lottery.$post({ json: { messageId } });
-    if (!res.ok) {
-        throw await readError(res);
-    }
-    return res.json();
+    const response = await client.api.lottery.$post({ json: { messageId } });
+    return readJson(response);
 }
 
 export async function getResults() {
-    const res = await client.api.results.$get();
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const response = await client.api.results.$get();
+    return readJson(response);
 }
 
 export async function getResult(id: string): Promise<ResultDetail> {
@@ -66,11 +73,8 @@ export async function getResult(id: string): Promise<ResultDetail> {
     if (pending) return pending;
 
     const request = (async () => {
-        const res = await client.api.results[":id"].$get({ param: { id } });
-        if (!res.ok) {
-            throw await readError(res);
-        }
-        const result = (await res.json()) as ResultDetail;
+        const response = await client.api.results[":id"].$get({ param: { id } });
+        const result = await readJson(response);
         cacheResult(result);
         return result;
     })().finally(() => resultRequests.delete(id));
@@ -83,10 +87,10 @@ export async function prefetchResult(id: string) {
 }
 
 export async function getSchedule() {
-    const res = await client.api.schedule.$get();
-    if (res.status === 401) throw new Error("unauthorized");
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const response = await client.api.schedule.$get();
+    return readJson(response, {
+        requireAuthentication: true,
+    });
 }
 
 export async function upsertSchedule(data: {
@@ -95,38 +99,27 @@ export async function upsertSchedule(data: {
     lotteryDay: number;
     enabled: boolean;
 }) {
-    const res = await client.api.schedule.$put({ json: data });
-    if (res.status === 401) throw new Error("unauthorized");
-    if (!res.ok) {
-        throw await readError(res);
-    }
-    return res.json();
+    const response = await client.api.schedule.$put({ json: data });
+    return readJson(response, {
+        requireAuthentication: true,
+    });
 }
 
 export async function triggerPost() {
-    const res = await client.api.schedule["trigger-post"].$post();
-    if (res.status === 401) throw new Error("unauthorized");
-    if (!res.ok) {
-        throw await readError(res);
-    }
-    return res.json();
+    const response = await client.api.schedule["trigger-post"].$post();
+    return readJson(response, {
+        requireAuthentication: true,
+    });
 }
 
 export async function triggerLottery() {
-    const res = await client.api.schedule["trigger-lottery"].$post();
-    if (res.status === 401) throw new Error("unauthorized");
-    if (!res.ok) {
-        throw await readError(res);
-    }
-    return res.json();
+    const response = await client.api.schedule["trigger-lottery"].$post();
+    return readJson(response, { requireAuthentication: true });
 }
 
 export async function saveResult(data: { messageId: string; result: LotteryResult }) {
-    const res = await client.api.results.$post({ json: data });
-    if (!res.ok) {
-        throw await readError(res);
-    }
-    const saved = (await res.json()) as SavedResult;
+    const response = await client.api.results.$post({ json: data });
+    const saved = await readJson(response);
     cacheResult(saved);
     notifyResultSaved(saved);
     return saved;

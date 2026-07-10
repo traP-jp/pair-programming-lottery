@@ -1,6 +1,7 @@
 import { MemoryRouter } from "react-router-dom";
 
 import * as api from "@client/api";
+import { AdminPageRoute } from "@client/appShell";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -65,6 +66,24 @@ describe("AdminPage", () => {
         expect(enabledCheckbox.checked).toBe(mockSchedule.enabled);
 
         expect(screen.getByText(/直近の投稿 ID:/)).toBeInTheDocument();
+    });
+
+    it("reuses the schedule fetched while confirming admin access", async () => {
+        vi.clearAllMocks();
+        vi.mocked(api.getSchedule).mockResolvedValue(mockSchedule as any);
+
+        render(
+            <MemoryRouter>
+                <AdminPageRoute>
+                    <AdminPage />
+                </AdminPageRoute>
+            </MemoryRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByLabelText("チャンネル ID (UUID)")).toBeInTheDocument();
+        });
+        expect(api.getSchedule).toHaveBeenCalledTimes(1);
     });
 
     it("should validate that postDay is before lotteryDay", async () => {

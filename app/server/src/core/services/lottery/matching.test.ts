@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { runLottery } from "./matching";
+import { getPairKey } from "./pairKey";
 
 import type { Region, UserPrefs } from "../../../types";
 
@@ -123,8 +124,8 @@ describe("runLottery", () => {
         // So they shouldn't be paired together again.
         // The ideal match should be A-C and B-D or A-D and B-C.
         const pastPairs = new Map<string, number>();
-        pastPairs.set("A-B", 1); // 1 ago
-        pastPairs.set("C-D", 1); // 1 ago
+        pastPairs.set(getPairKey("A", "B"), 1); // 1 ago
+        pastPairs.set(getPairKey("C", "D"), 1); // 1 ago
 
         const result = runLottery([userA, userB, userC, userD], pastPairs);
 

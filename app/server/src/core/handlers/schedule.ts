@@ -28,9 +28,14 @@ export const createScheduleHandlers = (
         return scheduleRepo.upsert(data);
     };
 
-    const triggerPostHandler = async () => {
+    const requireSchedule = async () => {
         const schedule = await getScheduleHandler();
         if (!schedule) throw ApiErrorMessages.SCHEDULE_NOT_FOUND.asHttpException(400);
+        return schedule;
+    };
+
+    const triggerPostHandler = async () => {
+        const schedule = await requireSchedule();
 
         const messageId = await traqService.postLotteryMessage(schedule.channelId);
 
@@ -43,8 +48,7 @@ export const createScheduleHandlers = (
     };
 
     const triggerLotteryHandler = async () => {
-        const schedule = await scheduleRepo.get();
-        if (!schedule) throw ApiErrorMessages.SCHEDULE_NOT_FOUND.asHttpException(400);
+        const schedule = await requireSchedule();
         if (!schedule.lastMessageId) throw ApiErrorMessages.NO_MESSAGE_POSTED.asHttpException(400);
 
         const yearMonth = getCurrentYearMonthJst(new Date());

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { type ResultSummary, getResults } from "@client/api";
+import { getErrorMessage } from "@client/errors";
 import { prefetchResultNavigation } from "@client/navigationPrefetch";
 import { paths } from "@client/routeDefinitions";
 
@@ -15,7 +16,7 @@ export function ResultsPage({ initialResults }: { initialResults?: ResultSummary
 
         getResults()
             .then(setResults)
-            .catch(error_ => setError(error_ instanceof Error ? error_.message : "取得失敗"))
+            .catch(error_ => setError(getErrorMessage(error_, "取得失敗")))
             .finally(() => setLoading(false));
     }, [initialResults]);
 

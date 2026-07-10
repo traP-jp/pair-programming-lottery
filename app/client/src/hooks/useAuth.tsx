@@ -1,11 +1,13 @@
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 
-import { getSchedule } from "@client/api";
+import { type ScheduleResponse, getSchedule } from "@client/api";
+import { getErrorMessage } from "@client/errors";
 
 interface AuthContextType {
     isAdmin: boolean;
     loading: boolean;
     error: string | null;
+    schedule?: ScheduleResponse;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -14,19 +16,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [schedule, setSchedule] = useState<ScheduleResponse>();
 
     useEffect(() => {
         getSchedule()
-            .then(() => {
+            .then(schedule_ => {
                 setIsAdmin(true);
                 setError(null);
+                setSchedule(schedule_);
             })
             .catch(error_ => {
                 if (error_ instanceof Error && error_.message === "unauthorized") {
                     setIsAdmin(false);
                     setError(null);
                 } else {
-                    setError(error_ instanceof Error ? error_.message : "認証の確認に失敗しました");
+                    setError(getErrorMessage(error_, "認証の確認に失敗しました"));
                 }
             })
             .finally(() => {
@@ -35,7 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isAdmin, loading, error }}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={{ isAdmin, loading, error, schedule }}>
+            {children}
+        </AuthContext.Provider>
     );
 }
 
@@ -45,6 +51,10 @@ export function useAuth() {
         throw new Error("useAuth must be used within an AuthProvider");
     }
     return context;
+}
+
+export function useOptionalAuth() {
+    return useContext(AuthContext);
 }
 
 export function AdminRoute({ children }: { children: ReactNode }) {

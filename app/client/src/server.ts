@@ -7,22 +7,6 @@ import { type CachePolicy, type PublicPage, resolvePublicPage } from "@client/pu
 import { type InitialData, paths } from "@client/routeDefinitions";
 import { injectSsrHtml } from "@client/ssrHtml";
 
-declare global {
-    interface ImportMeta {
-        readonly dir: string;
-    }
-}
-
-declare const Bun: {
-    file(path: string): Blob & {
-        exists(): Promise<boolean>;
-    };
-    serve(options: {
-        port: number;
-        fetch(request: Request): Response | Promise<Response>;
-    }): unknown;
-};
-
 interface CachedPage {
     generatedAt: number;
     html: string;

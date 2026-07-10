@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { type LotteryResult, postMessage, runLottery, saveResult } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
+import { getErrorMessage } from "@client/errors";
 import { paths } from "@client/routeDefinitions";
 
 export function ManagePage() {
@@ -32,7 +33,7 @@ export function ManagePage() {
             setPostedMessageId(messageId_);
             setMessageId(messageId_);
         } catch (error_) {
-            setPostError(error_ instanceof Error ? error_.message : "不明なエラー");
+            setPostError(getErrorMessage(error_, "不明なエラー"));
         } finally {
             setPosting(false);
         }
@@ -52,7 +53,7 @@ export function ManagePage() {
             const data = await runLottery(id);
             setResult(data);
         } catch (error_) {
-            setError(error_ instanceof Error ? error_.message : "不明なエラー");
+            setError(getErrorMessage(error_, "不明なエラー"));
         } finally {
             setLoading(false);
         }
@@ -68,7 +69,7 @@ export function ManagePage() {
             const saved = await saveResult({ messageId: id, result });
             setSavedResultId(saved.id);
         } catch (error_) {
-            setSaveError(error_ instanceof Error ? error_.message : "不明なエラー");
+            setSaveError(getErrorMessage(error_, "不明なエラー"));
         } finally {
             setSaving(false);
         }

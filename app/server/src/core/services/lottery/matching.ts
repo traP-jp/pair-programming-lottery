@@ -1,3 +1,4 @@
+import { getPairKey } from "@server/core/services/lottery/pairKey";
 import type { MatchingResult, UserPrefs } from "@server/types";
 
 const SCORE_REGION_MATCH = 100;
@@ -16,7 +17,7 @@ function getPairScore(u: UserPrefs, v: UserPrefs, pastPairs: Map<string, number>
 
     if (u.isBeginner && v.isBeginner) score -= PENALTY_BEGINNER_PAIR;
 
-    const pairKey = [u.id, v.id].sort().join(":");
+    const pairKey = getPairKey(u.id, v.id);
     const ago = pastPairs.get(pairKey);
     if (ago !== undefined) {
         score -= PENALTY_PAST_PAIR[ago] ?? 0;

@@ -51,6 +51,20 @@ describe("TraqClient", () => {
         expect(mockGetStamps).toHaveBeenCalledTimes(1);
     });
 
+    it("deduplicates concurrent stamp and user requests", async () => {
+        const client = new TraqClient("test-token");
+
+        await Promise.all([
+            client.getStamps(),
+            client.getStamps(),
+            client.getUsers(),
+            client.getUsers(),
+        ]);
+
+        expect(mockGetStamps).toHaveBeenCalledTimes(1);
+        expect(mockgetUsers).toHaveBeenCalledTimes(1);
+    });
+
     it("getUsers should cache the result and respect TTL", async () => {
         const client = new TraqClient("test-token");
 

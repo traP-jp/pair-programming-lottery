@@ -1,0 +1,7 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "types": ["node", "bun"]
+    },
+    "files": ["src/server.ts"]
+}

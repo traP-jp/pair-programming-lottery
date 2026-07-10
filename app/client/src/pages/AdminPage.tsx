@@ -7,10 +7,13 @@ import {
     triggerPost,
     upsertSchedule,
 } from "@client/api";
+import { getErrorMessage } from "@client/errors";
+import { useOptionalAuth } from "@client/hooks/useAuth";
 
 export function AdminPage() {
-    const [schedule, setSchedule] = useState<ScheduleRecord | null>(null);
-    const [loading, setLoading] = useState(false);
+    const initialSchedule = useOptionalAuth()?.schedule;
+    const [schedule, setSchedule] = useState<ScheduleRecord | null>(initialSchedule ?? null);
+    const [loading, setLoading] = useState(initialSchedule === undefined);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -33,7 +36,7 @@ export function AdminPage() {
                 setEnabled(s.enabled);
             }
         } catch (error_) {
-            setError(error_ instanceof Error ? error_.message : "取得失敗");
+            setError(getErrorMessage(error_, "取得失敗"));
         } finally {
             setLoading(false);
         }
@@ -54,7 +57,7 @@ export function AdminPage() {
             setSchedule(s);
             setSuccess("設定を保存しました。");
         } catch (error_) {
-            setError(error_ instanceof Error ? error_.message : "保存失敗");
+            setError(getErrorMessage(error_, "保存失敗"));
         } finally {
             setSaving(false);
         }
@@ -68,7 +71,7 @@ export function AdminPage() {
             setSuccess(`✅ メッセージを投稿しました (${messageId})`);
             fetchSchedule();
         } catch (error_) {
-            setError(error_ instanceof Error ? error_.message : "投稿失敗");
+            setError(getErrorMessage(error_, "投稿失敗"));
         }
     };
 
@@ -79,14 +82,15 @@ export function AdminPage() {
             const { responseId } = await triggerLottery();
             setSuccess(`✅ 抽選が完了しました。結果 ID: ${responseId}`);
         } catch (error_) {
-            setError(error_ instanceof Error ? error_.message : "抽選失敗");
+            setError(getErrorMessage(error_, "抽選失敗"));
         }
     };
 
     useEffect(() => {
+        if (initialSchedule !== undefined) return;
         // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchSchedule();
-    }, [fetchSchedule]);
+    }, [fetchSchedule, initialSchedule]);
 
     if (loading && !schedule) {
         return (

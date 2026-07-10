@@ -2,6 +2,7 @@ import type { LotteryResponse } from "@server/core/repository/lotteryResponse";
 import { formatResult } from "@server/core/services/lottery/format";
 import type { LotteryResult } from "@server/core/services/lottery/format";
 import { runLottery } from "@server/core/services/lottery/matching";
+import { getPairKey } from "@server/core/services/lottery/pairKey";
 import type { MatchingResult, UserPrefs } from "@server/types";
 
 export function buildPastPairHistory(pastLotteries: LotteryResponse[]): Map<string, number> {
@@ -14,7 +15,7 @@ export function buildPastPairHistory(pastLotteries: LotteryResponse[]): Map<stri
             if (pair.members.length === 2) {
                 const u1 = pair.members[0]!.id;
                 const u2 = pair.members[1]!.id;
-                const key = [u1, u2].sort().join(":");
+                const key = getPairKey(u1, u2);
                 if (!history.has(key)) {
                     history.set(key, ago);
                 }

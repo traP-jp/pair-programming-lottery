@@ -10,6 +10,7 @@ import {
 } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "@client/components/icons";
+import { getErrorMessage } from "@client/errors";
 import { paths } from "@client/routeDefinitions";
 
 export function ResultDetailPage({ initialRecord }: { initialRecord?: ResultDetail | null }) {
@@ -31,7 +32,7 @@ export function ResultDetailPage({ initialRecord }: { initialRecord?: ResultDeta
         if (!id) return;
         getResult(id)
             .then(d => setRecord(d))
-            .catch(error_ => setError(error_ instanceof Error ? error_.message : "取得失敗"))
+            .catch(error_ => setError(getErrorMessage(error_, "取得失敗")))
             .finally(() => setLoading(false));
     }, [id, initialRecord]);
 

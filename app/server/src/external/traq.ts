@@ -47,9 +47,11 @@ export class TraqClient<SecurityDataType = unknown> implements ITraqClient {
 
     /** スタンプは変更頻度が低いため永続キャッシュ */
     private stampsCache: StampInfo[] | null = null;
+    private stampsRequest: Promise<StampInfo[]> | null = null;
 
     /** ユーザー一覧は TTL キャッシュ (10 分) */
     private usersCache: { users: UserInfo[]; expiresAt: number } | null = null;
+    private usersRequest: Promise<UserInfo[]> | null = null;
     private readonly usersCacheTtlMs = 10 * 60 * 1000;
 
     constructor(token: string) {
@@ -64,34 +66,47 @@ export class TraqClient<SecurityDataType = unknown> implements ITraqClient {
     }
 
     async getStamps(): Promise<StampInfo[]> {
-        if (!this.stampsCache) {
-            const res = await this.api.stamps.getStamps();
-            const data = unwrapResponse<{ id: string; name: string }[]>(res);
-            this.stampsCache = data.map(s => ({ id: s.id, name: s.name }));
+        if (this.stampsCache) return this.stampsCache;
+        if (!this.stampsRequest) {
+            this.stampsRequest = (async () => {
+                const res = await this.api.stamps.getStamps();
+                const data = unwrapResponse<{ id: string; name: string }[]>(res);
+                const stamps = data.map(s => ({ id: s.id, name: s.name }));
+                this.stampsCache = stamps;
+                return stamps;
+            })().finally(() => {
+                this.stampsRequest = null;
+            });
         }
-        return this.stampsCache;
+        return this.stampsRequest;
     }
 
     async getUsers(): Promise<UserInfo[]> {
         const now = Date.now();
-        if (!this.usersCache || now > this.usersCache.expiresAt) {
-            const res = await this.api.users.getUsers();
-            const data = unwrapResponse<
-                {
-                    id: string;
-                    name: string;
-                    displayName: string;
-                    bot: boolean;
-                }[]
-            >(res);
-            const users = data.map(u => ({
-                id: u.id,
-                name: u.name,
-                bot: u.bot,
-            }));
-            this.usersCache = { users, expiresAt: now + this.usersCacheTtlMs };
+        if (this.usersCache && now <= this.usersCache.expiresAt) return this.usersCache.users;
+        if (!this.usersRequest) {
+            this.usersRequest = (async () => {
+                const res = await this.api.users.getUsers();
+                const data = unwrapResponse<
+                    {
+                        id: string;
+                        name: string;
+                        displayName: string;
+                        bot: boolean;
+                    }[]
+                >(res);
+                const users = data.map(u => ({
+                    id: u.id,
+                    name: u.name,
+                    bot: u.bot,
+                }));
+                this.usersCache = { users, expiresAt: Date.now() + this.usersCacheTtlMs };
+                return users;
+            })().finally(() => {
+                this.usersRequest = null;
+            });
         }
-        return this.usersCache.users;
+        return this.usersRequest;
     }
 
     async getMessage(messageId: string): Promise<MessageInfo | null> {
