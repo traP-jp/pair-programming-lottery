@@ -38,12 +38,10 @@ services:
         build:
             context: .
             dockerfile: client/Dockerfile
-            target: build
         ports:
             - "4173:4173"
-        entrypoint: ["bunx", "--bun", "vite", "preview", "--host"]
         environment:
-            - VITE_API_TARGET=http://server:3000
+            - SSR_API_ORIGIN=http://server:3000
         depends_on:
             - server
 

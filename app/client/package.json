@@ -3,9 +3,9 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "bunx --bun tsc -b && vite build",
+        "build": "bunx --bun tsc -b && vite build && vite build --ssr src/entry-server.tsx && bun build src/server.ts --outdir dist/server --target bun",
         "dev": "vite",
-        "preview": "vite preview",
+        "preview": "bun run dist/server/server.js",
         "test": "vitest run",
         "typecheck": "bunx --bun tsc --noEmit --skipLibCheck false"
     },

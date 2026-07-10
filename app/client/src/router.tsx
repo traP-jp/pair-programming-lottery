@@ -1,5 +1,6 @@
-import { Link, Navigate, Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Outlet, Route, Routes } from "react-router-dom";
 
+import type { ResultDetail, ResultSummary } from "@client/api";
 import { AdminRoute, AuthProvider } from "@client/hooks/useAuth";
 import { AdminPage } from "@client/pages/AdminPage";
 import { ManagePage } from "@client/pages/ManagePage";
@@ -14,6 +15,11 @@ export const paths = {
     manage: "/manage",
     admin: "/admin",
 } as const;
+
+export interface InitialData {
+    result?: ResultDetail | null;
+    results?: ResultSummary[];
+}
 
 function Layout() {
     return (
@@ -53,42 +59,56 @@ function Layout() {
     );
 }
 
-const router = createBrowserRouter([
-    {
-        element: <Layout />,
-        children: [
-            {
-                path: "*",
-                element: (
-                    <Navigate
-                        to={paths.results}
-                        replace
-                    />
-                ),
-            },
-            { path: paths.results, element: <ResultsPage /> },
-            { path: paths.resultDetailPattern, element: <ResultDetailPage /> },
+export function App({ initialData = {} }: { initialData?: InitialData }) {
+    return (
+        <Routes>
+            <Route element={<Layout />}>
+                <Route
+                    path="*"
+                    element={
+                        <Navigate
+                            to={paths.results}
+                            replace
+                        />
+                    }
+                />
+                <Route
+                    path={paths.home}
+                    element={<ResultsPage initialResults={initialData.results} />}
+                />
+                <Route
+                    path={paths.results}
+                    element={<ResultsPage initialResults={initialData.results} />}
+                />
+                <Route
+                    path={paths.resultDetailPattern}
+                    element={<ResultDetailPage initialRecord={initialData.result} />}
+                />
+                <Route
+                    path={paths.manage}
+                    element={
+                        <AdminRoute>
+                            <ManagePage />
+                        </AdminRoute>
+                    }
+                />
+                <Route
+                    path={paths.admin}
+                    element={
+                        <AdminRoute>
+                            <AdminPage />
+                        </AdminRoute>
+                    }
+                />
+            </Route>
+        </Routes>
+    );
+}
 
-            {
-                path: paths.manage,
-                element: (
-                    <AdminRoute>
-                        <ManagePage />
-                    </AdminRoute>
-                ),
-            },
-            {
-                path: paths.admin,
-                element: (
-                    <AdminRoute>
-                        <AdminPage />
-                    </AdminRoute>
-                ),
-            },
-        ],
-    },
-]);
-
-export function Root() {
-    return <RouterProvider router={router} />;
+export function Root({ initialData }: { initialData?: InitialData }) {
+    return (
+        <BrowserRouter>
+            <App initialData={initialData} />
+        </BrowserRouter>
+    );
 }

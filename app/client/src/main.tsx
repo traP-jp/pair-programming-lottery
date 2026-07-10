@@ -1,12 +1,19 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { hydrateRoot } from "react-dom/client";
 
-import { Root } from "@client/router";
+import { type InitialData, Root } from "@client/router";
 
 import "@client/index.css";
 
-createRoot(document.querySelector("#root")!).render(
+declare global {
+    interface Window {
+        __INITIAL_DATA__?: InitialData;
+    }
+}
+
+hydrateRoot(
+    document.querySelector("#root")!,
     <StrictMode>
-        <Root />
+        <Root initialData={window.__INITIAL_DATA__} />
     </StrictMode>
 );

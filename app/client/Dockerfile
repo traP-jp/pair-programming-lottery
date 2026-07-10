@@ -18,5 +18,8 @@ WORKDIR /app/client
 RUN bun run --bun build
 
 # Stage 2: runner
-FROM scratch
-COPY --from=build /app/client/dist /dist
+FROM oven/bun:1 AS runner
+WORKDIR /app
+COPY --from=build /app/client/dist ./dist
+EXPOSE 4173
+ENTRYPOINT ["bun", "run", "dist/server/server.js"]

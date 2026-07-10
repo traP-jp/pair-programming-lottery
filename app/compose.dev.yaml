@@ -26,6 +26,9 @@ services:
             - client-node-modules:/app/client/node_modules
         entrypoint:
             ["bash", "-c", "cd /app && bun install && cd /app/client && bunx --bun vite --host"]
+        environment:
+            - SSR_API_ORIGIN=http://server:3000
+            - VITE_API_TARGET=http://server:3000
 
 volumes:
     root-node-modules:

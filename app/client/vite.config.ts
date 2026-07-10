@@ -1,8 +1,48 @@
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { readFile } from "node:fs/promises";
 
-export default defineConfig({
-    plugins: [react()],
+import react from "@vitejs/plugin-react";
+import { type Plugin, defineConfig } from "vite";
+
+function injectSsrHtml(template: string, appHtml: string, initialData: unknown) {
+    const serializedData = JSON.stringify(initialData).replaceAll("<", "\\u003c");
+    return template
+        .replace("<!--ssr-outlet-->", appHtml)
+        .replace("<!--ssr-data-->", serializedData);
+}
+
+function developmentSsrPlugin(): Plugin {
+    return {
+        name: "dev-ssr",
+        configureServer(server) {
+            server.middlewares.use(async (request, response, next) => {
+                const url = request.originalUrl ?? request.url ?? "/";
+                const accept = request.headers.accept ?? "";
+                if (url.startsWith("/api/") || !accept.includes("text/html")) return next();
+
+                try {
+                    const { loadInitialData, render } =
+                        await server.ssrLoadModule("/src/entry-server.tsx");
+                    const template = await readFile("index.html", "utf8");
+                    const initialData = await loadInitialData(url);
+                    const html = injectSsrHtml(
+                        await server.transformIndexHtml(url, template),
+                        render(url, initialData),
+                        initialData
+                    );
+                    response.statusCode = 200;
+                    response.setHeader("Content-Type", "text/html");
+                    response.end(html);
+                } catch (error) {
+                    server.ssrFixStacktrace(error as Error);
+                    next(error);
+                }
+            });
+        },
+    };
+}
+
+export default defineConfig(({ isSsrBuild }) => ({
+    plugins: [react(), developmentSsrPlugin()],
     resolve: {
         tsconfigPaths: true,
     },
@@ -21,4 +61,7 @@ export default defineConfig({
             usePolling: true,
         },
     },
-});
+    build: {
+        outDir: isSsrBuild ? "dist/server" : "dist/client",
+    },
+}));

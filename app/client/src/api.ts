@@ -1,7 +1,18 @@
 import type { Routes } from "@server/routes";
 import { type InferResponseType, hc } from "hono/client";
 
-const client = hc<Routes>("/");
+const apiOrigin =
+    typeof window === "undefined" ? (process.env.SSR_API_ORIGIN ?? "http://localhost:3000") : "";
+const client = hc<Routes>(apiOrigin);
+
+async function readError(response: Response): Promise<Error> {
+    try {
+        const body = await response.json();
+        return new Error(body.error ?? `HTTP ${response.status}`);
+    } catch {
+        return new Error(`HTTP ${response.status}`);
+    }
+}
 
 export type LotteryResult = InferResponseType<typeof client.api.lottery.$post, 200>;
 export type ScheduleRecord = Exclude<InferResponseType<typeof client.api.schedule.$get, 200>, null>;
@@ -9,40 +20,37 @@ export type ResultSummary = InferResponseType<typeof client.api.results.$get, 20
 export type ResultDetail = InferResponseType<(typeof client.api.results)[":id"]["$get"], 200>;
 export type SavedResult = InferResponseType<typeof client.api.results.$post, 200>;
 
-export async function postMessage(channelId: string): Promise<string> {
+export async function postMessage(channelId: string) {
     const response = await client.api["post-message"].$post({ json: { channelId } });
     if (!response.ok) {
-        const d = (await response.json()) as { error?: string };
-        throw new Error(d.error ?? `HTTP ${response.status}`);
+        throw await readError(response);
     }
-    return response.json().then(({ messageId }) => messageId);
+    return (await response.json()).messageId;
 }
 
-export async function runLottery(messageId: string): Promise<LotteryResult> {
+export async function runLottery(messageId: string) {
     const res = await client.api.lottery.$post({ json: { messageId } });
     if (!res.ok) {
-        const d = (await res.json()) as { error?: string };
-        throw new Error(d.error ?? `HTTP ${res.status}`);
+        throw await readError(res);
     }
     return res.json();
 }
 
-export async function getResults(): Promise<ResultSummary[]> {
+export async function getResults() {
     const res = await client.api.results.$get();
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
 }
 
-export async function getResult(id: string): Promise<ResultDetail> {
+export async function getResult(id: string) {
     const res = await client.api.results[":id"].$get({ param: { id } });
     if (!res.ok) {
-        const d = (await res.json()) as { error?: string };
-        throw new Error(d.error ?? `HTTP ${res.status}`);
+        throw await readError(res);
     }
     return res.json();
 }
 
-export async function getSchedule(): Promise<ScheduleRecord | null> {
+export async function getSchedule() {
     const res = await client.api.schedule.$get();
     if (res.status === 401) throw new Error("unauthorized");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -54,44 +62,37 @@ export async function upsertSchedule(data: {
     postDay: number;
     lotteryDay: number;
     enabled: boolean;
-}): Promise<ScheduleRecord> {
+}) {
     const res = await client.api.schedule.$put({ json: data });
     if (res.status === 401) throw new Error("unauthorized");
     if (!res.ok) {
-        const d = (await res.json()) as { error?: string };
-        throw new Error(d.error ?? `HTTP ${res.status}`);
+        throw await readError(res);
     }
     return res.json();
 }
 
-export async function triggerPost(): Promise<{ messageId: string }> {
+export async function triggerPost() {
     const res = await client.api.schedule["trigger-post"].$post();
     if (res.status === 401) throw new Error("unauthorized");
     if (!res.ok) {
-        const d = (await res.json()) as { error?: string };
-        throw new Error(d.error ?? `HTTP ${res.status}`);
+        throw await readError(res);
     }
     return res.json();
 }
 
-export async function triggerLottery(): Promise<{ responseId: string }> {
+export async function triggerLottery() {
     const res = await client.api.schedule["trigger-lottery"].$post();
     if (res.status === 401) throw new Error("unauthorized");
     if (!res.ok) {
-        const d = (await res.json()) as { error?: string };
-        throw new Error(d.error ?? `HTTP ${res.status}`);
+        throw await readError(res);
     }
     return res.json();
 }
 
-export async function saveResult(data: {
-    messageId: string;
-    result: LotteryResult;
-}): Promise<SavedResult> {
+export async function saveResult(data: { messageId: string; result: LotteryResult }) {
     const res = await client.api.results.$post({ json: data });
     if (!res.ok) {
-        const d = (await res.json()) as { error?: string };
-        throw new Error(d.error ?? `HTTP ${res.status}`);
+        throw await readError(res);
     }
     return res.json();
 }

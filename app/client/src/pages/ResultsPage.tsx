@@ -4,17 +4,19 @@ import { Link } from "react-router-dom";
 import { type ResultSummary, getResults } from "@client/api";
 import { paths } from "@client/router";
 
-export function ResultsPage() {
-    const [results, setResults] = useState<ResultSummary[]>([]);
-    const [loading, setLoading] = useState(true);
+export function ResultsPage({ initialResults }: { initialResults?: ResultSummary[] }) {
+    const [results, setResults] = useState<ResultSummary[]>(initialResults ?? []);
+    const [loading, setLoading] = useState(initialResults === undefined);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (initialResults !== undefined) return;
+
         getResults()
             .then(setResults)
             .catch(error_ => setError(error_ instanceof Error ? error_.message : "取得失敗"))
             .finally(() => setLoading(false));
-    }, []);
+    }, [initialResults]);
 
     return (
         <div className="container">

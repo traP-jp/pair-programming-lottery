@@ -6,19 +6,20 @@ import { LotteryResultView } from "@client/components/LotteryResultView";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "@client/components/icons";
 import { paths } from "@client/router";
 
-export function ResultDetailPage() {
+export function ResultDetailPage({ initialRecord }: { initialRecord?: ResultDetail | null }) {
     const { id } = useParams<{ id: string }>();
-    const [record, setRecord] = useState<ResultDetail | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [record, setRecord] = useState<ResultDetail | null>(initialRecord ?? null);
+    const [loading, setLoading] = useState(initialRecord === undefined);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (initialRecord !== undefined) return;
         if (!id) return;
         getResult(id)
             .then(d => setRecord(d))
             .catch(error_ => setError(error_ instanceof Error ? error_.message : "取得失敗"))
             .finally(() => setLoading(false));
-    }, [id]);
+    }, [id, initialRecord]);
 
     if (loading)
         return (
