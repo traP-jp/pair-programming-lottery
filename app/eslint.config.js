@@ -13,6 +13,7 @@ export default tseslint.config(
         // Global ignores
         ignores: [
             "**/dist/**",
+            "**/coverage/**",
             "**/node_modules/**",
             "**/.tsbuildinfo",
             "**/generated/**",
@@ -20,8 +21,13 @@ export default tseslint.config(
             "**/vite.config.ts.timestamp-*",
         ],
     },
-    js.configs.recommended,
-    ...tseslint.configs.recommended,
+    // Scoped to JS/TS files: ESLint 10's core JS rules (e.g. no-useless-assignment) can crash
+    // when applied to non-JS languages (e.g. CSS via @eslint/css) if left unscoped.
+    { ...js.configs.recommended, files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"] },
+    ...tseslint.configs.recommended.map(config => ({
+        ...config,
+        files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+    })),
     {
         files: ["**/*.{ts,tsx}"],
         languageOptions: {
@@ -54,7 +60,7 @@ export default tseslint.config(
                 },
             ],
             "unicorn/no-null": "off",
-            "unicorn/prevent-abbreviations": [
+            "unicorn/name-replacements": [
                 "error",
                 {
                     replacements: {
@@ -65,6 +71,8 @@ export default tseslint.config(
                         props: false,
                         Props: false,
                         params: false,
+                        repository: false,
+                        application: false,
                     },
                 },
             ],
@@ -105,8 +113,10 @@ export default tseslint.config(
             "react/react-in-jsx-scope": "off",
         },
         settings: {
+            // Pinned explicitly (rather than "detect") because eslint-plugin-react's
+            // version detection calls the removed context.getFilename() API under ESLint 10.
             react: {
-                version: "detect",
+                version: "19.2.7",
             },
         },
     },
@@ -131,7 +141,7 @@ export default tseslint.config(
         files: ["**/*.test.{ts,tsx}"],
         rules: {
             "@typescript-eslint/no-explicit-any": "off",
-            "unicorn/prevent-abbreviations": "off",
+            "unicorn/name-replacements": "off",
             "@typescript-eslint/no-unused-vars": "off",
         },
     },

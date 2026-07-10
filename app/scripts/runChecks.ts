@@ -12,8 +12,8 @@ async function runParallel(tasks: { name: string; run: () => ReturnType<typeof $
     let failed = false;
 
     for (const { name, promise } of promises) {
-        let stdout = Buffer.alloc(0);
-        let stderr = Buffer.alloc(0);
+        let stdout: Buffer;
+        let stderr: Buffer;
         let exitCode = 0;
 
         try {
