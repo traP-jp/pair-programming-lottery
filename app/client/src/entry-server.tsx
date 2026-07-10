@@ -2,7 +2,8 @@ import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 
 import { getResult, getResults } from "@client/api";
-import { App, type InitialData, paths } from "@client/router";
+import { type InitialData, paths } from "@client/routeDefinitions";
+import { ServerApp } from "@client/serverRouter";
 
 export async function loadInitialData(url: string): Promise<InitialData> {
     const pathname = new URL(url, "http://localhost").pathname;
@@ -28,7 +29,7 @@ export async function loadInitialData(url: string): Promise<InitialData> {
 export function render(url: string, initialData: InitialData) {
     return renderToString(
         <MemoryRouter initialEntries={[url]}>
-            <App initialData={initialData} />
+            <ServerApp initialData={initialData} />
         </MemoryRouter>
     );
 }

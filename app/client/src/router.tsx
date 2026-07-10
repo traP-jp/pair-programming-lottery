@@ -1,61 +1,25 @@
-import { BrowserRouter, Link, Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { Suspense, lazy } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-import type { ResultDetail, ResultSummary } from "@client/api";
-import { AdminRoute, AuthProvider } from "@client/hooks/useAuth";
-import { AdminPage } from "@client/pages/AdminPage";
-import { ManagePage } from "@client/pages/ManagePage";
-import { ResultDetailPage } from "@client/pages/ResultDetailPage";
+import { AdminPageRoute, Layout } from "@client/appShell";
 import { ResultsPage } from "@client/pages/ResultsPage";
+import { type InitialData, paths } from "@client/routeDefinitions";
 
-export const paths = {
-    home: "/",
-    results: "/results",
-    resultDetail: (id: string) => `/results/${id}`,
-    resultDetailPattern: "/results/:id",
-    manage: "/manage",
-    admin: "/admin",
-} as const;
+const ResultDetailPage = lazy(async () => ({
+    default: (await import("@client/pages/ResultDetailPage")).ResultDetailPage,
+}));
+const ManagePage = lazy(async () => ({
+    default: (await import("@client/pages/ManagePage")).ManagePage,
+}));
+const AdminPage = lazy(async () => ({
+    default: (await import("@client/pages/AdminPage")).AdminPage,
+}));
 
-export interface InitialData {
-    result?: ResultDetail | null;
-    results?: ResultSummary[];
-}
-
-function Layout() {
+function PageLoading() {
     return (
-        <AuthProvider>
-            <div>
-                <nav className="nav-bar">
-                    <Link
-                        to={paths.home}
-                        className="nav-brand"
-                    >
-                        ペアプロ抽選
-                    </Link>
-                    <div className="nav-links">
-                        <Link
-                            to={paths.results}
-                            className="nav-link"
-                        >
-                            結果
-                        </Link>
-                        <Link
-                            to={paths.manage}
-                            className="nav-link"
-                        >
-                            操作
-                        </Link>
-                        <Link
-                            to={paths.admin}
-                            className="nav-link"
-                        >
-                            管理
-                        </Link>
-                    </div>
-                </nav>
-                <Outlet />
-            </div>
-        </AuthProvider>
+        <div className="container">
+            <p className="text-muted">読み込み中...</p>
+        </div>
     );
 }
 
@@ -82,22 +46,30 @@ export function App({ initialData = {} }: { initialData?: InitialData }) {
                 />
                 <Route
                     path={paths.resultDetailPattern}
-                    element={<ResultDetailPage initialRecord={initialData.result} />}
+                    element={
+                        <Suspense fallback={<PageLoading />}>
+                            <ResultDetailPage initialRecord={initialData.result} />
+                        </Suspense>
+                    }
                 />
                 <Route
                     path={paths.manage}
                     element={
-                        <AdminRoute>
-                            <ManagePage />
-                        </AdminRoute>
+                        <AdminPageRoute>
+                            <Suspense fallback={<PageLoading />}>
+                                <ManagePage />
+                            </Suspense>
+                        </AdminPageRoute>
                     }
                 />
                 <Route
                     path={paths.admin}
                     element={
-                        <AdminRoute>
-                            <AdminPage />
-                        </AdminRoute>
+                        <AdminPageRoute>
+                            <Suspense fallback={<PageLoading />}>
+                                <AdminPage />
+                            </Suspense>
+                        </AdminPageRoute>
                     }
                 />
             </Route>

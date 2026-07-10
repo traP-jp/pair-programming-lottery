@@ -7,6 +7,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ResultDetailPage } from "./ResultDetailPage";
 
 vi.mock("@client/api", () => ({
+    cacheResult: vi.fn(),
+    getCachedResult: vi.fn(),
     getResult: vi.fn(),
 }));
 
@@ -22,6 +24,7 @@ describe("ResultDetailPage", () => {
     beforeEach(() => {
         vi.restoreAllMocks();
         vi.clearAllMocks();
+        vi.mocked(api.getCachedResult).mockReturnValue(undefined);
         mockWriteText.mockClear();
         vi.useRealTimers();
     });

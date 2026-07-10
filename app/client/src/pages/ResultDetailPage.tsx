@@ -1,19 +1,33 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { type LotteryResult, type ResultDetail, getResult } from "@client/api";
+import {
+    type LotteryResult,
+    type ResultDetail,
+    cacheResult,
+    getCachedResult,
+    getResult,
+} from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "@client/components/icons";
-import { paths } from "@client/router";
+import { paths } from "@client/routeDefinitions";
 
 export function ResultDetailPage({ initialRecord }: { initialRecord?: ResultDetail | null }) {
     const { id } = useParams<{ id: string }>();
-    const [record, setRecord] = useState<ResultDetail | null>(initialRecord ?? null);
-    const [loading, setLoading] = useState(initialRecord === undefined);
+    const cachedRecord = id ? getCachedResult(id) : undefined;
+    const [record, setRecord] = useState<ResultDetail | null>(
+        initialRecord ?? cachedRecord ?? null
+    );
+    const [loading, setLoading] = useState(
+        initialRecord === undefined && cachedRecord === undefined
+    );
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (initialRecord !== undefined) return;
+        if (initialRecord !== undefined) {
+            if (initialRecord) cacheResult(initialRecord);
+            return;
+        }
         if (!id) return;
         getResult(id)
             .then(d => setRecord(d))

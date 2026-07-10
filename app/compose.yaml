@@ -33,6 +33,17 @@ services:
         depends_on:
             db:
                 condition: service_healthy
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "bun",
+                    "-e",
+                    "fetch('http://localhost:3000/api/health').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+                ]
+            interval: 5s
+            timeout: 3s
+            retries: 10
 
     client:
         build:
@@ -40,10 +51,16 @@ services:
             dockerfile: client/Dockerfile
         ports:
             - "4173:4173"
+        restart: unless-stopped
         environment:
             - SSR_API_ORIGIN=http://server:3000
+            - SSG_CACHE_DIR=/app/cache
+        volumes:
+            - ssg-cache:/app/cache
         depends_on:
-            - server
+            server:
+                condition: service_healthy
 
 volumes:
     db-data:
+    ssg-cache:

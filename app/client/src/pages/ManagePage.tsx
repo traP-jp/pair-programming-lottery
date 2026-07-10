@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import { type LotteryResult, postMessage, runLottery, saveResult } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
-import { paths } from "@client/router";
+import { paths } from "@client/routeDefinitions";
 
 export function ManagePage() {
     const [channelId, setChannelId] = useState("");

@@ -41,8 +41,31 @@ function developmentSsrPlugin(): Plugin {
     };
 }
 
+function developmentServiceWorkerPlugin(): Plugin {
+    return {
+        name: "dev-service-worker",
+        configureServer(server) {
+            server.middlewares.use(async (request, response, next) => {
+                const url = request.originalUrl ?? request.url ?? "/";
+                if (url.split("?", 1)[0] !== "/sw.js") return next();
+
+                try {
+                    const transformed = await server.transformRequest("/src/sw.ts");
+                    if (!transformed) throw new Error("Could not transform the Service Worker");
+                    response.statusCode = 200;
+                    response.setHeader("Content-Type", "application/javascript");
+                    response.end(transformed.code);
+                } catch (error) {
+                    server.ssrFixStacktrace(error as Error);
+                    next(error);
+                }
+            });
+        },
+    };
+}
+
 export default defineConfig(({ isSsrBuild }) => ({
-    plugins: [react(), developmentSsrPlugin()],
+    plugins: [react(), developmentSsrPlugin(), developmentServiceWorkerPlugin()],
     resolve: {
         tsconfigPaths: true,
     },

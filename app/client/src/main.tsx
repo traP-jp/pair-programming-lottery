@@ -1,9 +1,17 @@
 import { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 
-import { type InitialData, Root } from "@client/router";
+import { Root } from "@client/router";
+
+import type { InitialData } from "./routeDefinitions";
 
 import "@client/index.css";
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        void navigator.serviceWorker.register("/sw.js");
+    });
+}
 
 declare global {
     interface Window {

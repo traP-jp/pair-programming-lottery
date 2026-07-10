@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { type ResultSummary, getResults } from "@client/api";
-import { paths } from "@client/router";
+import { prefetchResultNavigation } from "@client/navigationPrefetch";
+import { paths } from "@client/routeDefinitions";
 
 export function ResultsPage({ initialResults }: { initialResults?: ResultSummary[] }) {
     const [results, setResults] = useState<ResultSummary[]>(initialResults ?? []);
@@ -38,6 +39,9 @@ export function ResultsPage({ initialResults }: { initialResults?: ResultSummary
                         key={r.id}
                         to={paths.resultDetail(r.id)}
                         className="result-card"
+                        onMouseEnter={() => void prefetchResultNavigation(r.id)}
+                        onFocus={() => void prefetchResultNavigation(r.id)}
+                        onTouchStart={() => void prefetchResultNavigation(r.id)}
                     >
                         <div className="result-card-month">{r.month}</div>
                         <div className="result-card-date">

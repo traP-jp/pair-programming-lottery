@@ -21,5 +21,6 @@ RUN bun run --bun build
 FROM oven/bun:1 AS runner
 WORKDIR /app
 COPY --from=build /app/client/dist ./dist
+RUN mkdir -p /app/cache
 EXPOSE 4173
 ENTRYPOINT ["bun", "run", "dist/server/server.js"]
