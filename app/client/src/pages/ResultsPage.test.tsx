@@ -73,9 +73,7 @@ describe("ResultsPage", () => {
         await waitFor(() => {
             expect(screen.getByText("2026-06")).toBeInTheDocument();
         });
-        // Check formatted date is shown
-        const dateStr = new Date("2026-06-12T07:00:00.000Z").toLocaleString("ja-JP");
-        expect(screen.getByText(dateStr)).toBeInTheDocument();
+        expect(screen.getByText("2026/6/12 16:00:00")).toBeInTheDocument();
     });
 
     it("should display fallback error message on API failure with non-Error", async () => {

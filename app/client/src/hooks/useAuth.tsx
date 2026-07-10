@@ -1,7 +1,7 @@
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 
 import { type ScheduleResponse, getSchedule } from "@client/api";
-import { getErrorMessage } from "@client/errors";
+import { getErrorMessage } from "@client/utils/errors";
 
 interface AuthContextType {
     isAdmin: boolean;

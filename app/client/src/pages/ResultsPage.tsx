@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { type ResultSummary, getResults } from "@client/api";
-import { getErrorMessage } from "@client/errors";
-import { prefetchResultNavigation } from "@client/navigationPrefetch";
 import { paths } from "@client/routeDefinitions";
+import { formatJstDateTime } from "@client/utils/dateTime";
+import { getErrorMessage } from "@client/utils/errors";
+import { prefetchResultNavigation } from "@client/utils/navigationPrefetch";
 
 export function ResultsPage({ initialResults }: { initialResults?: ResultSummary[] }) {
     const [results, setResults] = useState<ResultSummary[]>(initialResults ?? []);
@@ -45,9 +46,7 @@ export function ResultsPage({ initialResults }: { initialResults?: ResultSummary
                         onTouchStart={() => void prefetchResultNavigation(r.id)}
                     >
                         <div className="result-card-month">{r.month}</div>
-                        <div className="result-card-date">
-                            {new Date(r.createdAt).toLocaleString("ja-JP")}
-                        </div>
+                        <div className="result-card-date">{formatJstDateTime(r.createdAt)}</div>
                         <span className="result-card-arrow">→</span>
                     </Link>
                 ))}

@@ -7,8 +7,9 @@ import {
     triggerPost,
     upsertSchedule,
 } from "@client/api";
-import { getErrorMessage } from "@client/errors";
 import { useOptionalAuth } from "@client/hooks/useAuth";
+import { formatJstDateTime } from "@client/utils/dateTime";
+import { getErrorMessage } from "@client/utils/errors";
 
 export function AdminPage() {
     const initialSchedule = useOptionalAuth()?.schedule;
@@ -218,7 +219,7 @@ export function AdminPage() {
                         >
                             直近の投稿 ID: <code>{schedule.lastMessageId}</code>
                             {schedule.lastPostedAt &&
-                                ` (${new Date(schedule.lastPostedAt).toLocaleString("ja-JP")})`}
+                                ` (${formatJstDateTime(schedule.lastPostedAt)})`}
                         </p>
                     )}
                     {schedule.lastLotteryAt && (
@@ -226,7 +227,7 @@ export function AdminPage() {
                             className="text-muted"
                             style={{ fontSize: "0.8rem" }}
                         >
-                            直近の抽選: {new Date(schedule.lastLotteryAt).toLocaleString("ja-JP")}
+                            直近の抽選: {formatJstDateTime(schedule.lastLotteryAt)}
                         </p>
                     )}
                 </section>

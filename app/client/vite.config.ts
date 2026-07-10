@@ -16,7 +16,7 @@ function developmentSsrPlugin(): Plugin {
 
                 try {
                     const { loadInitialData, render } =
-                        await server.ssrLoadModule("/src/entry-server.tsx");
+                        await server.ssrLoadModule("/src/entryServer.tsx");
                     const template = await readFile("index.html", "utf8");
                     const initialData = await loadInitialData(url);
                     const html = injectSsrHtml(

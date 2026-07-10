@@ -3,11 +3,11 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "bunx --bun tsc -b && bunx --bun tsc -p tsconfig.server.json --noEmit && bunx --bun tsc -p tsconfig.sw.json --noEmit && vite build && vite build --ssr src/entry-server.tsx && bun build src/sw.ts --outfile dist/client/sw.js --target browser && bun build src/server.ts --outdir dist/server --target bun",
+        "build": "bun run scripts/build.ts",
         "dev": "vite",
         "preview": "bun run dist/server/server.js",
         "test": "vitest run",
-        "typecheck": "bunx --bun tsc --noEmit --skipLibCheck false && bunx --bun tsc -p tsconfig.server.json --noEmit --skipLibCheck false && bunx --bun tsc -p tsconfig.sw.json --noEmit"
+        "typecheck": "bun run scripts/typecheck.ts"
     },
     "devDependencies": {
         "@testing-library/jest-dom": "^6.9.1",

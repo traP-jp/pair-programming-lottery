@@ -10,8 +10,9 @@ import {
 } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "@client/components/icons";
-import { getErrorMessage } from "@client/errors";
 import { paths } from "@client/routeDefinitions";
+import { formatJstDateTime } from "@client/utils/dateTime";
+import { getErrorMessage } from "@client/utils/errors";
 
 export function ResultDetailPage({ initialRecord }: { initialRecord?: ResultDetail | null }) {
     const { id } = useParams<{ id: string }>();
@@ -64,7 +65,7 @@ export function ResultDetailPage({ initialRecord }: { initialRecord?: ResultDeta
             <header className="header">
                 <h1>抽選結果</h1>
                 <p className="subtitle">
-                    {record.month} — {new Date(record.createdAt).toLocaleString("ja-JP")}
+                    {record.month} — {formatJstDateTime(record.createdAt)}
                 </p>
             </header>
 

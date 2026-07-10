@@ -1,6 +1,11 @@
 ## Tools
 
-Static Checks
+### Static Checks
 ```bash
-bun check
+cd app && bun check
+```
+
+#### Fixing
+```bash
+cd app && bun check:fix
 ```

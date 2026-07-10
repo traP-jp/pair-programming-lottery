@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { isAbsolute, relative, resolve } from "node:path";
 
-import { loadInitialData, render } from "@client/entry-server";
+import { loadInitialData, render } from "@client/entryServer";
 import { type CachePolicy, type PublicPage, resolvePublicPage } from "@client/publicPages";
 import { type InitialData, paths } from "@client/routeDefinitions";
 import { injectSsrHtml } from "@client/ssrHtml";

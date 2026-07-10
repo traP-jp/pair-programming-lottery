@@ -56,7 +56,7 @@ export default tseslint.config(
                         pascalCase: true,
                         camelCase: true,
                     },
-                    ignore: [String.raw`vite-env\.d\.ts`, String.raw`entry-server\.ts`],
+                    ignore: [String.raw`vite-env\.d\.ts`],
                 },
             ],
             "unicorn/no-null": "off",
