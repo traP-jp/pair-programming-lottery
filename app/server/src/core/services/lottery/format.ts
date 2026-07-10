@@ -16,6 +16,7 @@ function isBeginnerPair(u1: UserPrefs, u2: UserPrefs): boolean {
 }
 
 export type FormattedMember = {
+    id: string;
     name: string;
     isBeginner: boolean;
 };
@@ -74,8 +75,8 @@ export function formatResult(
             return {
                 region: null,
                 members: [
-                    { name: "?", isBeginner: false },
-                    { name: "?", isBeginner: false },
+                    { id: "?", name: "?", isBeginner: false },
+                    { id: "?", name: "?", isBeginner: false },
                 ],
                 hasInsertedUser: false,
             };
@@ -84,10 +85,12 @@ export function formatResult(
         const region = getPairRegion(u1, u2);
 
         let member1: FormattedMember = {
+            id: u1.id,
             name: userIdToName.get(u1.id) ?? u1.id,
             isBeginner: u1.isBeginner,
         };
         let member2: FormattedMember = {
+            id: u2.id,
             name: userIdToName.get(u2.id) ?? u2.id,
             isBeginner: u2.isBeginner,
         };

@@ -37,6 +37,7 @@ describe("scheduler service", () => {
     class MockLotteryResponseRepo implements ILotteryResponseRepository {
         responses: any[] = [];
         findMany = mock(async () => this.responses);
+        findRecentResultsWithDetail = mock(async () => this.responses);
         findById = mock(async (id: string) => this.responses.find(r => r.id === id) || null);
         create = mock(async (data: any) => {
             const res = { id: `res-${Date.now()}`, createdAt: new Date(), ...data };
@@ -49,7 +50,7 @@ describe("scheduler service", () => {
         users: UserPrefs[] = [];
         userNameMap = new Map<string, string>();
         collectUserPrefs = mock(async () => this.users);
-        getuserNameMap = mock(async () => this.userNameMap);
+        getUserNameMap = mock(async () => this.userNameMap);
         postLotteryMessage = mock(async () => "new-msg-123");
         postMessage = mock(async () => {});
     }
@@ -66,14 +67,14 @@ describe("scheduler service", () => {
             {
                 id: "u1",
                 regions: new Set(["frontend"]),
-                levels: new Set(["beginner"]),
+                isBeginner: true,
                 originalRegionSize: 1,
                 originalLevelSize: 1,
             },
             {
                 id: "u2",
                 regions: new Set(["backend"]),
-                levels: new Set(["muscle"]),
+                isBeginner: false,
                 originalRegionSize: 1,
                 originalLevelSize: 1,
             },
@@ -100,7 +101,7 @@ describe("scheduler service", () => {
             {
                 id: "u1",
                 regions: new Set(["frontend"]),
-                levels: new Set(["beginner"]),
+                isBeginner: true,
                 originalRegionSize: 1,
                 originalLevelSize: 1,
             },
@@ -169,14 +170,14 @@ describe("scheduler service", () => {
                 {
                     id: "u1",
                     regions: new Set(["frontend"]),
-                    levels: new Set(["beginner"]),
+                    isBeginner: true,
                     originalRegionSize: 1,
                     originalLevelSize: 1,
                 },
                 {
                     id: "u2",
                     regions: new Set(["backend"]),
-                    levels: new Set(["muscle"]),
+                    isBeginner: false,
                     originalRegionSize: 1,
                     originalLevelSize: 1,
                 },

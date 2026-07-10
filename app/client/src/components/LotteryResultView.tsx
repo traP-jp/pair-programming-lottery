@@ -24,17 +24,9 @@ export function LotteryResultView({ result, title = "抽選結果", children }: 
                         key={index}
                         pair={pair}
                         index={index}
-                        insertedUser={result.insertedUser}
                     />
                 ))}
             </div>
-
-            {result.insertedUser && (
-                <div className="inserted-note">
-                    ※ @{result.insertedUser.name} は人数調整のため上記
-                    {result.insertedUser.pairIndices.length}ペアに参加します
-                </div>
-            )}
 
             {children}
         </section>

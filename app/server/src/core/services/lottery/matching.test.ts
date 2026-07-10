@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { runLottery } from "./matching";
 
-import type { Region, Role, UserPrefs } from "../../../types";
+import type { Region, UserPrefs } from "../../../types";
 
 describe("runLottery", () => {
     const createUser = (
@@ -21,8 +21,8 @@ describe("runLottery", () => {
 
     it("should pair users with matching regions and avoid beginner-beginner pairs", () => {
         // We have 4 users.
-        // User A and B both want frontend, A is beginner, B is muscle.
-        // User C and D both want backend, C is beginner, D is muscle.
+        // User A and B both want frontend, A is beginner, B is experienced.
+        // User C and D both want backend, C is beginner, D is experienced.
         const userA = createUser("A", ["frontend"], true);
         const userB = createUser("B", ["frontend"], false);
         const userC = createUser("C", ["backend"], true);
@@ -73,8 +73,8 @@ describe("runLottery", () => {
     });
 
     it("should prioritize experienced users for cloning over beginners", () => {
-        // We have 3 users. 2 beginners, 1 muscle.
-        // Cloning the muscle should give a better score because cloning a beginner gives PENALTY_INSERTED_BEGINNER
+        // We have 3 users. 2 beginners, 1 experienced.
+        // Cloning the experienced user should give a better score because cloning a beginner gives PENALTY_INSERTED_BEGINNER
         const userA = createUser("A", ["frontend"], true);
         const userB = createUser("B", ["frontend"], true);
         const userC = createUser("C", ["frontend"], false);
@@ -82,33 +82,57 @@ describe("runLottery", () => {
         const result = runLottery([userA, userB, userC]);
 
         expect(result.pairs.length).toBe(2);
-        // User C (muscle) should be chosen as insertedUser to avoid penalty
+        // User C (experienced) should be chosen as insertedUser to avoid penalty
         expect(result.insertedUser!.id).toBe("C");
     });
 
     it("should prioritize experienced partners for the cloned user", () => {
         // We have 5 users.
-        // userA: muscle (will be cloned)
-        // userB: muscle, userC: muscle
-        // userD: beginner, userE: beginner
-        // If userA is cloned, its partners should ideally be userB and userC to avoid PENALTY_INSERTED_PARTNER_BEGINNER.
+        // userA, userB, userC, userD are experienced. userE is beginner.
+        // An experienced user will be chosen to be cloned.
+        // Their partners should be two of the other experienced users to avoid PENALTY_INSERTED_PARTNER_BEGINNER.
+        // If they partner with E, it incurs a penalty.
         const userA = createUser("A", ["frontend"], false);
         const userB = createUser("B", ["frontend"], false);
         const userC = createUser("C", ["frontend"], false);
-        const userD = createUser("D", ["frontend"], true);
+        const userD = createUser("D", ["frontend"], false);
         const userE = createUser("E", ["frontend"], true);
 
         const result = runLottery([userA, userB, userC, userD, userE]);
 
         expect(result.pairs.length).toBe(3);
 
-        if (result.insertedUser!.id === "A") {
-            const partners = result.insertedIntoPairs!.map(p =>
-                p[0].id === "A" ? p[1].id : p[0].id
-            );
-            // Partners should be B and C, since D and E are beginners and would incur penalties.
-            expect(partners).toContain("B");
-            expect(partners).toContain("C");
-        }
+        const insertedUser = result.insertedUser!;
+        const partners = result.insertedIntoPairs!.map(p =>
+            p[0].id === insertedUser.id ? p[1].id : p[0].id
+        );
+
+        // The inserted user should NOT partner with the beginner (E) because inserted user is experienced
+        expect(partners).not.toContain("E");
+    });
+
+    it("should avoid pairs that were recently matched to minimize penalty", () => {
+        // We have 4 users.
+        // User A, B, C, D all want frontend and are experienced.
+        const userA = createUser("A", ["frontend"], false);
+        const userB = createUser("B", ["frontend"], false);
+        const userC = createUser("C", ["frontend"], false);
+        const userD = createUser("D", ["frontend"], false);
+
+        // Suppose A and B were paired recently. C and D were paired recently.
+        // So they shouldn't be paired together again.
+        // The ideal match should be A-C and B-D or A-D and B-C.
+        const pastPairs = new Map<string, number>();
+        pastPairs.set("A-B", 1); // 1 ago
+        pastPairs.set("C-D", 1); // 1 ago
+
+        const result = runLottery([userA, userB, userC, userD], pastPairs);
+
+        // Let's check the pairs. They should NOT be A-B or C-D.
+        const pairStrs = result.pairs.map(p => [p[0].id, p[1].id].sort().join("-"));
+        expect(pairStrs).not.toContain("A-B");
+        expect(pairStrs).not.toContain("C-D");
+        // Total score should be 200 (100 * 2 region matches) since no penalty is incurred for new pairs.
+        expect(result.totalScore).toBe(200);
     });
 });

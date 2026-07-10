@@ -33,6 +33,17 @@ export class PrismaLotteryResponseRepository implements ILotteryResponseReposito
         };
     }
 
+    async findRecentResultsWithDetail(limit: number): Promise<LotteryResponse[]> {
+        const records = await prisma.lotteryResponse.findMany({
+            orderBy: { createdAt: "desc" },
+            take: limit,
+        });
+        return records.map(record => ({
+            ...record,
+            result: record.result as unknown as LotteryResponseType,
+        }));
+    }
+
     async create(data: {
         channelId: string;
         month: string;

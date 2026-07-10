@@ -4,15 +4,23 @@ const SCORE_REGION_MATCH = 100;
 const PENALTY_BEGINNER_PAIR = 100000;
 const PENALTY_INSERTED_BEGINNER = 10000;
 const PENALTY_INSERTED_PARTNER_BEGINNER = 500;
+const PENALTY_PAST_PAIR = [100, 50, 20];
+
 const SIMULATION_ROUNDS = 5000;
 
-function getPairScore(u: UserPrefs, v: UserPrefs): number {
+function getPairScore(u: UserPrefs, v: UserPrefs, pastPairs: Map<string, number>): number {
     let score = 0;
 
     const hasCommonRegion = [...u.regions].some(r => v.regions.has(r));
     if (hasCommonRegion) score += SCORE_REGION_MATCH;
 
     if (u.isBeginner && v.isBeginner) score -= PENALTY_BEGINNER_PAIR;
+
+    const pairKey = [u.id, v.id].sort().join(":");
+    const ago = pastPairs.get(pairKey);
+    if (ago !== undefined) {
+        score -= PENALTY_PAST_PAIR[ago] ?? 0;
+    }
 
     return score;
 }
@@ -24,7 +32,7 @@ function shuffle<T>(array: T[]): T[] {
     }
     return array;
 }
-function tryMatching(users: UserPrefs[]): MatchingResult {
+function tryMatching(users: UserPrefs[], pastPairs: Map<string, number>): MatchingResult {
     let shuffled = shuffle([...users]);
 
     let insertedUser: UserPrefs | null = null;
@@ -60,7 +68,7 @@ function tryMatching(users: UserPrefs[]): MatchingResult {
         }
 
         pairs.push([u, v]);
-        totalScore += getPairScore(u, v);
+        totalScore += getPairScore(u, v, pastPairs);
 
         if (insertedUser) {
             const isUInserted = u.id === insertedUser.id;
@@ -94,11 +102,14 @@ function tryMatching(users: UserPrefs[]): MatchingResult {
     };
 }
 
-export function runLottery(users: UserPrefs[]): MatchingResult {
+export function runLottery(
+    users: UserPrefs[],
+    pastPairs: Map<string, number> = new Map()
+): MatchingResult {
     let bestResult: MatchingResult | null = null;
 
     for (let index = 0; index < SIMULATION_ROUNDS; index++) {
-        const result = tryMatching(users);
+        const result = tryMatching(users, pastPairs);
         if (
             !bestResult ||
             result.totalScore > bestResult.totalScore ||

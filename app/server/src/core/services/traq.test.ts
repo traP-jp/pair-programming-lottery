@@ -9,7 +9,6 @@ const mockStamps: StampInfo[] = [
     { id: "s1", name: "one" },
     { id: "s2", name: "two" },
     { id: "s3", name: "beginner" },
-    { id: "s4", name: "muscle" },
     { id: "s5", name: "random_stamp" },
 ];
 
@@ -25,7 +24,6 @@ const mockMessage: MessageInfo = {
         { stampId: "s1", userId: "u1" }, // user1 likes frontend
         { stampId: "s3", userId: "u1" }, // user1 likes beginner
         { stampId: "s2", userId: "u2" }, // user2 likes backend
-        { stampId: "s4", userId: "u2" }, // user2 likes muscle
         { stampId: "s1", userId: "u3" }, // bot likes frontend (should be ignored)
     ],
 };
@@ -49,7 +47,6 @@ describe("traqService", () => {
         expect(stampIdToName.get("s1")).toBe("one");
         expect(stampIdToName.get("s2")).toBe("two");
         expect(stampIdToName.get("s3")).toBe("beginner");
-        expect(stampIdToName.get("s4")).toBe("muscle");
         expect(stampIdToName.get("s5")).toBeUndefined(); // ignored non-target stamp
 
         expect(stampNameToId.get("one")).toBe("s1");
@@ -108,30 +105,6 @@ describe("traqService", () => {
         expect(service.collectUserPrefs("invalid-msg")).rejects.toThrow();
     });
 
-    it("should ignore muscle stamp and set isBeginner based only on beginner stamp", async () => {
-        const client = new MockTraqClient();
-        // user1 selects beginner and muscle
-        // user2 selects muscle only
-        // user4 selects nothing
-        const message: MessageInfo = {
-            channelId: "channel-123",
-            stamps: [
-                { stampId: "s3", userId: "u1" }, // beginner
-                { stampId: "s4", userId: "u1" }, // muscle
-                { stampId: "s4", userId: "u2" }, // muscle
-                { stampId: "s1", userId: "u4" }, // one
-            ],
-        };
-        client.getMessage = mock(async () => message);
-
-        const service = createTraqService(client);
-        const prefs = await service.collectUserPrefs("msg-123");
-
-        expect(prefs.find(p => p.id === "u1")!.isBeginner).toBe(true);
-        expect(prefs.find(p => p.id === "u2")!.isBeginner).toBe(false);
-        expect(prefs.find(p => p.id === "u4")!.isBeginner).toBe(false);
-    });
-
     it("should post lottery message and add initial stamps", async () => {
         const client = new MockTraqClient();
         const service = createTraqService(client);
@@ -140,15 +113,15 @@ describe("traqService", () => {
 
         expect(messageId).toBe("msg-created");
         expect(client.postChannelMessage).toHaveBeenCalledWith("channel-abc", expect.any(String));
-        // Should have added the 4 target stamps
-        expect(client.addMessageStamp).toHaveBeenCalledTimes(4);
+        // Should have added the 3 target stamps
+        expect(client.addMessageStamp).toHaveBeenCalledTimes(3);
     });
 
-    it("getuserNameMap should map only non-bot users", async () => {
+    it("getUserNameMap should map only non-bot users", async () => {
         const client = new MockTraqClient();
         const service = createTraqService(client);
 
-        const map = await service.getuserNameMap();
+        const map = await service.getUserNameMap();
         expect(map.size).toBe(2);
         expect(map.get("u1")).toBe("user1");
         expect(map.get("u2")).toBe("user2");

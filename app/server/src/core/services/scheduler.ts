@@ -1,12 +1,13 @@
 import type { ILotteryResponseRepository, IScheduleRepository } from "@server/core/repository";
 import { formatResult } from "@server/core/services/lottery/format";
+import { buildPastPairHistory } from "@server/core/services/lottery/index";
 import { runLottery } from "@server/core/services/lottery/matching";
 import type { UserPrefs } from "@server/types";
 import { getCurrentYearMonthJst, getJstDay, isThisMonthJst } from "@server/utilities/time";
 
 interface ISchedulerTraqService {
     collectUserPrefs(messageId: string): Promise<UserPrefs[]>;
-    getuserNameMap(): Promise<Map<string, string>>;
+    getUserNameMap(): Promise<Map<string, string>>;
     postLotteryMessage(channelId: string): Promise<string>;
     postMessage(channelId: string, content: string): Promise<void>;
 }
@@ -26,8 +27,10 @@ async function _runScheduledLottery(
         return null;
     }
 
-    const userNameMap = await traq.getuserNameMap();
-    const lotteryResult = runLottery(users);
+    const userNameMap = await traq.getUserNameMap();
+    const pastLotteries = await lotteryResponseRepo.findRecentResultsWithDetail(3);
+    const pastPairs = buildPastPairHistory(pastLotteries);
+    const lotteryResult = runLottery(users, pastPairs);
     const response = formatResult(lotteryResult, userNameMap);
 
     const saved = await lotteryResponseRepo.create({

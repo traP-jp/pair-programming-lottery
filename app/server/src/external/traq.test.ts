@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { TraqClient } from "./traq";
 
 const mockGetStamps = mock(async () => ({ data: [{ id: "s1", name: "one" }] }));
-const mockGetUsers = mock(async () => ({
+const mockgetUsers = mock(async () => ({
     data: [{ id: "u1", name: "user1", displayName: "User One", bot: false }],
 }));
 const mockGetMessage = mock(async (id: string) => {
@@ -18,7 +18,7 @@ mock.module("traq-bot-ts", () => {
     return {
         Api: class {
             stamps = { getStamps: mockGetStamps };
-            users = { getUsers: mockGetUsers };
+            users = { getUsers: mockgetUsers };
             messages = {
                 getMessage: mockGetMessage,
                 addMessageStamp: mockAddMessageStamp,
@@ -31,7 +31,7 @@ mock.module("traq-bot-ts", () => {
 describe("TraqClient", () => {
     beforeEach(() => {
         mockGetStamps.mockClear();
-        mockGetUsers.mockClear();
+        mockgetUsers.mockClear();
         mockGetMessage.mockClear();
         mockAddMessageStamp.mockClear();
         mockPostMessage.mockClear();
@@ -56,12 +56,12 @@ describe("TraqClient", () => {
 
         const users1 = await client.getUsers();
         expect(users1).toEqual([{ id: "u1", name: "user1", bot: false }]);
-        expect(mockGetUsers).toHaveBeenCalledTimes(1);
+        expect(mockgetUsers).toHaveBeenCalledTimes(1);
 
         // Within TTL (10 minutes)
         const users2 = await client.getUsers();
         expect(users2).toEqual([{ id: "u1", name: "user1", bot: false }]);
-        expect(mockGetUsers).toHaveBeenCalledTimes(1);
+        expect(mockgetUsers).toHaveBeenCalledTimes(1);
     });
 
     it("getMessage should retrieve and unwrap message info or return null", async () => {

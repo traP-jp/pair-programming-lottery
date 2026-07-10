@@ -1,7 +1,7 @@
 import { type ITraqClient } from "@server/external/traq";
 import type { Region, UserPrefs } from "@server/types";
 
-const TARGET_STAMP_NAMES = ["one", "two", "beginner", "muscle"] as const;
+const TARGET_STAMP_NAMES = ["one", "two", "beginner"] as const;
 
 export type TargetStampName = (typeof TARGET_STAMP_NAMES)[number];
 
@@ -42,7 +42,7 @@ export function createTraqService(client: ITraqClient) {
         return new Set(users.filter(u => u.bot).map(u => u.id));
     }
 
-    async function getuserNameMap(): Promise<Map<string, string>> {
+    async function getUserNameMap(): Promise<Map<string, string>> {
         const users = await client.getUsers();
         const map = new Map<string, string>();
         for (const u of users) {
@@ -85,7 +85,7 @@ export function createTraqService(client: ITraqClient) {
             if (stampName === "one") prefs.regions.add("frontend");
             if (stampName === "two") prefs.regions.add("backend");
             if (stampName === "beginner") prefs.isBeginner = true;
-            if (stampName === "beginner" || stampName === "muscle") prefs.originalLevelSize++;
+            if (stampName === "beginner") prefs.originalLevelSize++;
         }
 
         for (const prefs of usersMap.values()) {
@@ -113,7 +113,7 @@ export function createTraqService(client: ITraqClient) {
 
 **レベル**
 - 初心者: :beginner:
-- 経験者: :muscle:
+(経験者の場合はスタンプは不要です)
 `;
 
     /**
@@ -156,7 +156,7 @@ export function createTraqService(client: ITraqClient) {
     return {
         getStampMap,
         getBotUserIds,
-        getuserNameMap,
+        getUserNameMap,
         collectUserPrefs,
         postLotteryMessage,
         getChannelId,

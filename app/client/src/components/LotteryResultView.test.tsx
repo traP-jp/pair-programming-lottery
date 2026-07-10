@@ -11,16 +11,16 @@ describe("LotteryResultView", () => {
                 {
                     region: "frontend",
                     members: [
-                        { name: "Alice", isBeginner: true },
-                        { name: "Bob", isBeginner: false },
+                        { id: "u1", name: "Alice", isBeginner: true },
+                        { id: "u2", name: "Bob", isBeginner: false },
                     ],
                     hasInsertedUser: false,
                 },
                 {
                     region: "backend",
                     members: [
-                        { name: "Charlie", isBeginner: true },
-                        { name: "Dave", isBeginner: false },
+                        { id: "u3", name: "Charlie", isBeginner: true },
+                        { id: "u4", name: "Dave", isBeginner: false },
                     ],
                     hasInsertedUser: false,
                 },
@@ -74,12 +74,6 @@ describe("LotteryResultView", () => {
         render(<LotteryResultView {...props} />);
 
         expect(screen.getByText("5人")).toBeInTheDocument();
-        // Check the note content
-        expect(
-            screen.getByText(
-                content => content.includes("@Eve") && content.includes("2ペアに参加します")
-            )
-        ).toBeInTheDocument();
     });
 
     it("should render children elements", () => {

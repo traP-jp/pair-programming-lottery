@@ -9,6 +9,7 @@ describe("results handlers", () => {
     class MockLotteryResponseRepo implements ILotteryResponseRepository {
         records: any[] = [];
         findMany = mock(async (): Promise<any> => this.records);
+        findRecentResultsWithDetail = mock(async (): Promise<any> => this.records);
         findById = mock(
             async (id: string): Promise<any> => this.records.find(r => r.id === id) || null
         );

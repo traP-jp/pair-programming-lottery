@@ -9,13 +9,12 @@ describe("PairCard", () => {
         pair: {
             region: "frontend",
             members: [
-                { name: "Alice", isBeginner: true },
-                { name: "Bob", isBeginner: false },
+                { id: "u1", name: "Alice", isBeginner: true },
+                { id: "u2", name: "Bob", isBeginner: false },
             ],
             hasInsertedUser: false,
         },
         index: 0,
-        insertedUser: null,
     };
 
     it("should render members with names and levels", () => {
@@ -52,8 +51,8 @@ describe("PairCard", () => {
         const pair = {
             region: "unknown_region" as any,
             members: [
-                { name: "Alice", isBeginner: false },
-                { name: "Bob", isBeginner: false },
+                { id: "u1", name: "Alice", isBeginner: false },
+                { id: "u2", name: "Bob", isBeginner: false },
             ] as any,
             hasInsertedUser: false,
         };
@@ -61,7 +60,6 @@ describe("PairCard", () => {
             <PairCard
                 pair={pair}
                 index={0}
-                insertedUser={null}
             />
         );
         expect(container.querySelector(".region-tag")?.textContent).toBe("unknown_region");

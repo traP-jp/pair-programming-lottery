@@ -29,7 +29,11 @@ const schedulerService = createSchedulerService(
 // Handlers
 const resultsHandlers = createResultsHandlers(lotteryResponseRepository, traqService);
 const scheduleHandlers = createScheduleHandlers(scheduleRepository, traqService, schedulerService);
-const lotteryHandlers = createLotteryHandlers(traqService, lotteryService);
+const lotteryHandlers = createLotteryHandlers(
+    lotteryResponseRepository,
+    traqService,
+    lotteryService
+);
 const postMessageHandlers = createPostMessageHandlers(traqService);
 
 // Presenters

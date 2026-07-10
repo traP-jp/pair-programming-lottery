@@ -11,5 +11,6 @@ export interface ILotteryResponseRepository {
         take?: number;
     }): Promise<Pick<LotteryResponse, "id" | "createdAt" | "channelId" | "month">[]>;
     findById(id: string): Promise<LotteryResponse | null>;
+    findRecentResultsWithDetail(limit: number): Promise<LotteryResponse[]>;
     create(data: { channelId: string; month: string; result: object }): Promise<LotteryResponse>;
 }
