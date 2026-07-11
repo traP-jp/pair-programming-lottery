@@ -72,7 +72,7 @@ serviceWorker.addEventListener("fetch", event => {
         return;
     }
 
-    if (/^\/api\/results\/[^/]+$/.test(requestUrl.pathname)) {
+    if (/^\/api\/public\/results\/[^/]+$/.test(requestUrl.pathname)) {
         event.respondWith(cacheFirst(event.request, DETAIL_CACHE));
     }
 });
@@ -82,7 +82,7 @@ serviceWorker.addEventListener("message", event => {
 
     const result = event.data.result;
     const request = new Request(
-        new URL(`/api/results/${result.id}`, serviceWorker.location.origin)
+        new URL(`/api/public/results/${result.id}`, serviceWorker.location.origin)
     );
     const response = new Response(JSON.stringify(result), {
         headers: { "Content-Type": "application/json" },

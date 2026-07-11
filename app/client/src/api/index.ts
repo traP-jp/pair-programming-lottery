@@ -9,9 +9,11 @@ const client = hc<Routes>(apiOrigin);
 async function readError(response: Response): Promise<Error> {
     try {
         const body = await response.json();
-        return new Error(body.error ?? `HTTP ${response.status}`, { cause: body });
+        console.error("API Error:", body);
+        return new Error(body.error ?? `HTTP ${response.status}`);
     } catch {
-        return new Error(`HTTP ${response.status}`, { cause: response });
+        console.error("API Error:", response);
+        return new Error(`HTTP ${response.status}`);
     }
 }
 
@@ -28,12 +30,15 @@ async function readJson<T>(
     return response.json();
 }
 
-export type LotteryResult = InferResponseType<typeof client.api.lottery.$post, 200>;
-export type ScheduleResponse = InferResponseType<typeof client.api.schedule.$get, 200>;
+export type LotteryResult = InferResponseType<typeof client.api.admin.lottery.$post, 200>;
+export type ScheduleResponse = InferResponseType<typeof client.api.admin.schedule.$get, 200>;
 export type ScheduleRecord = Exclude<ScheduleResponse, null>;
-export type ResultSummary = InferResponseType<typeof client.api.results.$get, 200>[number];
-export type ResultDetail = InferResponseType<(typeof client.api.results)[":id"]["$get"], 200>;
-export type SavedResult = InferResponseType<typeof client.api.results.$post, 200>;
+export type ResultSummary = InferResponseType<typeof client.api.public.results.$get, 200>[number];
+export type ResultDetail = InferResponseType<
+    (typeof client.api.public.results)[":id"]["$get"],
+    200
+>;
+export type SavedResult = InferResponseType<typeof client.api.admin.results.$post, 200>;
 
 const resultCache = new Map<string, ResultDetail>();
 const resultRequests = new Map<string, Promise<ResultDetail>>();
@@ -60,12 +65,12 @@ function notifyResultSaved(result: ResultDetail) {
 }
 
 export async function postMessage(channelId: string) {
-    const response = await client.api["post-message"].$post({ json: { channelId } });
+    const response = await client.api.admin["post-message"].$post({ json: { channelId } });
     return (await readJson(response)).messageId;
 }
 
 export async function runLottery(messageId: string) {
-    const response = await client.api.lottery.$post({ json: { messageId } });
+    const response = await client.api.admin.lottery.$post({ json: { messageId } });
     return readJson(response);
 }
 
@@ -73,7 +78,7 @@ export async function getResults() {
     if (resultsListRequest) return resultsListRequest;
 
     resultsListRequest = (async () => {
-        const response = await client.api.results.$get();
+        const response = await client.api.public.results.$get();
         const results = await readJson(response);
         const hash = calculateArrayHash(results.map(({ id }) => id));
 
@@ -98,7 +103,7 @@ export async function getResult(id: string): Promise<ResultDetail> {
     if (pending) return pending;
 
     const request = (async () => {
-        const response = await client.api.results[":id"].$get({ param: { id } });
+        const response = await client.api.public.results[":id"].$get({ param: { id } });
         const result = await readJson(response);
         cacheResult(result);
         return result;
@@ -112,7 +117,7 @@ export async function prefetchResult(id: string) {
 }
 
 export async function getSchedule() {
-    const response = await client.api.schedule.$get();
+    const response = await client.api.admin.schedule.$get();
     return readJson(response, {
         requireAuthentication: true,
     });
@@ -124,26 +129,26 @@ export async function upsertSchedule(data: {
     lotteryDay: number;
     enabled: boolean;
 }) {
-    const response = await client.api.schedule.$put({ json: data });
+    const response = await client.api.admin.schedule.$put({ json: data });
     return readJson(response, {
         requireAuthentication: true,
     });
 }
 
 export async function triggerPost() {
-    const response = await client.api.schedule["trigger-post"].$post();
+    const response = await client.api.admin.schedule["trigger-post"].$post();
     return readJson(response, {
         requireAuthentication: true,
     });
 }
 
 export async function triggerLottery() {
-    const response = await client.api.schedule["trigger-lottery"].$post();
+    const response = await client.api.admin.schedule["trigger-lottery"].$post();
     return readJson(response, { requireAuthentication: true });
 }
 
 export async function saveResult(data: { messageId: string; result: LotteryResult }) {
-    const response = await client.api.results.$post({ json: data });
+    const response = await client.api.admin.results.$post({ json: data });
     const saved = await readJson(response);
     cacheResult(saved);
     notifyResultSaved(saved);

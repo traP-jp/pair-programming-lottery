@@ -102,6 +102,7 @@ describe("API Wrapper client", () => {
             vi.spyOn(globalThis, "fetch").mockResolvedValue({
                 ok: false,
                 status: 500,
+                text: async () => "Internal Server Error",
             } as Response);
 
             await expect(getResults()).rejects.toThrow("HTTP 500");
@@ -173,6 +174,7 @@ describe("API Wrapper client", () => {
             vi.spyOn(globalThis, "fetch").mockResolvedValue({
                 ok: false,
                 status: 500,
+                text: async () => "Internal Server Error",
             } as Response);
 
             await expect(getSchedule()).rejects.toThrow("HTTP 500");

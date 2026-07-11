@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ResultsPage } from "./ResultsPage";
 
 vi.mock("@client/api", () => ({
+    getCachedResults: vi.fn(() => null),
     getResults: vi.fn(),
 }));
 

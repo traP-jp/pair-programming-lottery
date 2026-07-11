@@ -6,6 +6,7 @@ import { Root } from "./index";
 import * as api from "../api";
 
 vi.mock("../api", () => ({
+    getCachedResults: vi.fn(() => null),
     getResults: vi.fn(),
     getSchedule: vi.fn(),
 }));

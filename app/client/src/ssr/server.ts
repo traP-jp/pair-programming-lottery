@@ -155,7 +155,7 @@ async function proxyApi(request: Request, url: URL) {
             body: request.method === "GET" || request.method === "HEAD" ? undefined : request.body,
         });
 
-        if (request.method === "POST" && url.pathname === "/api/results" && response.ok) {
+        if (request.method === "POST" && url.pathname === "/api/admin/results" && response.ok) {
             try {
                 const { id } = (await response.clone().json()) as { id?: string };
                 if (id) {

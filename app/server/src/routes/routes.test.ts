@@ -71,25 +71,25 @@ describe("API Routes Integration Tests", () => {
     });
 
     describe("Public Routes", () => {
-        it("should allow GET /api/results without authentication", async () => {
-            const response = await app.request("/api/results");
+        it("should allow GET /api/public/results without authentication", async () => {
+            const response = await app.request("/api/public/results");
             expect(response.status).toBe(200);
             const body = await response.json();
             expect(body).toEqual([{ id: "res-1", month: "2026-06", channelId: "chan-1" }]);
         });
 
-        it("should allow GET /api/results/:id and return 404 for non-existent result", async () => {
-            const resOk = await app.request("/api/results/res-1");
+        it("should allow GET /api/public/results/:id and return 404 for non-existent result", async () => {
+            const resOk = await app.request("/api/public/results/res-1");
             expect(resOk.status).toBe(200);
 
-            const res404 = await app.request("/api/results/invalid-id");
+            const res404 = await app.request("/api/public/results/invalid-id");
             expect(res404.status).toBe(404);
         });
     });
 
     describe("Admin Routes", () => {
         it("should deny access to admin routes if X-Forwarded-User header is missing", async () => {
-            const response = await app.request("/api/results", {
+            const response = await app.request("/api/admin/results", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ messageId: "msg-123", result: {} }),
@@ -100,7 +100,7 @@ describe("API Routes Integration Tests", () => {
         });
 
         it("should deny access to admin routes if user is not in ADMINS list", async () => {
-            const response = await app.request("/api/results", {
+            const response = await app.request("/api/admin/results", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -112,7 +112,7 @@ describe("API Routes Integration Tests", () => {
         });
 
         it("should allow access to admin routes if user is in ADMINS list", async () => {
-            const response = await app.request("/api/results", {
+            const response = await app.request("/api/admin/results", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -128,7 +128,7 @@ describe("API Routes Integration Tests", () => {
 
     describe("Error Handling", () => {
         it("should return correct status code for HTTPException in onError", async () => {
-            const response = await app.request("/api/results?error=http");
+            const response = await app.request("/api/public/results?error=http");
             expect(response.status).toBe(400);
             expect(await response.text()).toBe("Bad Request Alert");
         });
@@ -139,7 +139,7 @@ describe("API Routes Integration Tests", () => {
             console.error = spyError as any;
 
             try {
-                const response = await app.request("/api/results?error=generic");
+                const response = await app.request("/api/public/results?error=generic");
                 expect(response.status).toBe(500);
                 const body = await response.json();
                 expect(body).toEqual({ message: "Internal Server Error" });

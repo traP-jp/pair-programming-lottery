@@ -21,8 +21,8 @@ export const createApp = (publicRoutes: PublicRoutes, adminRoutes: AdminRoutes) 
 
     const routes = app
         .get("/health", c => c.json({ ok: true }))
-        .route("/", publicRoutes)
-        .route("/", adminRoutes);
+        .route("/public", publicRoutes)
+        .route("/admin", adminRoutes);
 
     return routes;
 };
