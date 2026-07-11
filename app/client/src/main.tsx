@@ -3,7 +3,7 @@ import { hydrateRoot } from "react-dom/client";
 
 import { Root } from "@client/router";
 
-import type { InitialData } from "./routeDefinitions";
+import type { InitialData } from "./router/routes";
 
 import "@client/index.css";
 

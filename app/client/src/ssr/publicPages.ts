@@ -1,5 +1,5 @@
 import { getResult, getResults } from "@client/api";
-import { type InitialData, paths } from "@client/routeDefinitions";
+import { type InitialData, paths } from "@client/router/routes";
 
 export interface CachePolicy {
     maxAgeMs: number;

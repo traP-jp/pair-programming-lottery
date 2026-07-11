@@ -1,17 +1,9 @@
-import { lazy } from "react";
 import { BrowserRouter } from "react-router-dom";
 
-import { AppRoutes } from "@client/appRoutes";
-import {
-    preloadAdminPage,
-    preloadManagePage,
-    preloadResultDetailPage,
-} from "@client/pages/pageLoaders";
-import { type InitialData } from "@client/routeDefinitions";
+import { AppRoutes } from "@client/router/appRoutes";
+import { type InitialData } from "@client/router/routes";
 
-const ResultDetailPage = lazy(preloadResultDetailPage);
-const ManagePage = lazy(preloadManagePage);
-const AdminPage = lazy(preloadAdminPage);
+import { AdminPage, ManagePage, ResultDetailPage } from "../pages/lazy";
 
 export function App({ initialData = {} }: { initialData?: InitialData }) {
     return (

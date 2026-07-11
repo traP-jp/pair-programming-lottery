@@ -10,7 +10,7 @@ import {
     triggerLottery,
     triggerPost,
     upsertSchedule,
-} from "./api";
+} from "./index";
 
 describe("API Wrapper client", () => {
     beforeEach(() => {

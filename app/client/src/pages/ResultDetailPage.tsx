@@ -7,10 +7,11 @@ import {
     cacheResult,
     getCachedResult,
     getResult,
+    getResults,
 } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "@client/components/icons";
-import { paths } from "@client/routeDefinitions";
+import { paths } from "@client/router/routes";
 import { formatJstDateTime } from "@client/utils/dateTime";
 import { getErrorMessage } from "@client/utils/errors";
 
@@ -58,6 +59,9 @@ export function ResultDetailPage({ initialRecord }: { initialRecord?: ResultDeta
             <Link
                 to={paths.results}
                 className="back-link"
+                onMouseEnter={() => void getResults()}
+                onFocus={() => void getResults()}
+                onTouchStart={() => void getResults()}
             >
                 ← 一覧に戻る
             </Link>

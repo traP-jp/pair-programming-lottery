@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { render } from "./entryServer";
-import type { InitialData } from "./routeDefinitions";
+
+import type { InitialData } from "../router/routes";
 
 describe("entryServer render", () => {
     it("should include Suspense boundaries for lazy hydrated routes", () => {

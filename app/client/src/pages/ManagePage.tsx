@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import { type LotteryResult, postMessage, runLottery, saveResult } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
-import { paths } from "@client/routeDefinitions";
+import { paths } from "@client/router/routes";
 import { getErrorMessage } from "@client/utils/errors";
 
 export function ManagePage() {

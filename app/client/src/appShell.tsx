@@ -1,7 +1,7 @@
 import { Link, Outlet } from "react-router-dom";
 
 import { AdminRoute, AuthProvider } from "@client/hooks/useAuth";
-import { paths } from "@client/routeDefinitions";
+import { paths } from "@client/router/routes";
 
 export function Layout() {
     return (

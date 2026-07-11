@@ -1,10 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import * as api from "./api";
-import { Root } from "./router";
+import { Root } from "./index";
 
-vi.mock("./api", () => ({
+import * as api from "../api";
+
+vi.mock("../api", () => ({
     getResults: vi.fn(),
     getSchedule: vi.fn(),
 }));

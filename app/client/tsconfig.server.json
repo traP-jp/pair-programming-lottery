@@ -3,5 +3,5 @@
     "compilerOptions": {
         "types": ["node", "bun"]
     },
-    "files": ["src/server.ts"]
+    "files": ["src/ssr/server.ts"]
 }

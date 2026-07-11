@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { AdminPageRoute, Layout } from "@client/appShell";
 import { ResultsPage } from "@client/pages/ResultsPage";
-import { type InitialData, paths } from "@client/routeDefinitions";
+import { type InitialData, paths } from "@client/router/routes";
 
 interface RoutePages {
     resultDetail: ReactNode;

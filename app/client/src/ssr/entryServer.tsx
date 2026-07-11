@@ -1,9 +1,9 @@
 import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 
-import { resolvePublicPage } from "@client/publicPages";
-import { type InitialData } from "@client/routeDefinitions";
-import { ServerApp } from "@client/serverRouter";
+import { type InitialData } from "@client/router/routes";
+import { ServerApp } from "@client/router/serverRouter";
+import { resolvePublicPage } from "@client/ssr/publicPages";
 
 export async function loadInitialData(url: string): Promise<InitialData> {
     const pathname = new URL(url, "http://localhost").pathname;

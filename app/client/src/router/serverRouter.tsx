@@ -1,8 +1,8 @@
-import { AppRoutes } from "@client/appRoutes";
 import { AdminPage } from "@client/pages/AdminPage";
 import { ManagePage } from "@client/pages/ManagePage";
 import { ResultDetailPage } from "@client/pages/ResultDetailPage";
-import { type InitialData } from "@client/routeDefinitions";
+import { AppRoutes } from "@client/router/appRoutes";
+import { type InitialData } from "@client/router/routes";
 
 export function ServerApp({ initialData = {} }: { initialData?: InitialData }) {
     return (

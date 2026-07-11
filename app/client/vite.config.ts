@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import react from "@vitejs/plugin-react";
 import { type Plugin, defineConfig } from "vite";
 
-import { injectSsrHtml } from "./src/ssrHtml";
+import { injectSsrHtml } from "./src/ssr/ssrHtml";
 
 function developmentSsrPlugin(): Plugin {
     return {
@@ -15,8 +15,9 @@ function developmentSsrPlugin(): Plugin {
                 if (url.startsWith("/api/") || !accept.includes("text/html")) return next();
 
                 try {
-                    const { loadInitialData, render } =
-                        await server.ssrLoadModule("/src/entryServer.tsx");
+                    const { loadInitialData, render } = await server.ssrLoadModule(
+                        "/src/ssr/entryServer.tsx"
+                    );
                     const template = await readFile("index.html", "utf8");
                     const initialData = await loadInitialData(url);
                     const html = injectSsrHtml(
@@ -45,7 +46,7 @@ function developmentServiceWorkerPlugin(): Plugin {
                 if (url.split("?", 1)[0] !== "/sw.js") return next();
 
                 try {
-                    const transformed = await server.transformRequest("/src/sw.ts");
+                    const transformed = await server.transformRequest("/src/sw/index.ts");
                     if (!transformed) throw new Error("Could not transform the Service Worker");
                     response.statusCode = 200;
                     response.setHeader("Content-Type", "application/javascript");

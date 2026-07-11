@@ -1,3 +1,4 @@
+import { calculateArrayHash } from "@client/utils/hash";
 import type { Routes } from "@server/routes";
 import { type InferResponseType, hc } from "hono/client";
 
@@ -8,9 +9,9 @@ const client = hc<Routes>(apiOrigin);
 async function readError(response: Response): Promise<Error> {
     try {
         const body = await response.json();
-        return new Error(body.error ?? `HTTP ${response.status}`);
+        return new Error(body.error ?? `HTTP ${response.status}`, { cause: body });
     } catch {
-        return new Error(`HTTP ${response.status}`);
+        return new Error(`HTTP ${response.status}`, { cause: response });
     }
 }
 
@@ -37,6 +38,14 @@ export type SavedResult = InferResponseType<typeof client.api.results.$post, 200
 const resultCache = new Map<string, ResultDetail>();
 const resultRequests = new Map<string, Promise<ResultDetail>>();
 
+let resultsListCache: ResultSummary[] | null = null;
+let resultsListHash: string | null = null;
+let resultsListRequest: Promise<ResultSummary[]> | null = null;
+
+export function getCachedResults() {
+    return resultsListCache;
+}
+
 export function cacheResult(result: ResultDetail) {
     resultCache.set(result.id, result);
 }
@@ -61,8 +70,24 @@ export async function runLottery(messageId: string) {
 }
 
 export async function getResults() {
-    const response = await client.api.results.$get();
-    return readJson(response);
+    if (resultsListRequest) return resultsListRequest;
+
+    resultsListRequest = (async () => {
+        const response = await client.api.results.$get();
+        const results = await readJson(response);
+        const hash = calculateArrayHash(results.map(({ id }) => id));
+
+        if (resultsListHash !== hash) {
+            resultsListCache = results;
+            resultsListHash = hash;
+        }
+
+        return resultsListCache!;
+    })().finally(() => {
+        resultsListRequest = null;
+    });
+
+    return resultsListRequest;
 }
 
 export async function getResult(id: string): Promise<ResultDetail> {

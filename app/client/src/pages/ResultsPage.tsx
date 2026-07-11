@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { type ResultSummary, getResults } from "@client/api";
-import { paths } from "@client/routeDefinitions";
+import { type ResultSummary, getCachedResults, getResults } from "@client/api";
+import { paths } from "@client/router/routes";
 import { formatJstDateTime } from "@client/utils/dateTime";
 import { getErrorMessage } from "@client/utils/errors";
 import { prefetchResultNavigation } from "@client/utils/navigationPrefetch";
 
 export function ResultsPage({ initialResults }: { initialResults?: ResultSummary[] }) {
-    const [results, setResults] = useState<ResultSummary[]>(initialResults ?? []);
-    const [loading, setLoading] = useState(initialResults === undefined);
+    const [results, setResults] = useState<ResultSummary[]>(
+        initialResults ?? getCachedResults() ?? []
+    );
+    const [loading, setLoading] = useState(
+        initialResults === undefined && getCachedResults() === null
+    );
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
