@@ -2,26 +2,22 @@ import { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 
 import { Root } from "@client/router";
+import { cacheCurrentPage } from "@client/utils/serviceWorker";
 
 import type { InitialData } from "./router/routes";
 
 import "@client/index.css";
 
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator && !import.meta.env.DEV) {
     void navigator.serviceWorker
-        .register("/sw.js")
-        .then(async registration => {
+        .register("/sw.js", { scope: "/", updateViaCache: "none" })
+        .then(async () => {
             await navigator.serviceWorker.ready;
-
-            const urls = performance
-                .getEntriesByType("resource")
-                .map(entry => entry.name)
-                .filter(url => new URL(url).origin === location.origin);
-            registration.active?.postMessage({
-                type: "cache-current-page",
-                page: location.href,
-                urls,
-            });
+            if (document.readyState === "complete") {
+                cacheCurrentPage();
+            } else {
+                window.addEventListener("load", cacheCurrentPage);
+            }
         })
         .catch(error => console.error("Failed to register service worker", error));
 }

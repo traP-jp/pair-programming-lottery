@@ -7,7 +7,7 @@ async function main() {
     await Promise.all([
         $`bunx --bun tsc -b`,
         $`bunx --bun tsc -p tsconfig.server.json --noEmit`,
-        $`bunx --bun tsc -p tsconfig.sw.json --noEmit`,
+        $`bunx --bun tsc -p src/sw/tsconfig.json --noEmit`,
     ]);
 
     console.log("Running Vite builds...");

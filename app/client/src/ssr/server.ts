@@ -197,9 +197,12 @@ async function serveAsset(pathname: string) {
     const file = Bun.file(assetPath);
     if (!(await file.exists())) return undefined;
     return new Response(file, {
-        headers: pathname.startsWith("/assets/")
-            ? { "Cache-Control": "public, max-age=31536000, immutable" }
-            : undefined,
+        headers:
+            pathname === "/sw.js"
+                ? { "Cache-Control": "no-store" }
+                : pathname.startsWith("/assets/")
+                  ? { "Cache-Control": "public, max-age=31536000, immutable" }
+                  : undefined,
     });
 }
 

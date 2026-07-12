@@ -1,42 +1,27 @@
-interface ExtendableWorkerEvent {
-    waitUntil(promise: Promise<unknown>): void;
+import {
+    ASSET_CACHE,
+    DETAIL_CACHE,
+    PAGE_CACHE,
+    RESULTS_CACHE,
+    cacheNameForUrl,
+    isPublicPage,
+} from "@client/config/cache";
+
+declare const self: ServiceWorkerGlobalScope;
+
+async function cacheOfflineEntryPage() {
+    const request = new Request(new URL("/results", self.location.origin));
+    const response = await fetch(request);
+    if (response.ok) await (await caches.open(PAGE_CACHE)).put(request, response);
 }
 
-interface FetchWorkerEvent extends ExtendableWorkerEvent {
-    request: Request;
-    respondWith(response: Response | Promise<Response>): void;
-}
-
-interface MessageWorkerEvent extends ExtendableWorkerEvent {
-    data?: {
-        type?: string;
-        result?: { id?: string };
-        page?: string;
-        urls?: string[];
-    };
-}
-
-interface ServiceWorkerContext {
-    clients: { claim(): Promise<void> };
-    location: { origin: string };
-    skipWaiting(): Promise<void>;
-    addEventListener(type: "install", listener: () => void): void;
-    addEventListener(type: "activate", listener: (event: ExtendableWorkerEvent) => void): void;
-    addEventListener(type: "fetch", listener: (event: FetchWorkerEvent) => void): void;
-    addEventListener(type: "message", listener: (event: MessageWorkerEvent) => void): void;
-}
-
-const serviceWorker = globalThis as unknown as ServiceWorkerContext;
-
-const ASSET_CACHE = "pair-programming-lottery-assets-v2";
-const DETAIL_CACHE = "pair-programming-lottery-details-v2";
-const RESULTS_CACHE = "pair-programming-lottery-results-v2";
-const PAGE_CACHE = "pair-programming-lottery-pages-v2";
-
-serviceWorker.addEventListener("install", () => {
-    void serviceWorker.skipWaiting();
+self.addEventListener("install", event => {
+    event.waitUntil(
+        Promise.all([cacheOfflineEntryPage().catch(() => undefined), self.skipWaiting()])
+    );
 });
-serviceWorker.addEventListener("activate", event => {
+
+self.addEventListener("activate", event => {
     event.waitUntil(
         caches
             .keys()
@@ -54,13 +39,13 @@ serviceWorker.addEventListener("activate", event => {
                         .map(key => caches.delete(key))
                 )
             )
-            .then(() => serviceWorker.clients.claim())
+            .then(() => self.clients.claim())
     );
 });
 
 async function cacheFirst(request: Request, cacheName: string) {
     const cache = await caches.open(cacheName);
-    const cached = await cache.match(request);
+    const cached = await cache.match(request, { ignoreVary: true });
     if (cached) return cached;
 
     const response = await fetch(request);
@@ -68,7 +53,7 @@ async function cacheFirst(request: Request, cacheName: string) {
     return response;
 }
 
-function staleWhileRevalidate(event: FetchWorkerEvent, cacheName: string) {
+function staleWhileRevalidate(event: FetchEvent, cacheName: string) {
     const cache = caches.open(cacheName);
     const revalidate = cache.then(async cache_ => {
         const response = await fetch(event.request, { cache: "no-cache" });
@@ -78,7 +63,9 @@ function staleWhileRevalidate(event: FetchWorkerEvent, cacheName: string) {
 
     event.waitUntil(revalidate.catch(() => undefined));
     event.respondWith(
-        cache.then(async cache_ => (await cache_.match(event.request)) ?? revalidate)
+        cache.then(
+            async cache_ => (await cache_.match(event.request, { ignoreVary: true })) ?? revalidate
+        )
     );
 }
 
@@ -96,8 +83,14 @@ async function networkFirst(request: Request, cacheName: string) {
         if (response.ok) await cache.put(request, response.clone());
         return response;
     } catch {
-        const cached = await cache.match(request);
+        const cached = await cache.match(request, { ignoreVary: true });
         if (cached) return cached;
+
+        if (cacheName === PAGE_CACHE) {
+            const exactPage = await cache.match(request.url);
+            if (exactPage) return exactPage;
+        }
+
         throw new Error("Network request failed");
     }
 }
@@ -113,31 +106,24 @@ function shouldBypassCache(request: Request) {
     );
 }
 
-function cacheNameForUrl(url: URL) {
-    if (url.pathname.startsWith("/assets/")) return ASSET_CACHE;
-    if (url.pathname === "/api/public/results") return RESULTS_CACHE;
-    if (/^\/api\/public\/results\/[^/]+$/.test(url.pathname)) return DETAIL_CACHE;
-    return undefined;
-}
-
-function isPublicPage(url: URL) {
-    return (
-        url.pathname === "/" ||
-        url.pathname === "/results" ||
-        /^\/results\/[^/]+$/.test(url.pathname)
-    );
-}
-
 async function cacheUrl(url: string, cacheName: string) {
-    const request = new Request(url);
-    const response = await fetch(request);
-    if (response.ok) await (await caches.open(cacheName)).put(request, response);
+    try {
+        const request = new Request(url);
+        const response = await fetch(request);
+        if (response.ok) {
+            const cache = await caches.open(cacheName);
+            await cache.put(request, response);
+        } else {
+            console.warn(`[SW] Failed to cache ${url}: ${response.status}`);
+        }
+    } catch (error) {
+        console.error(`[SW] Error caching ${url}:`, error);
+    }
 }
 
-serviceWorker.addEventListener("fetch", event => {
+self.addEventListener("fetch", event => {
     const requestUrl = new URL(event.request.url);
-    if (event.request.method !== "GET" || requestUrl.origin !== serviceWorker.location.origin)
-        return;
+    if (event.request.method !== "GET" || requestUrl.origin !== self.location.origin) return;
 
     if (event.request.mode === "navigate") {
         if (shouldBypassCache(event.request)) {
@@ -167,21 +153,20 @@ serviceWorker.addEventListener("fetch", event => {
     }
 });
 
-serviceWorker.addEventListener("message", event => {
-    if (event.data?.type === "cache-current-page" && event.data.page && event.data.urls) {
-        const page = new URL(event.data.page);
-        const urls = [...new Set(event.data.urls)]
+self.addEventListener("message", event => {
+    const data = event.data as
+        { type?: string; page?: string; urls?: string[]; result?: { id?: string } } | undefined;
+    if (data?.type === "cache-current-page" && data.page && data.urls) {
+        const page = new URL(data.page);
+        const urls = [...new Set(data.urls)]
             .map(url => new URL(url))
-            .filter(url => url.origin === serviceWorker.location.origin);
+            .filter(url => url.origin === self.location.origin);
         event.waitUntil(
             Promise.allSettled([
-                ...(page.origin === serviceWorker.location.origin && isPublicPage(page)
+                ...(page.origin === self.location.origin && isPublicPage(page)
                     ? [cacheUrl(page.href, PAGE_CACHE)]
                     : []),
-                cacheUrl(
-                    new URL("/api/public/results", serviceWorker.location.origin).href,
-                    RESULTS_CACHE
-                ),
+                cacheUrl(new URL("/api/public/results", self.location.origin).href, RESULTS_CACHE),
                 ...urls.flatMap(url => {
                     const cacheName = cacheNameForUrl(url);
                     return cacheName ? [cacheUrl(url.href, cacheName)] : [];
@@ -191,12 +176,10 @@ serviceWorker.addEventListener("message", event => {
         return;
     }
 
-    if (event.data?.type !== "result-saved" || !event.data.result?.id) return;
+    if (data?.type !== "result-saved" || !data.result?.id) return;
 
-    const result = event.data.result;
-    const request = new Request(
-        new URL(`/api/public/results/${result.id}`, serviceWorker.location.origin)
-    );
+    const result = data.result;
+    const request = new Request(new URL(`/api/public/results/${result.id}`, self.location.origin));
     const response = new Response(JSON.stringify(result), {
         headers: { "Content-Type": "application/json" },
     });
