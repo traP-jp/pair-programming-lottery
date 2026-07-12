@@ -7,7 +7,7 @@ import {
     cacheResult,
     getCachedResult,
     getResult,
-    getResults,
+    refreshResults,
 } from "@client/api";
 import { LotteryResultView } from "@client/components/LotteryResultView";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "@client/components/icons";
@@ -15,8 +15,15 @@ import { paths } from "@client/router/routes";
 import { formatJstDateTime } from "@client/utils/dateTime";
 import { getErrorMessage } from "@client/utils/errors";
 
-export function ResultDetailPage({ initialRecord }: { initialRecord?: ResultDetail | null }) {
-    const { id } = useParams<{ id: string }>();
+export function ResultDetailPage({
+    initialRecord,
+    resultId,
+}: {
+    initialRecord?: ResultDetail | null;
+    resultId?: string;
+}) {
+    const routeParams = useParams<{ id: string }>();
+    const id = resultId ?? routeParams.id;
     const cachedRecord = id ? getCachedResult(id) : undefined;
     const [record, setRecord] = useState<ResultDetail | null>(
         initialRecord ?? cachedRecord ?? null
@@ -59,9 +66,9 @@ export function ResultDetailPage({ initialRecord }: { initialRecord?: ResultDeta
             <Link
                 to={paths.results}
                 className="back-link"
-                onMouseEnter={() => void getResults()}
-                onFocus={() => void getResults()}
-                onTouchStart={() => void getResults()}
+                onMouseEnter={() => void refreshResults()}
+                onFocus={() => void refreshResults()}
+                onTouchStart={() => void refreshResults()}
             >
                 ← 一覧に戻る
             </Link>

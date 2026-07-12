@@ -8,12 +8,13 @@ import * as api from "../api";
 vi.mock("../api", () => ({
     getCachedResults: vi.fn(() => null),
     getResults: vi.fn(),
+    refreshResults: vi.fn(),
     getSchedule: vi.fn(),
 }));
 
 describe("router component", () => {
     it("should render navigation layout and default to results page", async () => {
-        vi.mocked(api.getResults).mockResolvedValue([]);
+        vi.mocked(api.refreshResults).mockResolvedValue([]);
         vi.mocked(api.getSchedule).mockResolvedValue({
             channelId: "123",
             postDay: 5,

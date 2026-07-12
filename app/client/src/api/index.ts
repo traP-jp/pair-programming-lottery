@@ -76,11 +76,21 @@ export async function runLottery(messageId: string) {
     return readJson(response);
 }
 
-export async function getResults() {
+export async function getResults({ bypassCache = false }: { bypassCache?: boolean } = {}) {
     if (resultsListRequest) return resultsListRequest;
 
     resultsListRequest = (async () => {
-        const response = await client.api.public.results.$get();
+        const response = bypassCache
+            ? await client.api.public.results.$get(
+                  {},
+                  {
+                      init: {
+                          cache: "no-store",
+                          headers: { "Cache-Control": "no-cache" },
+                      },
+                  }
+              )
+            : await client.api.public.results.$get();
         const results = await readJson(response);
         cacheResults(results);
         return results;
@@ -89,6 +99,10 @@ export async function getResults() {
     });
 
     return resultsListRequest;
+}
+
+export function refreshResults() {
+    return getResults({ bypassCache: true });
 }
 
 export async function getResult(id: string): Promise<ResultDetail> {

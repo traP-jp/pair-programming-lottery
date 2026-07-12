@@ -9,7 +9,7 @@ import { ResultsPage } from "./ResultsPage";
 vi.mock("@client/api", () => ({
     cacheResults: vi.fn(),
     getCachedResults: vi.fn(() => null),
-    getResults: vi.fn(),
+    refreshResults: vi.fn(),
 }));
 
 describe("ResultsPage", () => {
@@ -18,7 +18,7 @@ describe("ResultsPage", () => {
     });
 
     it("should display loading state initially", () => {
-        vi.mocked(api.getResults).mockReturnValue(new Promise(() => {})); // Never resolves
+        vi.mocked(api.refreshResults).mockReturnValue(new Promise(() => {})); // Never resolves
         render(
             <MemoryRouter>
                 <ResultsPage />
@@ -29,7 +29,7 @@ describe("ResultsPage", () => {
     });
 
     it("should display error message on API failure", async () => {
-        vi.mocked(api.getResults).mockRejectedValue(new Error("Fetch failed"));
+        vi.mocked(api.refreshResults).mockRejectedValue(new Error("Fetch failed"));
         render(
             <MemoryRouter>
                 <ResultsPage />
@@ -43,7 +43,7 @@ describe("ResultsPage", () => {
     });
 
     it("should display empty message when results list is empty", async () => {
-        vi.mocked(api.getResults).mockResolvedValue([]);
+        vi.mocked(api.refreshResults).mockResolvedValue([]);
         render(
             <MemoryRouter>
                 <ResultsPage />
@@ -64,7 +64,7 @@ describe("ResultsPage", () => {
                 createdAt: "2026-06-12T07:00:00.000Z",
             },
         ];
-        vi.mocked(api.getResults).mockResolvedValue(mockList as any);
+        vi.mocked(api.refreshResults).mockResolvedValue(mockList as any);
 
         render(
             <MemoryRouter>
@@ -79,7 +79,7 @@ describe("ResultsPage", () => {
     });
 
     it("should display fallback error message on API failure with non-Error", async () => {
-        vi.mocked(api.getResults).mockRejectedValue("String error");
+        vi.mocked(api.refreshResults).mockRejectedValue("String error");
         render(
             <MemoryRouter>
                 <ResultsPage />

@@ -1,26 +1,16 @@
-import { type ReactNode, Suspense } from "react";
+import { type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { AdminPageRoute, Layout } from "@client/appShell";
-import { ResultsPage } from "@client/pages/ResultsPage";
+import { ResultsArea } from "@client/router/resultsArea";
 import { type InitialData, paths } from "@client/router/routes";
+
+import { PageSuspense } from "./routeLoading";
 
 interface RoutePages {
     resultDetail: ReactNode;
     manage: ReactNode;
     admin: ReactNode;
-}
-
-function PageLoading() {
-    return (
-        <div className="container">
-            <p className="text-muted">読み込み中...</p>
-        </div>
-    );
-}
-
-function PageSuspense({ children }: { children: ReactNode }) {
-    return <Suspense fallback={<PageLoading />}>{children}</Suspense>;
 }
 
 /**
@@ -41,41 +31,46 @@ export function AppRoutes({
             <Route element={<Layout />}>
                 <Route
                     path="*"
-                    element={
-                        <Navigate
-                            to={paths.results}
-                            replace
-                        />
-                    }
-                />
-                <Route
-                    index
-                    element={<ResultsPage initialResults={initialData.results} />}
-                />
-                <Route
-                    path={paths.results}
-                    element={<ResultsPage initialResults={initialData.results} />}
-                />
-                <Route
-                    path={paths.resultDetailPattern}
-                    element={<PageSuspense>{pages.resultDetail}</PageSuspense>}
-                />
-                <Route
-                    path={paths.manage}
-                    element={
-                        <AdminPageRoute>
-                            <PageSuspense>{pages.manage}</PageSuspense>
-                        </AdminPageRoute>
-                    }
-                />
-                <Route
-                    path={paths.admin}
-                    element={
-                        <AdminPageRoute>
-                            <PageSuspense>{pages.admin}</PageSuspense>
-                        </AdminPageRoute>
-                    }
-                />
+                    element={<ResultsArea initialResults={initialData.results} />}
+                >
+                    <Route
+                        index
+                        element={null}
+                    />
+                    <Route
+                        path={paths.results.slice(1)}
+                        element={null}
+                    />
+                    <Route
+                        path={`${paths.results.slice(1)}/:id`}
+                        element={<PageSuspense>{pages.resultDetail}</PageSuspense>}
+                    />
+                    <Route
+                        path={paths.manage.slice(1)}
+                        element={
+                            <AdminPageRoute>
+                                <PageSuspense>{pages.manage}</PageSuspense>
+                            </AdminPageRoute>
+                        }
+                    />
+                    <Route
+                        path={paths.admin.slice(1)}
+                        element={
+                            <AdminPageRoute>
+                                <PageSuspense>{pages.admin}</PageSuspense>
+                            </AdminPageRoute>
+                        }
+                    />
+                    <Route
+                        path="*"
+                        element={
+                            <Navigate
+                                to={paths.results}
+                                replace
+                            />
+                        }
+                    />
+                </Route>
             </Route>
         </Routes>
     );

@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { type ResultSummary, cacheResults, getCachedResults, getResults } from "@client/api";
+import { type ResultSummary, cacheResults, getCachedResults, refreshResults } from "@client/api";
 import { paths } from "@client/router/routes";
 import { formatJstDateTime } from "@client/utils/dateTime";
 import { getErrorMessage } from "@client/utils/errors";
-import { prefetchResultNavigation } from "@client/utils/navigationPrefetch";
 
-export function ResultsPage({ initialResults }: { initialResults?: ResultSummary[] }) {
+export function ResultsPage({
+    initialResults,
+    onPrefetchDetail,
+}: {
+    initialResults?: ResultSummary[];
+    onPrefetchDetail?: (id: string) => void;
+}) {
     const cachedResults = getCachedResults();
     const [results, setResults] = useState<ResultSummary[]>(cachedResults ?? initialResults ?? []);
     const [loading, setLoading] = useState(cachedResults === null && initialResults === undefined);
@@ -17,7 +22,7 @@ export function ResultsPage({ initialResults }: { initialResults?: ResultSummary
         if (initialResults !== undefined && getCachedResults() === null)
             cacheResults(initialResults);
 
-        getResults()
+        refreshResults()
             .then(setResults)
             .catch(error_ => setError(getErrorMessage(error_, "取得失敗")))
             .finally(() => setLoading(false));
@@ -43,9 +48,9 @@ export function ResultsPage({ initialResults }: { initialResults?: ResultSummary
                         key={r.id}
                         to={paths.resultDetail(r.id)}
                         className="result-card"
-                        onMouseEnter={() => void prefetchResultNavigation(r.id)}
-                        onFocus={() => void prefetchResultNavigation(r.id)}
-                        onTouchStart={() => void prefetchResultNavigation(r.id)}
+                        onMouseEnter={() => onPrefetchDetail?.(r.id)}
+                        onFocus={() => onPrefetchDetail?.(r.id)}
+                        onTouchStart={() => onPrefetchDetail?.(r.id)}
                     >
                         <div className="result-card-month">{r.month}</div>
                         <div className="result-card-date">{formatJstDateTime(r.createdAt)}</div>

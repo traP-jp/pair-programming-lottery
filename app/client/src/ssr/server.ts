@@ -107,11 +107,26 @@ function generatingResponse(pathname: string) {
     });
 }
 
-async function servePublicPage(pathname: string) {
+function shouldBypassPageCache(request: Request) {
+    const cacheControl = request.headers.get("Cache-Control") ?? "";
+    return cacheControl.includes("no-cache") || cacheControl.includes("no-store");
+}
+
+async function servePublicPage(pathname: string, request?: Request) {
     const publicPage = resolvePublicPage(pathname);
     if (!publicPage) return undefined;
 
     const page = await readCachedPage(publicPage);
+    if (request && shouldBypassPageCache(request)) {
+        try {
+            return pageResponse(await regeneratePage(pathname), publicPage.cachePolicy, "MISS");
+        } catch (error) {
+            console.error("Failed to regenerate bypassed page", error);
+            if (page) return pageResponse(page, publicPage.cachePolicy, "STALE");
+            return generatingResponse(pathname);
+        }
+    }
+
     const age = page ? Date.now() - page.generatedAt : Number.POSITIVE_INFINITY;
     if (page && age <= publicPage.cachePolicy.maxAgeMs)
         return pageResponse(page, publicPage.cachePolicy, "HIT");
@@ -214,7 +229,7 @@ Bun.serve({
         const asset = await serveAsset(url.pathname);
         if (asset) return asset;
 
-        const cachedPage = await servePublicPage(url.pathname);
+        const cachedPage = await servePublicPage(url.pathname, request);
         if (cachedPage) return cachedPage;
 
         const initialData = await loadInitialData(url.pathname);

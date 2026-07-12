@@ -82,6 +82,37 @@ function staleWhileRevalidate(event: FetchWorkerEvent, cacheName: string) {
     );
 }
 
+async function networkFirst(request: Request, cacheName: string) {
+    const cache = await caches.open(cacheName);
+
+    try {
+        const headers = new Headers(request.headers);
+        headers.set("Cache-Control", "no-cache");
+        const networkRequest = new Request(request, {
+            cache: "no-store",
+            headers,
+        });
+        const response = await fetch(networkRequest);
+        if (response.ok) await cache.put(request, response.clone());
+        return response;
+    } catch {
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        throw new Error("Network request failed");
+    }
+}
+
+function shouldBypassCache(request: Request) {
+    const cacheControl = request.headers.get("Cache-Control") ?? "";
+    return (
+        request.cache === "no-cache" ||
+        request.cache === "no-store" ||
+        request.cache === "reload" ||
+        cacheControl.includes("no-cache") ||
+        cacheControl.includes("no-store")
+    );
+}
+
 function cacheNameForUrl(url: URL) {
     if (url.pathname.startsWith("/assets/")) return ASSET_CACHE;
     if (url.pathname === "/api/public/results") return RESULTS_CACHE;
@@ -109,18 +140,30 @@ serviceWorker.addEventListener("fetch", event => {
         return;
 
     if (event.request.mode === "navigate") {
-        staleWhileRevalidate(event, PAGE_CACHE);
+        if (shouldBypassCache(event.request)) {
+            event.respondWith(networkFirst(event.request, PAGE_CACHE));
+        } else {
+            staleWhileRevalidate(event, PAGE_CACHE);
+        }
         return;
     }
 
     const cacheName = cacheNameForUrl(requestUrl);
     if (cacheName === ASSET_CACHE || cacheName === DETAIL_CACHE) {
-        event.respondWith(cacheFirst(event.request, cacheName));
+        event.respondWith(
+            shouldBypassCache(event.request)
+                ? networkFirst(event.request, cacheName)
+                : cacheFirst(event.request, cacheName)
+        );
         return;
     }
 
     if (cacheName === RESULTS_CACHE) {
-        staleWhileRevalidate(event, cacheName);
+        if (shouldBypassCache(event.request)) {
+            event.respondWith(networkFirst(event.request, cacheName));
+        } else {
+            staleWhileRevalidate(event, cacheName);
+        }
     }
 });
 

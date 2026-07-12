@@ -7,6 +7,9 @@ function calculateStringHash(string_: string, initialHash = 5381): number {
 }
 
 export function calculateArrayHash(array: string[]): string {
-    const hash = array.reduce((accumulator, string_) => calculateStringHash(string_, accumulator), 5381);
+    const hash = array.reduce(
+        (accumulator, string_) => calculateStringHash(string_, accumulator),
+        5381
+    );
     return hash.toString(16);
 }
