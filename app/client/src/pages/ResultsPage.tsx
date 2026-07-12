@@ -1,23 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { type ResultSummary, getCachedResults, getResults } from "@client/api";
+import { type ResultSummary, cacheResults, getCachedResults, getResults } from "@client/api";
 import { paths } from "@client/router/routes";
 import { formatJstDateTime } from "@client/utils/dateTime";
 import { getErrorMessage } from "@client/utils/errors";
 import { prefetchResultNavigation } from "@client/utils/navigationPrefetch";
 
 export function ResultsPage({ initialResults }: { initialResults?: ResultSummary[] }) {
-    const [results, setResults] = useState<ResultSummary[]>(
-        initialResults ?? getCachedResults() ?? []
-    );
-    const [loading, setLoading] = useState(
-        initialResults === undefined && getCachedResults() === null
-    );
+    const cachedResults = getCachedResults();
+    const [results, setResults] = useState<ResultSummary[]>(cachedResults ?? initialResults ?? []);
+    const [loading, setLoading] = useState(cachedResults === null && initialResults === undefined);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (initialResults !== undefined) return;
+        if (initialResults !== undefined && getCachedResults() === null)
+            cacheResults(initialResults);
 
         getResults()
             .then(setResults)

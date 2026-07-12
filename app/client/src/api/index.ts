@@ -1,4 +1,3 @@
-import { calculateArrayHash } from "@client/utils/hash";
 import type { Routes } from "@server/routes";
 import { type InferResponseType, hc } from "hono/client";
 
@@ -44,11 +43,14 @@ const resultCache = new Map<string, ResultDetail>();
 const resultRequests = new Map<string, Promise<ResultDetail>>();
 
 let resultsListCache: ResultSummary[] | null = null;
-let resultsListHash: string | null = null;
 let resultsListRequest: Promise<ResultSummary[]> | null = null;
 
 export function getCachedResults() {
     return resultsListCache;
+}
+
+export function cacheResults(results: ResultSummary[]) {
+    resultsListCache = results;
 }
 
 export function cacheResult(result: ResultDetail) {
@@ -80,14 +82,8 @@ export async function getResults() {
     resultsListRequest = (async () => {
         const response = await client.api.public.results.$get();
         const results = await readJson(response);
-        const hash = calculateArrayHash(results.map(({ id }) => id));
-
-        if (resultsListHash !== hash) {
-            resultsListCache = results;
-            resultsListHash = hash;
-        }
-
-        return resultsListCache!;
+        cacheResults(results);
+        return results;
     })().finally(() => {
         resultsListRequest = null;
     });
