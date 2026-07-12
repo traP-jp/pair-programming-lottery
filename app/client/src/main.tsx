@@ -8,9 +8,22 @@ import type { InitialData } from "./router/routes";
 import "@client/index.css";
 
 if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        void navigator.serviceWorker.register("/sw.js");
-    });
+    void navigator.serviceWorker
+        .register("/sw.js")
+        .then(async registration => {
+            await navigator.serviceWorker.ready;
+
+            const urls = performance
+                .getEntriesByType("resource")
+                .map(entry => entry.name)
+                .filter(url => new URL(url).origin === location.origin);
+            registration.active?.postMessage({
+                type: "cache-current-page",
+                page: location.href,
+                urls,
+            });
+        })
+        .catch(error => console.error("Failed to register service worker", error));
 }
 
 declare global {

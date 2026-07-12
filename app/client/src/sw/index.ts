@@ -11,6 +11,8 @@ interface MessageWorkerEvent extends ExtendableWorkerEvent {
     data?: {
         type?: string;
         result?: { id?: string };
+        page?: string;
+        urls?: string[];
     };
 }
 
@@ -26,8 +28,10 @@ interface ServiceWorkerContext {
 
 const serviceWorker = globalThis as unknown as ServiceWorkerContext;
 
-const ASSET_CACHE = "pair-programming-lottery-assets-v1";
-const DETAIL_CACHE = "pair-programming-lottery-details-v1";
+const ASSET_CACHE = "pair-programming-lottery-assets-v2";
+const DETAIL_CACHE = "pair-programming-lottery-details-v2";
+const RESULTS_CACHE = "pair-programming-lottery-results-v2";
+const PAGE_CACHE = "pair-programming-lottery-pages-v2";
 
 serviceWorker.addEventListener("install", () => {
     void serviceWorker.skipWaiting();
@@ -43,7 +47,9 @@ serviceWorker.addEventListener("activate", event => {
                             key =>
                                 key.startsWith("pair-programming-lottery-") &&
                                 key !== ASSET_CACHE &&
-                                key !== DETAIL_CACHE
+                                key !== DETAIL_CACHE &&
+                                key !== RESULTS_CACHE &&
+                                key !== PAGE_CACHE
                         )
                         .map(key => caches.delete(key))
                 )
@@ -62,22 +68,86 @@ async function cacheFirst(request: Request, cacheName: string) {
     return response;
 }
 
+function staleWhileRevalidate(event: FetchWorkerEvent, cacheName: string) {
+    const cache = caches.open(cacheName);
+    const revalidate = cache.then(async cache_ => {
+        const response = await fetch(event.request, { cache: "no-cache" });
+        if (response.ok) await cache_.put(event.request, response.clone());
+        return response;
+    });
+
+    event.waitUntil(revalidate.catch(() => undefined));
+    event.respondWith(
+        cache.then(async cache_ => (await cache_.match(event.request)) ?? revalidate)
+    );
+}
+
+function cacheNameForUrl(url: URL) {
+    if (url.pathname.startsWith("/assets/")) return ASSET_CACHE;
+    if (url.pathname === "/api/public/results") return RESULTS_CACHE;
+    if (/^\/api\/public\/results\/[^/]+$/.test(url.pathname)) return DETAIL_CACHE;
+    return undefined;
+}
+
+function isPublicPage(url: URL) {
+    return (
+        url.pathname === "/" ||
+        url.pathname === "/results" ||
+        /^\/results\/[^/]+$/.test(url.pathname)
+    );
+}
+
+async function cacheUrl(url: string, cacheName: string) {
+    const request = new Request(url);
+    const response = await fetch(request);
+    if (response.ok) await (await caches.open(cacheName)).put(request, response);
+}
+
 serviceWorker.addEventListener("fetch", event => {
     const requestUrl = new URL(event.request.url);
     if (event.request.method !== "GET" || requestUrl.origin !== serviceWorker.location.origin)
         return;
 
-    if (requestUrl.pathname.startsWith("/assets/")) {
-        event.respondWith(cacheFirst(event.request, ASSET_CACHE));
+    if (event.request.mode === "navigate") {
+        staleWhileRevalidate(event, PAGE_CACHE);
         return;
     }
 
-    if (/^\/api\/public\/results\/[^/]+$/.test(requestUrl.pathname)) {
-        event.respondWith(cacheFirst(event.request, DETAIL_CACHE));
+    const cacheName = cacheNameForUrl(requestUrl);
+    if (cacheName === ASSET_CACHE || cacheName === DETAIL_CACHE) {
+        event.respondWith(cacheFirst(event.request, cacheName));
+        return;
+    }
+
+    if (cacheName === RESULTS_CACHE) {
+        staleWhileRevalidate(event, cacheName);
     }
 });
 
 serviceWorker.addEventListener("message", event => {
+    if (event.data?.type === "cache-current-page" && event.data.page && event.data.urls) {
+        const page = new URL(event.data.page);
+        const urls = [...new Set(event.data.urls)]
+            .map(url => new URL(url))
+            .filter(url => url.origin === serviceWorker.location.origin);
+        event.waitUntil(
+            Promise.allSettled([
+                ...(page.origin === serviceWorker.location.origin && isPublicPage(page)
+                    ? [cacheUrl(page.href, PAGE_CACHE)]
+                    : []),
+                cacheUrl(
+                    new URL("/api/public/results", serviceWorker.location.origin).href,
+                    RESULTS_CACHE
+                ),
+                ...urls.flatMap(url => {
+                    const cacheName = cacheNameForUrl(url);
+                    return cacheName ? [cacheUrl(url.href, cacheName)] : [];
+                }),
+            ])
+        );
+        return;
+    }
+
     if (event.data?.type !== "result-saved" || !event.data.result?.id) return;
 
     const result = event.data.result;
