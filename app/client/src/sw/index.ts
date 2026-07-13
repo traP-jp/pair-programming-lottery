@@ -106,12 +106,17 @@ function shouldBypassCache(request: Request) {
     );
 }
 
-async function cacheUrl(url: string, cacheName: string) {
+// Fill-if-missing only: keeping entries fresh is the job of the explicit
+// bypass-cache refreshes (networkFirst updates the cache on success), so this
+// must not refetch URLs that are already cached.
+async function ensureCached(url: string, cacheName: string) {
     try {
         const request = new Request(url);
+        const cache = await caches.open(cacheName);
+        if (await cache.match(request, { ignoreVary: true })) return;
+
         const response = await fetch(request);
         if (response.ok) {
-            const cache = await caches.open(cacheName);
             await cache.put(request, response);
         } else {
             console.warn(`[SW] Failed to cache ${url}: ${response.status}`);
@@ -135,21 +140,12 @@ self.addEventListener("fetch", event => {
     }
 
     const cacheName = cacheNameForUrl(requestUrl);
-    if (cacheName === ASSET_CACHE || cacheName === DETAIL_CACHE) {
+    if (cacheName === ASSET_CACHE || cacheName === DETAIL_CACHE || cacheName === RESULTS_CACHE) {
         event.respondWith(
             shouldBypassCache(event.request)
                 ? networkFirst(event.request, cacheName)
                 : cacheFirst(event.request, cacheName)
         );
-        return;
-    }
-
-    if (cacheName === RESULTS_CACHE) {
-        if (shouldBypassCache(event.request)) {
-            event.respondWith(networkFirst(event.request, cacheName));
-        } else {
-            staleWhileRevalidate(event, cacheName);
-        }
     }
 });
 
@@ -164,12 +160,15 @@ self.addEventListener("message", event => {
         event.waitUntil(
             Promise.allSettled([
                 ...(page.origin === self.location.origin && isPublicPage(page)
-                    ? [cacheUrl(page.href, PAGE_CACHE)]
+                    ? [ensureCached(page.href, PAGE_CACHE)]
                     : []),
-                cacheUrl(new URL("/api/public/results", self.location.origin).href, RESULTS_CACHE),
+                ensureCached(
+                    new URL("/api/public/results", self.location.origin).href,
+                    RESULTS_CACHE
+                ),
                 ...urls.flatMap(url => {
                     const cacheName = cacheNameForUrl(url);
-                    return cacheName ? [cacheUrl(url.href, cacheName)] : [];
+                    return cacheName ? [ensureCached(url.href, cacheName)] : [];
                 }),
             ])
         );
