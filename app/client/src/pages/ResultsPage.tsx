@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { type ResultSummary, cacheResults, getCachedResults, refreshResults } from "@client/api";
+import {
+    type ResultSummary,
+    cacheResults,
+    getCachedResults,
+    getResults,
+    refreshResults,
+} from "@client/api";
 import { paths } from "@client/router/routes";
 import { formatJstDateTime } from "@client/utils/dateTime";
 import { getErrorMessage } from "@client/utils/errors";
@@ -22,10 +28,37 @@ export function ResultsPage({
         if (initialResults !== undefined && getCachedResults() === null)
             cacheResults(initialResults);
 
+        let cancelled = false;
+        let refreshed = false;
+
+        // Nothing to paint yet: read through the service-worker cache first so
+        // the list appears immediately even on a slow network. The refresh
+        // below revalidates in the background and replaces it when it lands.
+        if (getCachedResults() === null && initialResults === undefined) {
+            getResults()
+                .then(cached => {
+                    if (cancelled || refreshed) return;
+                    setResults(cached);
+                    setLoading(false);
+                })
+                .catch(() => undefined);
+        }
+
         refreshResults()
-            .then(setResults)
-            .catch(error_ => setError(getErrorMessage(error_, "取得失敗")))
-            .finally(() => setLoading(false));
+            .then(fresh => {
+                refreshed = true;
+                if (!cancelled) setResults(fresh);
+            })
+            .catch(error_ => {
+                if (!cancelled) setError(getErrorMessage(error_, "取得失敗"));
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
     }, [initialResults]);
 
     return (

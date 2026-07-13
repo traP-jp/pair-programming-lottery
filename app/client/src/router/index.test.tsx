@@ -14,6 +14,7 @@ vi.mock("../api", () => ({
 
 describe("router component", () => {
     it("should render navigation layout and default to results page", async () => {
+        vi.mocked(api.getResults).mockResolvedValue([]);
         vi.mocked(api.refreshResults).mockResolvedValue([]);
         vi.mocked(api.getSchedule).mockResolvedValue({
             channelId: "123",

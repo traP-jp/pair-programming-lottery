@@ -9,12 +9,14 @@ import { ResultsPage } from "./ResultsPage";
 vi.mock("@client/api", () => ({
     cacheResults: vi.fn(),
     getCachedResults: vi.fn(() => null),
+    getResults: vi.fn(),
     refreshResults: vi.fn(),
 }));
 
 describe("ResultsPage", () => {
     beforeEach(() => {
         vi.restoreAllMocks();
+        vi.mocked(api.getResults).mockRejectedValue(new Error("No cache"));
     });
 
     it("should display loading state initially", () => {
@@ -26,6 +28,30 @@ describe("ResultsPage", () => {
         );
 
         expect(screen.getByText("読み込み中...")).toBeInTheDocument();
+    });
+
+    it("should display cached results while revalidation is pending", async () => {
+        const cachedList = [
+            {
+                id: "res-1",
+                month: "2026-05",
+                channelId: "chan-1",
+                createdAt: "2026-05-12T07:00:00.000Z",
+            },
+        ];
+        vi.mocked(api.getResults).mockResolvedValue(cachedList as any);
+        vi.mocked(api.refreshResults).mockReturnValue(new Promise(() => {})); // Never resolves
+
+        render(
+            <MemoryRouter>
+                <ResultsPage />
+            </MemoryRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText("2026-05")).toBeInTheDocument();
+        });
+        expect(screen.queryByText("読み込み中...")).not.toBeInTheDocument();
     });
 
     it("should display error message on API failure", async () => {

@@ -43,7 +43,7 @@ const resultCache = new Map<string, ResultDetail>();
 const resultRequests = new Map<string, Promise<ResultDetail>>();
 
 let resultsListCache: ResultSummary[] | null = null;
-let resultsListRequest: Promise<ResultSummary[]> | null = null;
+const resultsListRequests = new Map<boolean, Promise<ResultSummary[]>>();
 
 export function getCachedResults() {
     return resultsListCache;
@@ -77,9 +77,10 @@ export async function runLottery(messageId: string) {
 }
 
 export async function getResults({ bypassCache = false }: { bypassCache?: boolean } = {}) {
-    if (resultsListRequest) return resultsListRequest;
+    const pending = resultsListRequests.get(bypassCache);
+    if (pending) return pending;
 
-    resultsListRequest = (async () => {
+    const request = (async () => {
         const response = bypassCache
             ? await client.api.public.results.$get(
                   {},
@@ -95,10 +96,11 @@ export async function getResults({ bypassCache = false }: { bypassCache?: boolea
         cacheResults(results);
         return results;
     })().finally(() => {
-        resultsListRequest = null;
+        resultsListRequests.delete(bypassCache);
     });
 
-    return resultsListRequest;
+    resultsListRequests.set(bypassCache, request);
+    return request;
 }
 
 export function refreshResults() {
